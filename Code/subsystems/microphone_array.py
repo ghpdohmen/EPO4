@@ -1,0 +1,1 @@
+stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=pyaudio.paInt16, rate=Fs, input=True)
