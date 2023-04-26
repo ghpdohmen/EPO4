@@ -1,8 +1,6 @@
-<<<<<<< Updated upstream
-stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=pyaudio.paInt16, rate=Fs, input=True)
-=======
 import pyaudio as audio
 
+#find 
 pyaudio_handle = audio.PyAudio()
 
 for i in range(pyaudio_handle.get_device_count()):
@@ -10,8 +8,6 @@ for i in range(pyaudio_handle.get_device_count()):
     print(i, device_info['name'])
 
 
-
 Fs = 44100
-# stream = pyaudio_handle.open(input_device_index= soundcard_naam, channels=5, format=pyaudio.paInt16, rate=Fs, input=True)
 
->>>>>>> Stashed changes
+stream = pyaudio_handle.open(input_device_index=soundcard_naam, channels=5, format=pyaudio.paInt16, rate=Fs, input=True)
