@@ -26,7 +26,8 @@ class communicationSubSystem(subSystem):
     def update(self):
 
         # for debugging: print the current state of the comms subsystem
-        print('Comms state:' + str(self.state))
+        # print('Comms state:' + str(self.state))
+
         # set state in robot, so this can be read in gui
         robot.Robot.communicationState = self.state
 
@@ -47,12 +48,14 @@ class communicationSubSystem(subSystem):
             _incomingData = self.serial_port.read_until(b'\x04')
             _incomingDataSplit = str(_incomingData).split('\\n')
 
-            #distance sensors
+            # debug: print _incomingDataSplit to figure out which strings to parse.
+            print(_incomingDataSplit)
+
+            # distance sensors
             _sensors = _incomingDataSplit[12]
             _distance = _sensors.split(' ')
-            robot.Robot.distanceLeft = _distance[2]
-            robot.Robot.distanceRight = _distance[4]
-            print(_sensors)
+            robot.Robot.distanceLeft = int(_distance[2])
+            robot.Robot.distanceRight = int(_distance[4])
 
             # set our state back to readyforupdate, so we can again send and receive data
             self.state = subSystemState.ReadyForUpdate
