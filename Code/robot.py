@@ -5,8 +5,8 @@ from subsystems.communication import communicationSubSystem
 class Robot:
     xCurrent = 0
     yCurrent = 0
-    input_motor = 150;
-    input_servo = 150;
+    input_motor = 135;
+    input_servo = 135;
 
     def __init__(self, _xCurrent, _yCurrent):
         self.yCurrent = _yCurrent;

@@ -6,4 +6,6 @@ class subsystemState(Enum):
     Started = 2
     Running = 3
     Crashed = 4
+    ReadyForUpdate = 5
+    WaitingForData = 6
 

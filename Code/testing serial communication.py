@@ -2,7 +2,7 @@
 import serial as serial
 
 
-comport = 'COM3'
+comport = 'COM5'
 baud_rate = 115200
 serial_port = serial.Serial(comport, baud_rate, rtscts=True)
 
