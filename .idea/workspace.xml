@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1f8352e8-0cf6-46a8-8926-ba2732923664" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/EPO4.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/EPO4.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/subsystems/microphone_array.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/subsystems/microphone_array.py" afterDir="false" />
     </list>
@@ -77,7 +76,7 @@
       <option name="presentableId" value="Default" />
       <updated>1682499307399</updated>
       <workItem from="1682499308401" duration="3654000" />
-      <workItem from="1682503220205" duration="969000" />
+      <workItem from="1682503220205" duration="1162000" />
     </task>
     <servers />
   </component>

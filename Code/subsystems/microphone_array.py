@@ -21,3 +21,5 @@ data_mic_1 = data[1::5]
 data_mic_2 = data[2::5]
 data_mic_3 = data[3::5]
 data_mic_4 = data[4::5]
+
+for i in range()
