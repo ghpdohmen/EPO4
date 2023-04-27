@@ -2,6 +2,18 @@ import pyaudio as audio
 import numpy as np
 import matplotlib.pyplot as plt
 
+# from scipy.io import wavfile
+# from scipy.fft import fft, ifft
+# from scipy.signal import convolve, unit_impulse
+# from IPython.display import Audio
+#
+# from refsignal import refsignal  # model for the EPO4 audio beacon signal
+# from wavaudioread import wavaudioread
+# from recording_tool import recording_tool
+
+# Global Variables
+# Fs = 44100
+
 
 # Find all audio devices visible to pyaudio, if print_list = True, print the list of audio_devices
 def audio_devices(*, print_list: bool):
@@ -22,13 +34,12 @@ def microphone_array(device_index, duration_recording):
     number_of_samples = duration_recording * Fs
     N = number_of_samples * 5
 
-    # pyaudio_handle = audio_devices(print_list=False)
-    # stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=audio.paInt16, rate=Fs, input=True)
-    #
-    # samples = stream.read(N)
-    # data = np.frombuffer(samples, dtype='int16')
+    pyaudio_handle = audio_devices(print_list=False)
+    stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=audio.paInt16, rate=Fs, input=True)
 
-    data = list(range(1, 101))
+    samples = stream.read(N)
+    data = np.frombuffer(samples, dtype='int16')
+
     data_length = len(data[::5])
     data_mic_0 = data[0::5]
     data_mic_1 = data[1::5]
@@ -55,3 +66,23 @@ mics = microphone_array('Headset Earphone (HyperX Virtual Surround Sound)', 5)
 for i in range(0, 5, 1):
     plt.plot(mics[i][0], mics[i][1])
     plt.show()
+
+
+# Set up transmit signal
+# def transmit_signal(Timer0, Timer1, Timer3):
+#     Fs_TX = Fs
+#     Nbits = 64
+#     code = 0x92340f0faaaa4321
+#
+#     # Create reference signal
+#     x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs_TX)
+#     return x
+#
+#
+# x = transmit_signal(1, 8, 2)
+# print(x)
+# # wavfile.write("Recording-6.wav", Fs, x)
+#
+# # PlayBack
+# Fs, x = wavfile.read('Recording-6.wav')
+# Audio(x, autoplay=True, rate=Fs)
