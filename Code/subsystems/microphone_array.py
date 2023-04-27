@@ -8,6 +8,7 @@ import numpy as np
 #     device_info = pyaudio_handle.get_device_info_by_index(i)
 #     print(i, device_info['name'])
 
+#TODO: write this as a subsystem
 
 Fs = 44100
 

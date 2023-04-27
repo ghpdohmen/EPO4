@@ -10,3 +10,4 @@ class robotMode(Enum):
     ChallengeD = 5
     ChallengeE = 6
     NotChosen = 7
+    EStop = 8

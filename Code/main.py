@@ -1,6 +1,6 @@
 from robot import Robot
 
-# needs to be completely rewritten for GUI
+# TODO: implement GUI
 b = Robot(0, 0)
 b.start()
 while True:
