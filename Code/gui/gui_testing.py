@@ -18,7 +18,7 @@ canvas.draw()
 # end graph
 
 # listbox, selecting different programs
-l_programs = ["program 1", "program 2", "program 3"]
+l_programs = ["Manual", "Challenge A", "Challenge B", "Challenge C", "Challenge D", "Challenge E"]
 l_programsvar = StringVar(value=l_programs)
 lb_programs = Listbox(root, height=5, listvariable=l_programsvar)
 

@@ -11,20 +11,24 @@ class communicationSubSystem(subSystem):
     # variable declaration
     serial_port = 0
     baud_rate = 115200
+    comport = None
 
-    # constructor, sets the comport defined in robot
-    def __int__(self, _comPort):
-        self.comport = _comPort
+    def __int__(self):
+        self.state = subSystemState.Stopped
 
     # starts communication with the robot
-    def start(self):
+    def start(self, _comport):
+        """
+        Used for starting communication with the robot
+        @param _comport: THe COMport used to communicate with the robot. Please give the OUTGOING COMport as given by your bluetooth settings
+        """
+        self.comport = _comport
         self.state = subSystemState.Started
         self.serial_port = serial.Serial(self.comport, self.baud_rate, rtscts=True)
         self.state = subSystemState.ReadyForUpdate
 
     # sends all new data to the robot en gets new data from the robot
     def update(self):
-
         # for debugging: print the current state of the comms subsystem
         # print('Comms state:' + str(self.state))
 
@@ -34,9 +38,14 @@ class communicationSubSystem(subSystem):
         # to make sure that we don't interrupt reading the data, some extra states have been added
         if self.state == subSystemState.ReadyForUpdate:
             self.state = subSystemState.Running
+
             # writing the current pwm signal for both the motor and steering
             self.serial_port.write(b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n')
             self.serial_port.write(b'D' + bytes(str(robot.Robot.input_servo), 'ascii') + b'\n')
+
+            # TODO: implement audio writing
+            # writing the current audio settings
+            # self.serial_port.write()
 
             # start sending the data and set our state to WaitingForData, which we will stay in until the packet is
             # complete
@@ -56,6 +65,9 @@ class communicationSubSystem(subSystem):
             _distance = _sensors.split(' ')
             robot.Robot.distanceLeft = int(_distance[2])
             robot.Robot.distanceRight = int(_distance[4])
+
+            # TODO: implement voltage sensor readout
+            # voltage sensor
 
             # set our state back to readyforupdate, so we can again send and receive data
             self.state = subSystemState.ReadyForUpdate
