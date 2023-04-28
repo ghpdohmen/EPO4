@@ -15,7 +15,7 @@ class Robot:
     yCurrent = 0
 
     #audio stuff
-    code = "A23" #String
+    code = "A23" #String, hexadecimal
     speakerOn = True
     carrierFrequency = 10000 # in Hz
     bitFrequency = 1000 # in Hz
@@ -26,6 +26,7 @@ class Robot:
     communicationState = subSystemState.Stopped
     timingState = subSystemState.Stopped
     inputState = subSystemState.Stopped
+    localizationState = subSystemState.Stopped
 
     # sensor values
     distanceLeft = 0
@@ -47,6 +48,7 @@ class Robot:
         self.communicationSubSystem = communicationSubSystem()
         self.timeSubSystem = timeSubSystem()
         self.inputSubSystem = inputSubSystem()
+        #self.localizationSubSystem = LocalizationSubSystem()
 
     # start all subsystems
     def start(self):
@@ -54,15 +56,18 @@ class Robot:
         self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
         self.inputSubSystem.start()
+        #self.localizationSubSystem.start()
 
     # updates all subsystems
     def update(self):
         self.communicationSubSystem.update()
         self.timeSubSystem.update()
         self.inputSubSystem.update()
+        #self.localizationSubSystem.update()
         #print(self.distanceLeft)
 
     def stop(self):
         self.communicationSubSystem.stop()
         self.timeSubSystem.stop()
         self.inputSubSystem.stop()
+        #self.inputSubSystem.stop()

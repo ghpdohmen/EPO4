@@ -90,7 +90,11 @@ button_stop = ttk.Button(root, text="DISABLE ROBOT", command=a.stopRobot)
 button_estop = ttk.Button(root, text="STOP MOTORS", command=a.estop)
 
 # bindings
-root.bind("<space>", lambda event: a.estop())
+root.bind("<.>", lambda event: a.estop())
+root.bind("<w>", lambda event: a.m_forward())
+root.bind("<a>", lambda event: a.m_left())
+root.bind("<s>", lambda event: a.m_backward())
+root.bind("<d>", lambda event: a.m_right())
 # end buttons
 
 
@@ -107,10 +111,6 @@ button_start.grid(column=3, row=0)
 button_stop.grid(column=3, row=1)
 button_estop.grid(column=3, row=2)
 
-button_w.grid(column=1, row=4)
-button_a.grid(column=0, row=5)
-button_s.grid(column=1, row=5)
-button_d.grid(column=2, row=5)
 
 lb_programs.grid(column=3, row=4)
 

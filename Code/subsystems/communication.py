@@ -71,7 +71,7 @@ class communicationSubSystem(subSystem):
             _incomingDataSplit = str(_incomingData).split('\\n')
 
             # debug: print _incomingDataSplit to figure out which strings to parse.
-            #print(_incomingDataSplit)
+            print(_incomingDataSplit)
 
             # distance sensors
             _sensors = _incomingDataSplit[12]
