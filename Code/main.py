@@ -1,9 +1,124 @@
-from robot import Robot
+import tkinter as tk
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from tkinter import *
+from tkinter import ttk
 
-# TODO: implement GUI
-b = Robot(0, 0)
-b.start()
+import robot
+from misc.robotModeEnum import robotMode
+
+
+class App(tk.Frame):
+    enableRobot = False
+
+    # wasd key functionality
+    def m_forward(self):
+        self._robot.inputSubSystem.keyboard_w()
+        pass
+
+    def m_right(self):
+        self._robot.inputSubSystem.keyboard_d()
+        pass
+
+    def m_left(self):
+        self._robot.inputSubSystem.keyboard_a()
+        pass
+
+    def m_backward(self):
+        self._robot.inputSubSystem.keyboard_s()
+        pass
+
+    def estop(self):
+        self._robot.inputSubSystem.estop()
+
+    def startRobot(self):
+        self._robot.start()
+        self.enableRobot = True
+
+    def updateRobot(self):
+        if self.enableRobot:
+            self._robot.update()
+        # self.after(100, self.updateRobot())
+
+    def stopRobot(self):
+        self._robot.stop()
+        self.enableRobot = False
+
+    def __init__(self):
+        self._robot = robot.Robot(0, 0)
+
+
+a = App()
+
+root = Tk()
+root.title("GUI for EPO4")
+window = ttk.Frame(root)
+
+# graph showing path
+figure = plt.Figure(figsize=(2, 2), dpi=100)
+axis = figure.add_subplot(111)
+axis.plot([1, 2, 3, 4, 5, 6, 7, 8], [5, 6, 1, 3, 8, 9, 3, 5])
+canvas = FigureCanvasTkAgg(figure)
+canvas.draw()
+
+
+# end graph
+
+# robot declaration
+
+# listbox, selecting different programs
+def program_selector():
+    _selection = lb_programs.curselection()
+    _step_0 = str(_selection).split(',')
+    _step_1 = _step_0[0].split('(')
+    _step_2 = _step_1[1]
+    print(robotMode(int(_step_2)))
+
+
+l_programs = ["Manual", "Challenge A", "Challenge B", "Challenge C", "Challenge D", "Challenge E"]
+l_programsvar = StringVar(value=l_programs)
+lb_programs = Listbox(root, height=5, listvariable=l_programsvar)
+lb_programs.bind("<Double-Button-1>", lambda event: program_selector())
+# end listbox
+
+# buttons
+# start button
+button_start = ttk.Button(root, text="START", command=a.startRobot)
+
+button_stop = ttk.Button(root, text="DISABLE ROBOT", command=a.stopRobot)
+
+button_estop = ttk.Button(root, text="STOP MOTORS", command=a.estop)
+
+# bindings
+root.bind("<space>", lambda event: a.estop())
+# end buttons
+
+
+
+# speed bar
+speed = ttk.Progressbar(root, orient=HORIZONTAL, length=200, maximum=30, mode="determinate")
+
+# end speed bar
+
+# grid for everything
+canvas.get_tk_widget().grid(column=0, row=0, columnspan=3, rowspan=3)
+
+button_start.grid(column=3, row=0)
+button_stop.grid(column=3, row=1)
+button_estop.grid(column=3, row=2)
+
+button_w.grid(column=1, row=4)
+button_a.grid(column=0, row=5)
+button_s.grid(column=1, row=5)
+button_d.grid(column=2, row=5)
+
+lb_programs.grid(column=3, row=4)
+
+speed.grid(column=0, columnspan=3)
+# end grid
+
 while True:
-    b.update()
-    if input('test:') == '.':
-        b.stop()
+    a.updateRobot()
+    root.update()
+
+root.mainloop()

@@ -9,7 +9,7 @@ from subsystems.timing import timeSubSystem
 
 class Robot:
     # current robot state
-    operatingMode = robotMode.NotChosen
+    operatingMode = robotMode.Manual
     status = robotStatus.Paused
     xCurrent = 0
     yCurrent = 0
@@ -60,7 +60,7 @@ class Robot:
         self.communicationSubSystem.update()
         self.timeSubSystem.update()
         self.inputSubSystem.update()
-        print(self.batteryVoltage)
+        #print(self.distanceLeft)
 
     def stop(self):
         self.communicationSubSystem.stop()
