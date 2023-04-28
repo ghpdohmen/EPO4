@@ -63,11 +63,13 @@ class communicationSubSystem(subSystem):
             # distance sensors
             _sensors = _incomingDataSplit[12]
             _distance = _sensors.split(' ')
-            robot.Robot.distanceLeft = int(_distance[2])
-            robot.Robot.distanceRight = int(_distance[4])
+            robot.Robot.distanceLeft = int(_distance[3])
+            robot.Robot.distanceRight = int(_distance[5])
 
-            # TODO: implement voltage sensor readout
             # voltage sensor
+            _voltage = _incomingDataSplit[13]
+            _voltageSplit = _voltage.split(' ')
+            robot.Robot.batteryVoltage = float(_voltageSplit[2])
 
             # set our state back to readyforupdate, so we can again send and receive data
             self.state = subSystemState.ReadyForUpdate

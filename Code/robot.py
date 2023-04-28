@@ -14,6 +14,13 @@ class Robot:
     xCurrent = 0
     yCurrent = 0
 
+    #audio stuff
+    code = None #Expected in bytes!
+    speakerOn = False
+    carrierFrequency = 20000 # in Hz
+    bitFrequency = 1000 # in Hz
+    repetitionCount = 10 # in number of bits
+
 
     # subsystem states
     communicationState = subSystemState.Stopped
@@ -44,17 +51,18 @@ class Robot:
     # start all subsystems
     def start(self):
         self.operatingMode = robotMode.Manual #TEMPORARY, REMOVE WHEN GUI IS IMPLEMENTED
-         # self.communicationSubSystem.start()
+        self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
         self.inputSubSystem.start()
 
     # updates all subsystems
     def update(self):
-        #self.communicationSubSystem.update()
+        self.communicationSubSystem.update()
         self.timeSubSystem.update()
         self.inputSubSystem.update()
+        print(self.batteryVoltage)
 
     def stop(self):
-       # self.communicationSubSystem.stop()
+        self.communicationSubSystem.stop()
         self.timeSubSystem.stop()
         self.inputSubSystem.stop()

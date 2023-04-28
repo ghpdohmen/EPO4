@@ -10,17 +10,27 @@ root.title("GUI for EPO4")
 window = ttk.Frame(root)
 
 # graph showing path
-figure = plt.Figure(figsize=(2,2), dpi=100)
+figure = plt.Figure(figsize=(2, 2), dpi=100)
 a = figure.add_subplot(111)
-a.plot([1,2,3,4,5,6,7,8],[5,6,1,3,8,9,3,5])
+a.plot([1, 2, 3, 4, 5, 6, 7, 8], [5, 6, 1, 3, 8, 9, 3, 5])
 canvas = FigureCanvasTkAgg(figure)
 canvas.draw()
+
+
 # end graph
 
 # listbox, selecting different programs
+def program_selector():
+    selection = lb_programs.curselection()
+    
+
+
+
 l_programs = ["Manual", "Challenge A", "Challenge B", "Challenge C", "Challenge D", "Challenge E"]
 l_programsvar = StringVar(value=l_programs)
 lb_programs = Listbox(root, height=5, listvariable=l_programsvar)
+lb_programs.bind("<Double-Button-1>", lambda event: program_selector())
+
 
 # end listbox
 
@@ -28,30 +38,34 @@ lb_programs = Listbox(root, height=5, listvariable=l_programsvar)
 def m_forward():
     speed["value"] += 10
 
+
 def m_right():
     pass
+
 
 def m_left():
     pass
 
+
 def m_backward():
     pass
+
 
 button_w = ttk.Button(root, text="Forward", command=m_forward)
 button_a = ttk.Button(root, text="Left", command=m_left)
 button_s = ttk.Button(root, text="Backward", command=m_backward)
 button_d = ttk.Button(root, text="Right", command=m_right)
 
-root.bind("<w>", lambda event:m_forward())
-root.bind("<a>", lambda event:m_left())
-root.bind("<s>", lambda event:m_backward())
-root.bind("<d>", lambda event:m_right())
+root.bind("<w>", lambda event: m_forward())
+root.bind("<a>", lambda event: m_left())
+root.bind("<s>", lambda event: m_backward())
+root.bind("<d>", lambda event: m_right())
 # end wasd key
 
 # speed bar
 speed = ttk.Progressbar(root, orient=HORIZONTAL, length=200, maximum=30, mode="determinate")
 
-#end speed bar
+# end speed bar
 
 # grid for everything
 canvas.get_tk_widget().grid(column=0, row=0, columnspan=3)
