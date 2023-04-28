@@ -62,12 +62,12 @@ class Localizationsubsystem(subSystem):
 
         # samples = stream.read(N)
 
-        frames = []
+        samples = []
         second_tracking = 0
         second_count = 0
         for i in range(0, int(Fs / N * duration_recording)):
             data = stream.read(N)
-            frames.append(data)
+            samples.append(data)
             second_tracking += 1
             if second_tracking == Fs / N:
                 second_count += 1
@@ -78,7 +78,7 @@ class Localizationsubsystem(subSystem):
         stream.close()
         pa.terminate()
 
-        # data = np.frombuffer(samples, dtype='int16')
+        data = np.frombuffer(samples, dtype='int16')
 
         data_length = len(data[::5])
         data_mic_0 = data[0::5]
