@@ -60,8 +60,25 @@ class Localizationsubsystem(subSystem):
         pyaudio_handle = audio_devices(print_list=False)
         stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=audio.paInt16, rate=Fs, input=True)
 
-        samples = stream.read(N)
-        data = np.frombuffer(samples, dtype='int16')
+        # samples = stream.read(N)
+
+        frames = []
+        second_tracking = 0
+        second_count = 0
+        for i in range(0, int(Fs / N * duration_recording)):
+            data = stream.read(N)
+            frames.append(data)
+            second_tracking += 1
+            if second_tracking == Fs / N:
+                second_count += 1
+                second_tracking = 0
+                print(f'Time Left: {duration_recording - second_count} seconds')
+
+        stream.stop_stream()
+        stream.close()
+        pa.terminate()
+
+        # data = np.frombuffer(samples, dtype='int16')
 
         data_length = len(data[::5])
         data_mic_0 = data[0::5]
@@ -135,19 +152,4 @@ class Localizationsubsystem(subSystem):
     # plt.xlim(0, 600)
     plt.show()
 
-    frames = []
-    second_tracking = 0
-    second_count = 0
-    for i in range(0, int(Fs / N * duration_recording)):
-        data = stream.read(N)
-        frames.append(data)
-        second_tracking += 1
-        if second_tracking == Fs / N:
-            second_count += 1
-            second_tracking = 0
-            print(f'Time Left: {duration_recording - second_count} seconds')
-
-    stream.stop_stream()
-    stream.close()
-    pa.terminate()
 
