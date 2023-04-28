@@ -88,11 +88,11 @@ def microphone_array(device_index, duration_recording):
     data_mic_3 = data[3::5]
     data_mic_4 = data[4::5]
 
-    sample_axis_mic_0 = np.linspace(0, data_length/Fs, data_length)
-    sample_axis_mic_1 = np.linspace(0, data_length/Fs, data_length)
-    sample_axis_mic_2 = np.linspace(0, data_length/Fs, data_length)
-    sample_axis_mic_3 = np.linspace(0, data_length/Fs, data_length)
-    sample_axis_mic_4 = np.linspace(0, data_length/Fs, data_length)
+    sample_axis_mic_0 = np.linspace(0, data_length / Fs, data_length)
+    sample_axis_mic_1 = np.linspace(0, data_length / Fs, data_length)
+    sample_axis_mic_2 = np.linspace(0, data_length / Fs, data_length)
+    sample_axis_mic_3 = np.linspace(0, data_length / Fs, data_length)
+    sample_axis_mic_4 = np.linspace(0, data_length / Fs, data_length)
 
     mic_0 = sample_axis_mic_0, data_mic_0
     mic_1 = sample_axis_mic_1, data_mic_1
@@ -103,11 +103,12 @@ def microphone_array(device_index, duration_recording):
     return mic_0, mic_1, mic_2, mic_3, mic_4
 
 
-mics = microphone_array(1, 5)
-for i in range(0, 5, 1):
-    plt.plot(mics[i][0], mics[i][1])
-    plt.show()
-
+# mics = microphone_array(1, 4)
+# for i in range(5):
+#     np.savetxt("Recording_handclap_"+str(i)+".csv", mics[i], delimiter=",")
+#     # wavfile.write("Recording_handclap_"+str(i)+".wav", Fs, mics[i][1])
+#     plt.plot(mics[i][0], mics[i][1])
+#     plt.show()
 
 # Set up transmit signal
 # normal values:44100, 64, 1, 8, 2, 0x92340f0faaaa4321,
@@ -153,4 +154,11 @@ def transmit_signal(Fs, Nbits, Timer0, Timer1, Timer3, code, repetition_pulses=N
 # # plt.xlim(0, 600)
 # plt.show()
 
+
+# Fs, x = wavfile.read("C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\subsystems\Recording_handclap_0.wav")
+# Audio(x, autoplay=True, rate=Fs)
+
+data = np.loadtxt("Recording_handclap_0.csv", delimiter=",")
+plt.plot(data[0], data[1])
+plt.show()
 
