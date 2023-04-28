@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="1f8352e8-0cf6-46a8-8926-ba2732923664" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Code/subsystems/microphone_array.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/subsystems/microphone_array.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -70,6 +69,9 @@
       <module name="EPO4" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
       <option name="SDK_HOME" value="" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Code/subsystems" />
       <option name="IS_MODULE_SDK" value="true" />
@@ -103,6 +105,7 @@
       <workItem from="1682503220205" duration="1162000" />
       <workItem from="1682620878978" duration="7266000" />
       <workItem from="1682675706571" duration="2950000" />
+      <workItem from="1682682557977" duration="2102000" />
     </task>
     <servers />
   </component>
