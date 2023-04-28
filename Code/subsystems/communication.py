@@ -45,7 +45,21 @@ class communicationSubSystem(subSystem):
 
             # TODO: implement audio writing
             # writing the current audio settings
-            # self.serial_port.write()
+
+            # enable/disable speaker
+            if robot.Robot.speakerOn:
+                self.serial_port.write(b'A1\n')
+            else:
+                self.serial_port.write(b'A0\n')
+
+            # setting code word and different frequencies/counts
+            _carrier = robot.Robot.carrierFrequency.to_bytes(2, byteorder='big')
+            self.serial_port.write((b'F' + _carrier + b'\n'))
+            _bitFrequency = robot.Robot.bitFrequency.to_bytes(2, byteorder='big')
+            self.serial_port.write(b'B' + _bitFrequency + b'\n')
+            _repetition = robot.Robot.repetitionCount.to_bytes(2, byteorder='big')
+            self.serial_port.write(b'R' + _repetition + b'\n')
+            self.serial_port.write(b'C' + bytes(robot.Robot.code, 'ascii') + b'\n')
 
             # start sending the data and set our state to WaitingForData, which we will stay in until the packet is
             # complete

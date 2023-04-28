@@ -4,6 +4,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import *
 from tkinter import ttk
 
+from misc.robotModeEnum import robotMode
+
 root = Tk()
 root.title("GUI for EPO4")
 
@@ -22,8 +24,10 @@ canvas.draw()
 # listbox, selecting different programs
 def program_selector():
     selection = lb_programs.curselection()
-    
-
+    step_0 = str(selection).split(',')
+    step_1 = step_0[0].split('(')
+    step_2 = step_1[1]
+    print(robotMode(step_2))
 
 
 l_programs = ["Manual", "Challenge A", "Challenge B", "Challenge C", "Challenge D", "Challenge E"]

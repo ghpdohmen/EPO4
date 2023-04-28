@@ -15,11 +15,11 @@ class Robot:
     yCurrent = 0
 
     #audio stuff
-    code = None #Expected in bytes!
-    speakerOn = False
-    carrierFrequency = 20000 # in Hz
+    code = "A23" #String
+    speakerOn = True
+    carrierFrequency = 10000 # in Hz
     bitFrequency = 1000 # in Hz
-    repetitionCount = 10 # in number of bits
+    repetitionCount = 32 # in number of bits
 
 
     # subsystem states
