@@ -134,3 +134,20 @@ class Localizationsubsystem(subSystem):
     plt.plot(t, x)
     # plt.xlim(0, 600)
     plt.show()
+
+    frames = []
+    second_tracking = 0
+    second_count = 0
+    for i in range(0, int(Fs / N * duration_recording)):
+        data = stream.read(N)
+        frames.append(data)
+        second_tracking += 1
+        if second_tracking == Fs / N:
+            second_count += 1
+            second_tracking = 0
+            print(f'Time Left: {duration_recording - second_count} seconds')
+
+    stream.stop_stream()
+    stream.close()
+    pa.terminate()
+
