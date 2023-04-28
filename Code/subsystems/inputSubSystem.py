@@ -51,6 +51,7 @@ class inputSubSystem(subSystem):
         """
         robot.Robot.operatingMode = robotMode.EStop
         robot.Robot.status = robotStatus.EStop
+        self.enabled = False
         robot.Robot.input_servo = 150
         robot.Robot.input_motor = 150
 

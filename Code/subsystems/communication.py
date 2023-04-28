@@ -44,7 +44,21 @@ class communicationSubSystem(subSystem):
             self.serial_port.write(b'D' + bytes(str(robot.Robot.input_servo), 'ascii') + b'\n')
 
             # writing the current audio settings
-            # self.serial_port.write()
+
+            # enable/disable speaker
+            if robot.Robot.speakerOn:
+                self.serial_port.write(b'A1\n')
+            else:
+                self.serial_port.write(b'A0\n')
+
+            # setting code word and different frequencies/counts
+            _carrier = robot.Robot.carrierFrequency.to_bytes(2, byteorder='big')
+            self.serial_port.write((b'F' + _carrier + b'\n'))
+            _bitFrequency = robot.Robot.bitFrequency.to_bytes(2, byteorder='big')
+            self.serial_port.write(b'B' + _bitFrequency + b'\n')
+            _repetition = robot.Robot.repetitionCount.to_bytes(2, byteorder='big')
+            self.serial_port.write(b'R' + _repetition + b'\n')
+            self.serial_port.write(b'C' + bytes(robot.Robot.code, 'ascii') + b'\n')
 
             # start sending the data and set our state to WaitingForData, which we will stay in until the packet is
             # complete
@@ -62,11 +76,13 @@ class communicationSubSystem(subSystem):
             # distance sensors
             _sensors = _incomingDataSplit[12]
             _distance = _sensors.split(' ')
-            robot.Robot.distanceLeft = int(_distance[2])
-            robot.Robot.distanceRight = int(_distance[4])
+            robot.Robot.distanceLeft = int(_distance[3])
+            robot.Robot.distanceRight = int(_distance[5])
 
-            # TODO: implement voltage sensor readout
             # voltage sensor
+            _voltage = _incomingDataSplit[13]
+            _voltageSplit = _voltage.split(' ')
+            robot.Robot.batteryVoltage = float(_voltageSplit[2])
 
             # set our state back to readyforupdate, so we can again send and receive data
             self.state = subSystemState.ReadyForUpdate
