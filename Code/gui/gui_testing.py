@@ -23,6 +23,7 @@ canvas.draw()
 
 # listbox, selecting different programs
 def program_selector():
+    
     selection = lb_programs.curselection()
     step_0 = str(selection).split(',')
     step_1 = step_0[0].split('(')

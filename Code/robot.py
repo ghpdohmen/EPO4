@@ -2,6 +2,7 @@
 from misc.robotModeEnum import robotMode
 from misc.robotStatusEnum import robotStatus
 from subsystems.communication import communicationSubSystem
+from subsystems.csvLoggingSubSystem import csvLoggingSubsystem
 from subsystems.inputSubSystem import inputSubSystem
 from subsystems.subsystemStateEnum import subSystemState
 from subsystems.timing import timeSubSystem
@@ -16,7 +17,7 @@ class Robot:
 
     #audio stuff
     code = "A23" #String, hexadecimal
-    speakerOn = True
+    speakerOn = False
     carrierFrequency = 10000 # in Hz
     bitFrequency = 1000 # in Hz
     repetitionCount = 32 # in number of bits
@@ -27,6 +28,7 @@ class Robot:
     timingState = subSystemState.Stopped
     inputState = subSystemState.Stopped
     localizationState = subSystemState.Stopped
+    loggingState = subSystemState.Stopped
 
     # sensor values
     distanceLeft = 0
@@ -48,6 +50,7 @@ class Robot:
         self.communicationSubSystem = communicationSubSystem()
         self.timeSubSystem = timeSubSystem()
         self.inputSubSystem = inputSubSystem()
+        self.loggingSubSystem = csvLoggingSubsystem()
         #self.localizationSubSystem = LocalizationSubSystem()
 
     # start all subsystems
@@ -56,6 +59,7 @@ class Robot:
         self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
         self.inputSubSystem.start()
+        self.loggingSubSystem.start()
         #self.localizationSubSystem.start()
 
     # updates all subsystems
@@ -63,6 +67,7 @@ class Robot:
         self.communicationSubSystem.update()
         self.timeSubSystem.update()
         self.inputSubSystem.update()
+        self.loggingSubSystem.update()
         #self.localizationSubSystem.update()
         #print(self.distanceLeft)
 
@@ -70,4 +75,5 @@ class Robot:
         self.communicationSubSystem.stop()
         self.timeSubSystem.stop()
         self.inputSubSystem.stop()
+        self.loggingSubSystem.stop()
         #self.inputSubSystem.stop()
