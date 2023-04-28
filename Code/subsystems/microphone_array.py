@@ -11,6 +11,7 @@ from scipy.fft import fft, ifft
 from scipy.signal import convolve, unit_impulse
 from IPython.display import Audio
 
+from Code.subsystems.subsystem import subSystem
 # from Code.subsystems.subsystem import subSystem
 #
 from refsignal import refsignal  # model for the EPO4 audio beacon signal
@@ -41,15 +42,18 @@ def audio_devices(*, print_list: bool):
 
 # from subsystems.subsystemStateEnum import subSystemState
 
-# class Localizationsubsystem(subSystem):
-#
-#     def __int__(self):
-#
-#     def start(self):
-#
-#     def update(self):
-#
-#     def stop(self):
+class Localizationsubsystem(subSystem)
+   enalbed = False
+
+    def __int__(self):
+        if self.enabled
+
+
+    def start(self):
+
+    def update(self):
+
+    def stop(self):
 
 
 def microphone_array(device_index, duration_recording):
@@ -112,16 +116,54 @@ def microphone_array(device_index, duration_recording):
 
 # Set up transmit signal
 # normal values:44100, 64, 1, 8, 2, 0x92340f0faaaa4321,
-def transmit_signal(Fs, Nbits, Timer0, Timer1, Timer3, code, repetition_pulses=None):
-    # Create reference signal
-    x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs)
 
-    if repetition_pulses is not None:
-        nrep = repetition_pulses
-        xx = np.kron(np.ones(nrep), x)
-        return xx
-    else:
-        return x
+# initialize_transmit_params
+
+# def transmit_signal(Fs, Nbits, Timer0, Timer1, Timer3, code, repetition_pulses=None):
+#
+#     # Create reference signal
+#     x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs)
+#
+#     if repetition_pulses is not None:
+#         nrep = repetition_pulses
+#         xx = np.kron(np.ones(nrep), x)
+#         return xx
+#     else:
+#         return x
+
+#Generates a gold code of length n using LFSRs
+def gold_code(n):
+
+    # Define Linear-feedback shift register taps
+    taps1 = [1, 2, 5, 6]
+    taps2 = [2, 5, 7, 8]
+
+    #initiaze the taps length of 10
+    lfsr1 = [1] * 10
+    lfsr2 = [1] * 10
+
+    #generate code
+    code = []
+    for i in range(n):
+
+
+        # compute XOR of LFSRs
+        xor = lfsr1 [-1] ^ lfsr2 [-1]
+
+        # Append to code
+        code.append(xor)
+
+        #Update LFSRs
+        lfsr1 = [xor if j in taps else lfsr1[j-1] for j  in range(10)]
+        lfsr2 = [xor if j in taps else lfsr2[j-1] for j  in range(10)]
+
+    return code
+
+
+
+
+
+
 
 
 #
