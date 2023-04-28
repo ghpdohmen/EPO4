@@ -3,11 +3,11 @@ from enum import Enum
 
 
 class robotMode(Enum):
-    Manual = 1
-    ChallengeA = 2
-    ChallengeB = 3
-    ChallengeC = 4
-    ChallengeD = 5
-    ChallengeE = 6
-    NotChosen = 7
-    EStop = 8
+    Manual = 0
+    ChallengeA = 1
+    ChallengeB = 2
+    ChallengeC = 3
+    ChallengeD = 4
+    ChallengeE = 5
+    NotChosen = 6
+    EStop = 7
