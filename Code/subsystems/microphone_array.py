@@ -1,6 +1,10 @@
 import pyaudio as audio
 import numpy as np
 import matplotlib.pyplot as plt
+# pip install --upgrade --no-cache-dir gdown
+# gdown 1xGUeeM-oY0pyXA0OO8_uKwT-vLAsiyZB  # refsignal.py
+# gdown 1xTibH8tNbpwdSWmkziFGS24WXEYhtMRl  # wavaudioread.py
+# gdown 10f3-zLIpu81jjQtr-Mr7BCtFz6u3o4N1 # recording_tool.py
 
 from scipy.io import wavfile
 from scipy.fft import fft, ifft
@@ -28,7 +32,7 @@ def audio_devices(*, print_list: bool):
     return pyaudio_handle
 
 
-# audio_devices(print_list=True)
+audio_devices(print_list=True)
 
 
 # TODO: write this as a subsystem
