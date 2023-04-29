@@ -12,7 +12,7 @@ from scipy.signal import convolve, unit_impulse
 from IPython.display import Audio
 
 from Code.subsystems.subsystem import subSystem
-# from Code.subsystems.subsystem import subSystem
+
 #
 # from refsignal import refsignal  # model for the EPO4 audio beacon signal
 
@@ -40,13 +40,13 @@ def audio_devices(*, print_list: bool):
 
 # TODO: write this as a subsystem
 
-# from subsystems.subsystemStateEnum import subSystemState
+from subsystems.subsystemStateEnum import subSystemState
 
-class Localizationsubsystem(subSystem)
-   enalbed = False
+class Localizationsubsystem(subSystem):
+   enabled = False
 
     def __int__(self):
-        if self.enabled
+        if self.enabled:
 
 
     def start(self):
@@ -65,24 +65,6 @@ def microphone_array(device_index, duration_recording):
     stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=audio.paInt16, rate=Fs, input=True)
 
     samples = stream.read(N)
-
-    # samples = []
-    # second_tracking = 0
-    # second_count = 0
-    # for i in range(0, int(Fs / N * duration_recording)):
-    #     data = stream.read(N)
-    #     samples.append(data)
-    #     second_tracking += 1
-    #     if second_tracking == Fs / N:
-    #         second_count += 1
-    #         second_tracking = 0
-    #         print(f'Time Left: {duration_recording - second_count} seconds')
-    #
-    # pa = audio.PyAudio()
-    # stream.stop_stream()
-    # stream.close()
-    # pa.terminate()
-
     data = np.frombuffer(samples, dtype='int16')
 
     data_length = len(data[::5])
@@ -107,12 +89,26 @@ def microphone_array(device_index, duration_recording):
     return mic_0, mic_1, mic_2, mic_3, mic_4
 
 
-# mics = microphone_array(1, 4)
-# for i in range(5):
-#     np.savetxt("Recording_handclap_"+str(i)+".csv", mics[i], delimiter=",")
-#     # wavfile.write("Recording_handclap_"+str(i)+".wav", Fs, mics[i][1])
-#     plt.plot(mics[i][0], mics[i][1])
-#     plt.show()
+def mic_plotter(data: bool, device_index=None, duration_recording=None):
+    if data is False:
+        mics = microphone_array(device_index, duration_recording)
+        for i in range(5):
+            plt.plot(mics[i][0], mics[i][1])
+            plt.show()
+        return
+    else:
+        for i in range(5):
+            data = np.loadtxt("Recording_handclap_" + str(i) + ".csv", delimiter=",")
+            plt.plot(data[0], data[1])
+            plt.show()
+        return
+
+
+
+def data_saver(device_index, duration_recording):
+    mics = microphone_array(device_index, duration_recording)
+    np.savetxt("Recording_handclap_"+str(i)+".csv", mics[i], delimiter=",")
+    return
 
 # Set up transmit signal
 # normal values:44100, 64, 1, 8, 2, 0x92340f0faaaa4321,
@@ -131,40 +127,30 @@ def microphone_array(device_index, duration_recording):
 #     else:
 #         return x
 
-#Generates a gold code of length n using LFSRs
+# Generates a gold code of length n using LFSRs
 def gold_code(n):
-
     # Define Linear-feedback shift register taps
     taps1 = [1, 2, 5, 6]
     taps2 = [2, 5, 7, 8]
 
-    #initiaze the taps length of 10
+    # initiaze the taps length of 10
     lfsr1 = [1] * 10
     lfsr2 = [1] * 10
 
-    #generate code
+    # generate code
     code = []
     for i in range(n):
-
-
         # compute XOR of LFSRs
-        xor = lfsr1 [-1] ^ lfsr2 [-1]
+        xor = lfsr1[-1] ^ lfsr2[-1]
 
         # Append to code
         code.append(xor)
 
-        #Update LFSRs
-        lfsr1 = [xor if j in taps else lfsr1[j-1] for j  in range(10)]
-        lfsr2 = [xor if j in taps else lfsr2[j-1] for j  in range(10)]
+        # Update LFSRs
+        lfsr1 = [xor if j in taps else lfsr1[j - 1] for j in range(10)]
+        lfsr2 = [xor if j in taps else lfsr2[j - 1] for j in range(10)]
 
     return code
-
-
-
-
-
-
-
 
 #
 #
@@ -199,8 +185,3 @@ def gold_code(n):
 
 # Fs, x = wavfile.read("C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\subsystems\Recording_handclap_0.wav")
 # Audio(x, autoplay=True, rate=Fs)
-
-data = np.loadtxt("Recording_handclap_0.csv", delimiter=",")
-plt.plot(data[0], data[1])
-plt.show()
-
