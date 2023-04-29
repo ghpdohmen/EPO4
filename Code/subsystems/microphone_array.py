@@ -14,7 +14,7 @@ from IPython.display import Audio
 from Code.subsystems.subsystem import subSystem
 # from Code.subsystems.subsystem import subSystem
 #
-from refsignal import refsignal  # model for the EPO4 audio beacon signal
+# from refsignal import refsignal  # model for the EPO4 audio beacon signal
 
 # from wavaudioread import wavaudioread
 # from recording_tool import recording_tool
