@@ -11,7 +11,7 @@ from scipy.fft import fft, ifft
 from scipy.signal import convolve, unit_impulse
 from IPython.display import Audio
 
-from Code.subsystems.subsystem import subSystem
+from subsystems.subsystem import subSystem
 
 #
 # from refsignal import refsignal  # model for the EPO4 audio beacon signal
@@ -46,7 +46,7 @@ class Localizationsubsystem(subSystem):
    enabled = False
 
     def __int__(self):
-        if self.enabled:
+        # if self.enabled:
 
 
     def start(self):
@@ -56,132 +56,110 @@ class Localizationsubsystem(subSystem):
     def stop(self):
 
 
-def microphone_array(device_index, duration_recording):
-    # Fs = 44100
-    number_of_samples = duration_recording * Fs
-    N = number_of_samples
+    def microphone_array(device_index, duration_recording):
+        """
+        @param duration_recording:
+        @return:
+        """
+        # Fs = 44100
+        number_of_samples = duration_recording * Fs
+        N = number_of_samples
 
-    pyaudio_handle = audio_devices(print_list=False)
-    stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=audio.paInt16, rate=Fs, input=True)
+        pyaudio_handle = audio_devices(print_list=False)
+        stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=audio.paInt16, rate=Fs, input=True)
 
-    samples = stream.read(N)
-    data = np.frombuffer(samples, dtype='int16')
+        samples = stream.read(N)
+        data = np.frombuffer(samples, dtype='int16')
 
-    data_length = len(data[::5])
-    data_mic_0 = data[0::5]
-    data_mic_1 = data[1::5]
-    data_mic_2 = data[2::5]
-    data_mic_3 = data[3::5]
-    data_mic_4 = data[4::5]
+        data_length = len(data[::5])
+        data_mic_0 = data[0::5]
+        data_mic_1 = data[1::5]
+        data_mic_2 = data[2::5]
+        data_mic_3 = data[3::5]
+        data_mic_4 = data[4::5]
 
-    sample_axis_mic_0 = np.linspace(0, data_length / Fs, data_length)
-    sample_axis_mic_1 = np.linspace(0, data_length / Fs, data_length)
-    sample_axis_mic_2 = np.linspace(0, data_length / Fs, data_length)
-    sample_axis_mic_3 = np.linspace(0, data_length / Fs, data_length)
-    sample_axis_mic_4 = np.linspace(0, data_length / Fs, data_length)
+        sample_axis_mic_0 = np.linspace(0, data_length / Fs, data_length)
+        sample_axis_mic_1 = np.linspace(0, data_length / Fs, data_length)
+        sample_axis_mic_2 = np.linspace(0, data_length / Fs, data_length)
+        sample_axis_mic_3 = np.linspace(0, data_length / Fs, data_length)
+        sample_axis_mic_4 = np.linspace(0, data_length / Fs, data_length)
 
-    mic_0 = sample_axis_mic_0, data_mic_0
-    mic_1 = sample_axis_mic_1, data_mic_1
-    mic_2 = sample_axis_mic_2, data_mic_2
-    mic_3 = sample_axis_mic_3, data_mic_3
-    mic_4 = sample_axis_mic_4, data_mic_4
+        mic_0 = sample_axis_mic_0, data_mic_0
+        mic_1 = sample_axis_mic_1, data_mic_1
+        mic_2 = sample_axis_mic_2, data_mic_2
+        mic_3 = sample_axis_mic_3, data_mic_3
+        mic_4 = sample_axis_mic_4, data_mic_4
 
-    return mic_0, mic_1, mic_2, mic_3, mic_4
+        return mic_0, mic_1, mic_2, mic_3, mic_4
+
+    def gold_code(polynomial_1, polynomial_2, length):
+        poly1 = [int(pol_length) for pol_length in polynomial_1]
+        poly2 = [int(pol_length) for pol_length in polynomial_2]
+
+        ones_array_poly1 = [1] * len(poly1)
+        ones_array_poly2 = [1] * len(poly2)
+
+        gold = []
+        for i in range(length):
+            output = ones_array_poly1[0]^ones_array_poly2[0]
+            gold.append(output)
+
+            ones_array_poly1 = [output] + ones_array_poly1[:-1]
+            ones_array_poly2 = ones_array_poly1[-1] ^ [coeff * ones_array_poly2[i] for i, coeff in enumerate(poly2[::-1])] + ones_array_poly2[:-1]
+
+        return gold
+
+    def mic_plotter(data: bool, device_index=None, duration_recording=None):
+        if data is False:
+            mics = microphone_array(device_index, duration_recording)
+            for i in range(5):
+                plt.plot(mics[i][0], mics[i][1])
+                plt.show()
+            return
+        else:
+            for i in range(5):
+                data = np.loadtxt("Recording_handclap_" + str(i) + ".csv", delimiter=",")
+                plt.plot(data[0], data[1])
+                plt.show()
+            return
 
 
-def mic_plotter(data: bool, device_index=None, duration_recording=None):
-    if data is False:
+
+    def data_saver(device_index, duration_recording):
         mics = microphone_array(device_index, duration_recording)
         for i in range(5):
-            plt.plot(mics[i][0], mics[i][1])
-            plt.show()
-        return
-    else:
-        for i in range(5):
-            data = np.loadtxt("Recording_handclap_" + str(i) + ".csv", delimiter=",")
-            plt.plot(data[0], data[1])
-            plt.show()
-        return
+            np.savetxt("Recording_handclap_"+str(i)+".csv", mics[i], delimiter=",")
+            return
 
 
-
-def data_saver(device_index, duration_recording):
-    mics = microphone_array(device_index, duration_recording)
-    np.savetxt("Recording_handclap_"+str(i)+".csv", mics[i], delimiter=",")
-    return
-
-# Set up transmit signal
-# normal values:44100, 64, 1, 8, 2, 0x92340f0faaaa4321,
-
-# initialize_transmit_params
-
-# def transmit_signal(Fs, Nbits, Timer0, Timer1, Timer3, code, repetition_pulses=None):
+# # Generates a gold code of length n using LFSRs
+# def gold_code(n):
+#     # Define Linear-feedback shift register taps
+#     taps1 = [1, 2, 5, 6]
+#     taps2 = [2, 5, 7, 8]
 #
-#     # Create reference signal
-#     x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs)
+#     # initiaze the taps length of 10
+#     lfsr1 = [1] * 10
+#     lfsr2 = [1] * 10
 #
-#     if repetition_pulses is not None:
-#         nrep = repetition_pulses
-#         xx = np.kron(np.ones(nrep), x)
-#         return xx
-#     else:
-#         return x
-
-# Generates a gold code of length n using LFSRs
-def gold_code(n):
-    # Define Linear-feedback shift register taps
-    taps1 = [1, 2, 5, 6]
-    taps2 = [2, 5, 7, 8]
-
-    # initiaze the taps length of 10
-    lfsr1 = [1] * 10
-    lfsr2 = [1] * 10
-
-    # generate code
-    code = []
-    for i in range(n):
-        # compute XOR of LFSRs
-        xor = lfsr1[-1] ^ lfsr2[-1]
-
-        # Append to code
-        code.append(xor)
-
-        # Update LFSRs
-        lfsr1 = [xor if j in taps else lfsr1[j - 1] for j in range(10)]
-        lfsr2 = [xor if j in taps else lfsr2[j - 1] for j in range(10)]
-
-    return code
-
+#     # generate code
+#     code = []
+#     for i in range(n):
+#         # compute XOR of LFSRs
+#         xor = lfsr1[-1] ^ lfsr2[-1]
 #
+#         # Append to code
+#         code.append(xor)
 #
-# x = transmit_signal(1, 8, 2)
-# print(x)
-# # wavfile.write("Recording-6.wav", Fs, x)
+#         # Update LFSRs
+#         lfsr1 = [xor if j in taps else lfsr1[j - 1] for j in range(10)]
+#         lfsr2 = [xor if j in taps else lfsr2[j - 1] for j in range(10)]
 #
-# # PlayBack
-# Fs, x = wavfile.read('Recording-6.wav')
-# Audio(x, autoplay=True, rate=Fs)
+#     return code
 
-# Fs_TX = 44100
-# Nbits = 64
-# Timer0 = 1
-# Timer1 = 8
-# Timer3 = 2
-# code = 0x92340f0faaaa4321
-
-# Create reference signal
-# x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs_TX)
-# nrep = 10
-# xx = np.kron(np.ones(nrep), x)
-
-# period = 1/Fs_TX
-# x = transmit_signal(44100, 64, 1, 8, 2, 0x92340f0faaaa4321, 5)
-# t = np.linspace(0, len(x), len(x))
+# p1 = "111000110101"
+# p2 = "010101001100"
+# length = 10
 #
-# plt.plot(t, x)
-# # plt.xlim(0, 600)
-# plt.show()
-
-
-# Fs, x = wavfile.read("C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\subsystems\Recording_handclap_0.wav")
-# Audio(x, autoplay=True, rate=Fs)
+# code = gold_code(p1, p2, length)
+# print(code)
