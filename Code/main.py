@@ -10,6 +10,7 @@ from misc.robotModeEnum import robotMode
 
 class App(tk.Frame):
     enableRobot = False
+    selectedRobotMode = robotMode.NotChosen
 
     # wasd key functionality
     def m_forward(self):
@@ -32,7 +33,7 @@ class App(tk.Frame):
         self._robot.inputSubSystem.estop()
 
     def startRobot(self):
-        self._robot.start()
+        self._robot.start(self.selectedRobotMode)
         self.enableRobot = True
 
     def updateRobot(self):
@@ -54,17 +55,27 @@ root = Tk()
 root.title("GUI for EPO4")
 
 # little window to show data
-window = ttk.Frame(root, width=200, height=100)
+window = ttk.Frame(root, width=400, height=200)
 window["borderwidth"] = 4
 window["relief"] = "ridge"
 # end window
 
+# little window for subsystem status
+ssWindow = ttk.Frame(root, width=400, height=200)
+ssWindow["borderwidth"] = 4
+ssWindow["relief"] = "ridge"
+
+#
 # graph showing path
-figure = plt.Figure(figsize=(2, 2), dpi=100)
-axis = figure.add_subplot(111)
-axis.plot([1, 2, 3, 4, 5, 6, 7, 8], [5, 6, 1, 3, 8, 9, 3, 5])
+figure = plt.Figure(figsize=(3,3), dpi=100)
+fig = figure.add_subplot(111, autoscale_on=False, xlim = (0,4.8), ylim = (0,4.8))
+fig.set_aspect('equal')
+fig.grid()
+#fig.plot([1, 2, 3, 4, 4.8], [5, 6, 1, 3, 8, 9, 3, 5])
 canvas = FigureCanvasTkAgg(figure)
 canvas.draw()
+
+
 # end graph
 
 # robot declaration
@@ -76,6 +87,7 @@ def program_selector():
     _step_1 = _step_0[0].split('(')
     _step_2 = _step_1[1]
     print(robotMode(int(_step_2)))
+    a.selectedRobotMode = robotMode(int(_step_2))
 
 
 l_programs = ["Manual", "Challenge A", "Challenge B", "Challenge C", "Challenge D", "Challenge E"]
@@ -85,6 +97,12 @@ lb_programs.bind("<Double-Button-1>", lambda event: program_selector())
 # end listbox
 
 # labels
+label_0 = ttk.Label(window, text="Selected program:")
+label_mode = ttk.Label(window)
+operatingModeText = StringVar()
+label_mode["textvariable"] = operatingModeText
+operatingModeText.set(str(a.selectedRobotMode).split('.')[1])
+
 label_1 = ttk.Label(window, text="speed: ")
 label_m = ttk.Label(window)
 motorSpeedText = StringVar()
@@ -102,7 +120,41 @@ label_d = ttk.Label(window)
 directionText = StringVar()
 label_b["textvariable"] = directionText
 batteryText.set(robot.Robot.input_servo)
-#end labels
+# end labels
+
+# subsystem status labels
+# main window title
+label_SSStatuswindow = ttk.Label(ssWindow, text="Subsystem status", font=("Arial", 15))
+# coms
+label_coms = ttk.Label(ssWindow, text="Communications:")
+label_comsStatus = ttk.Label(ssWindow)
+comsStatusText = StringVar()
+label_comsStatus["textvariable"] = comsStatusText
+comsStatusText.set(str(robot.Robot.communicationState).split('.')[1])
+# input
+label_input = ttk.Label(ssWindow, text="Input:")
+label_inputStatus = ttk.Label(ssWindow)
+inputStatusText = StringVar()
+label_inputStatus["textvariable"] = inputStatusText
+inputStatusText.set(str(robot.Robot.inputState).split('.')[1])
+# time
+label_time = ttk.Label(ssWindow, text="Time:")
+label_timeStatus = ttk.Label(ssWindow)
+timeStatusText = StringVar()
+label_timeStatus["textvariable"] = timeStatusText
+timeStatusText.set(str(robot.Robot.timingState).split('.')[1])
+# logging
+label_logging = ttk.Label(ssWindow, text="Logging:")
+label_loggingStatus = ttk.Label(ssWindow)
+loggingStatusText = StringVar()
+label_loggingStatus["textvariable"] = loggingStatusText
+loggingStatusText.set(str(robot.Robot.loggingState).split('.')[1])
+# localization
+label_localization = ttk.Label(ssWindow, text="Localization:")
+label_localizationStatus = ttk.Label(ssWindow)
+localizationStatusText = StringVar()
+label_localizationStatus["textvariable"] = localizationStatusText
+localizationStatusText.set(str(robot.Robot.localizationState).split('.')[1])
 
 # buttons
 # start button
@@ -124,13 +176,30 @@ root.bind("<d>", lambda event: a.m_right())
 
 # grid for everything
 window.grid(column=0, row=4)
-label_1.grid(column=0, row=0)
-label_m.grid(column=1, row=0)
-label_2.grid(column=0, row=1)
-label_b.grid(column=1, row=1)
-label_3.grid(column=0, row=2)
-label_d.grid(column=1, row=2)
+ssWindow.grid(column=4, row=0)
 
+# subsystem status window grid
+label_SSStatuswindow.grid(column=1, row=0)
+label_coms.grid(column=0, row=1)
+label_comsStatus.grid(column=2, row=1)
+label_input.grid(column=0, row=2)
+label_inputStatus.grid(column=2, row=2)
+label_time.grid(column=0, row=3)
+label_timeStatus.grid(column=2, row=3)
+label_logging.grid(column=0, row=4)
+label_loggingStatus.grid(column=2, row=4)
+label_localization.grid(column=0, row=5)
+label_localizationStatus.grid(column=2, row=5)
+
+# data window grid
+label_0.grid(column=0, row=0)
+label_mode.grid(column=1, row=0)
+label_1.grid(column=0, row=1)
+label_m.grid(column=1, row=1)
+label_2.grid(column=0, row=2)
+label_b.grid(column=1, row=2)
+label_3.grid(column=0, row=3)
+label_d.grid(column=1, row=3)
 
 canvas.get_tk_widget().grid(column=0, row=0, columnspan=3, rowspan=3)
 
@@ -138,16 +207,16 @@ button_start.grid(column=3, row=0)
 button_stop.grid(column=3, row=1)
 button_estop.grid(column=3, row=2)
 
-
 lb_programs.grid(column=3, row=4)
 
-speed.grid(column=0, columnspan=3)
+# speed.grid(column=0, columnspan=3)
 # end grid
 
-root.mainloop()
+# FIXME: I don't think variables are updating properly right now, according to my tests with the robotMode.
+
 
 while True:
     a.updateRobot()
     root.update()
 
-# root.mainloop()
+root.mainloop()
