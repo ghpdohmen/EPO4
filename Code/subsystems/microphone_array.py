@@ -12,7 +12,7 @@ from scipy.fft import fft, ifft
 from scipy.signal import convolve, unit_impulse
 from IPython.display import Audio
 
-from subsystems.subsystem  import subSystem
+from subsystems.subsystem import subSystem
 
 
 # Global Variables
@@ -41,8 +41,24 @@ def audio_devices(*, print_list: bool):
 # class Localizationsubsystem(subSystem):
 #    enabled = False
 #
-#     def __int__(self):
-#         # if self.enabled:
+    # def __int__(self):
+    #     serial_port.write(b'A1\n')
+    #
+    #     #set carrier_frequency to 20kHz
+    #     carrier_frequency = 20000.to_bytes(2, byteorder='big')
+    #     serial_port.write(b'F' + carrier_frequency + b'\n')
+    #
+    #     # set bit_frequency to 10kHz
+    #     bit_frequency = 10000.to_bytes(2, byteorder='big')
+    #     serial_port.write(b'B' + bit_frequency + b'\n')
+    #
+    #     # set repetition_count to 2500 bits
+    #     repetition_count = 128.to_bytes(2, byteorder='big')
+    #     serial_port.write(b'R' + repetition_count + b'\n')
+    #
+    #     code = 0xDEADBEEF.to_bytes(4, byteorder='big')
+    #     serial_port.write(b'C' + code + b'\n')
+        #if self.enabled:
 #
 #
 #     def start(self):
@@ -102,31 +118,31 @@ def microphone_array(device_index, duration_recording):
 #
 #     return gold
 
-def gold_code(polynomial_1, polynomial_2, length):
-    """
-    Generate a Gold code sequence using two given polynomials and a specified length.
-    """
-    # Convert the polynomials from binary strings to lists of coefficients
-    poly1 = [int(c) for c in polynomial_1]
-    poly2 = [int(c) for c in polynomial_2]
-
-    # Initialize the shift registers to all ones
-    reg1 = [1] * len(poly1)
-    reg2 = [1] * len(poly2)
-
-    # Generate the Gold code sequence
-    gold = []
-    for i in range(length):
-        # Calculate the output bit as the XOR of the most significant bit of each register
-        output = reg1[0] ^ reg2[0]
-        gold.append(output)
-
-        # Shift the registers by one bit
-        reg1 = [output] + reg1[:-1]
-        reg2 = reg1[-1] ^ [coeff * reg2[i] for i, coeff in enumerate(poly2[::-1])] + reg2[:-1]
-
-    return gold
-
+# def gold_code(polynomial_1, polynomial_2, length):
+#     """
+#     Generate a Gold code sequence using two given polynomials and a specified length.
+#     """
+#     # Convert the polynomials from binary strings to lists of coefficients
+#     poly1 = [int(c) for c in polynomial_1]
+#     poly2 = [int(c) for c in polynomial_2]
+#
+#     # Initialize the shift registers to all ones
+#     reg1 = [1] * len(poly1)
+#     reg2 = [1] * len(poly2)
+#
+#     # Generate the Gold code sequence
+#     gold = []
+#     for i in range(length):
+#         # Calculate the output bit as the XOR of the most significant bit of each register
+#         output = reg1[0] ^ reg2[0]
+#         gold.append(str(output))
+#
+#         # Shift the registers by one bit
+#         reg1 = [output] + reg1[:-1]
+#         reg2 = [reg1[-1] ^ sum([coeff * reg2[i] for i, coeff in enumerate(poly2[::-1])])] + reg2[:-1]
+#
+#     gold_code = "".join(gold)
+#     return gold_code
 
 def mic_plotter(data: bool, device_index=None, duration_recording=None):
     if data is False:
@@ -184,12 +200,6 @@ def bit_string(length):
 #
 #     return code
 
-p1 = "111000110101"
-p2 = "010101001100"
-length = 10
-#
-code = gold_code(p1, p2, length)
-print(code)
 
 # length = 16
 # for i in range(10):
@@ -198,9 +208,60 @@ print(code)
 #     gold_code = gold_code("bit_string_1", "bit_string_2", length)
 #     print(gold_code)
 # print(bit_string(16))
-p1 = "111000110101"
-p2 = "010101001100"
-length = 10
 
-code = gold_code(p1, p2, length)
-print(code)
+def gold_code(polynomial_1, polynomial_2, length):
+    poly1 = [int(c) for c in polynomial_1]
+    poly2 = [int(c) for c in polynomial_2]
+
+    # convert polynomials to binary strings
+    poly1_str = ''.join(str(bit) for bit in poly1)
+    poly2_str = ''.join(str(bit) for bit in poly2)
+
+    # set up LFSR registers
+    reg1 = int(poly1_str, 2)
+    reg2 = int(poly2_str, 2)
+
+    gold = []
+    for i in range(length):
+        # XOR the outputs of the two registers
+        output = (reg1 & 1) ^ (reg2 & 1)
+        gold.append(output)
+
+        # shift the registers to the right by 1 bit
+        reg1 >>= 1
+        reg2 >>= 1
+
+        # apply feedback to the registers
+        feedback1 = (reg1 >> (len(poly1) - 1)) ^ (reg1 & 1)
+        feedback2 = (reg2 >> (len(poly2) - 1)) ^ (reg2 & 1)
+        reg1 ^= feedback1 << (len(poly1) - 1)
+        reg2 ^= feedback2 << (len(poly2) - 1)
+
+    # convert the list of bits to a binary string
+    gold_str = ''.join(str(bit) for bit in gold)
+
+    return gold_str
+
+
+def autocorrelation_normalized(sequence):
+    length = len(sequence)
+    autocorr = []
+    for lag in range(length):
+        corr_sum = sum(sequence[i] * sequence[i+lag] for i in range(length - lag))
+        autocorr.append(corr_sum)
+    max_val = max(autocorr)
+    normalized = [round(val/max_val, 3) for val in autocorr]
+    return normalized
+
+
+
+poly1 = bit_string(200)
+poly2 = bit_string(200)
+length = 150
+gold = gold_code(poly1, poly2, length)
+autocorr = autocorrelation_normalized([int(bit) for bit in gold])
+print(autocorr)
+
+# bit_string = bit_string(20)
+# hex_string = hex(int(bit_string, 2))
+
