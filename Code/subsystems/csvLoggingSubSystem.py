@@ -19,14 +19,15 @@ class csvLoggingSubsystem(subSystem):
         self.writer.writerow(['Time','Voltage','SensorLeft','SensorRight', 'MotorPower', 'ServoPower'])
 
     def update(self):
-        self.state = subSystemState.Running
-        robot.Robot.loggingState = self.state
-        self.writer.writerow([str(robot.Robot.runTime), str(robot.Robot.batteryVoltage),str(robot.Robot.distanceLeft), str(robot.Robot.distanceRight), str(robot.Robot.input_motor), str(robot.Robot.input_servo)])
+        if (self.state == subSystemState.Started) | (self.state == subSystemState.Running):
+            self.state = subSystemState.Running
+            robot.Robot.loggingState = self.state
+            self.writer.writerow([str(robot.Robot.runTime), str(robot.Robot.batteryVoltage),str(robot.Robot.distanceLeft), str(robot.Robot.distanceRight), str(robot.Robot.input_motor), str(robot.Robot.input_servo)])
 
     def stop(self):
         self.state = subSystemState.Stopped
         robot.Robot.loggingState = self.state
-        print("CLosing CSV")
+        print("Closing CSV")
         self.file.close()
 
 

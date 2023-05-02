@@ -54,8 +54,13 @@ class Robot:
         #self.localizationSubSystem = LocalizationSubSystem()
 
     # start all subsystems
-    def start(self):
-        self.operatingMode = robotMode.Manual #TEMPORARY, REMOVE WHEN GUI IS IMPLEMENTED
+    def start(self, _operatingMode):
+        self.operatingMode = _operatingMode
+        #let's quickly check if we have set an operating mode, otherwise running the robot is so hard
+        if _operatingMode == robotMode.NotChosen:
+            #TODO: implement error message
+            return
+
         self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
         self.inputSubSystem.start()
@@ -76,4 +81,4 @@ class Robot:
         self.timeSubSystem.stop()
         self.inputSubSystem.stop()
         self.loggingSubSystem.stop()
-        #self.inputSubSystem.stop()
+
