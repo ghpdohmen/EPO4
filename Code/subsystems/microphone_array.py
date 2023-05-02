@@ -184,6 +184,12 @@ def bit_string(length):
 #
 #     return code
 
+p1 = "111000110101"
+p2 = "010101001100"
+length = 10
+#
+code = gold_code(p1, p2, length)
+print(code)
 
 # length = 16
 # for i in range(10):
