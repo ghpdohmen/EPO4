@@ -1,6 +1,7 @@
 import pyaudio as audio
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 # pip install --upgrade --no-cache-dir gdown
 # gdown 1xGUeeM-oY0pyXA0OO8_uKwT-vLAsiyZB  # refsignal.py
 # gdown 1xTibH8tNbpwdSWmkziFGS24WXEYhtMRl  # wavaudioread.py
@@ -11,13 +12,8 @@ from scipy.fft import fft, ifft
 from scipy.signal import convolve, unit_impulse
 from IPython.display import Audio
 
-from Code.subsystems.subsystem import subSystem
-# from Code.subsystems.subsystem import subSystem
-#
-# from refsignal import refsignal  # model for the EPO4 audio beacon signal
+from subsystems.subsystem import subSystem
 
-# from wavaudioread import wavaudioread
-# from recording_tool import recording_tool
 
 # Global Variables
 Fs = 44100
@@ -42,18 +38,34 @@ def audio_devices(*, print_list: bool):
 
 # from subsystems.subsystemStateEnum import subSystemState
 
-class Localizationsubsystem(subSystem)
-   enalbed = False
-
-    def __int__(self):
-        if self.enabled
-
-
-    def start(self):
-
-    def update(self):
-
-    def stop(self):
+# class Localizationsubsystem(subSystem):
+#    enabled = False
+#
+    # def __int__(self):
+    #     serial_port.write(b'A1\n')
+    #
+    #     #set carrier_frequency to 20kHz
+    #     carrier_frequency = 20000.to_bytes(2, byteorder='big')
+    #     serial_port.write(b'F' + carrier_frequency + b'\n')
+    #
+    #     # set bit_frequency to 10kHz
+    #     bit_frequency = 10000.to_bytes(2, byteorder='big')
+    #     serial_port.write(b'B' + bit_frequency + b'\n')
+    #
+    #     # set repetition_count to 2500 bits
+    #     repetition_count = 128.to_bytes(2, byteorder='big')
+    #     serial_port.write(b'R' + repetition_count + b'\n')
+    #
+    #     code = 0xDEADBEEF.to_bytes(4, byteorder='big')
+    #     serial_port.write(b'C' + code + b'\n')
+        #if self.enabled:
+#
+#
+#     def start(self):
+#
+#     def update(self):
+#
+#     def stop(self):
 
 
 def microphone_array(device_index, duration_recording):
@@ -65,24 +77,6 @@ def microphone_array(device_index, duration_recording):
     stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=audio.paInt16, rate=Fs, input=True)
 
     samples = stream.read(N)
-
-    # samples = []
-    # second_tracking = 0
-    # second_count = 0
-    # for i in range(0, int(Fs / N * duration_recording)):
-    #     data = stream.read(N)
-    #     samples.append(data)
-    #     second_tracking += 1
-    #     if second_tracking == Fs / N:
-    #         second_count += 1
-    #         second_tracking = 0
-    #         print(f'Time Left: {duration_recording - second_count} seconds')
-    #
-    # pa = audio.PyAudio()
-    # stream.stop_stream()
-    # stream.close()
-    # pa.terminate()
-
     data = np.frombuffer(samples, dtype='int16')
 
     data_length = len(data[::5])
@@ -107,100 +101,167 @@ def microphone_array(device_index, duration_recording):
     return mic_0, mic_1, mic_2, mic_3, mic_4
 
 
-# mics = microphone_array(1, 4)
-# for i in range(5):
-#     np.savetxt("Recording_handclap_"+str(i)+".csv", mics[i], delimiter=",")
-#     # wavfile.write("Recording_handclap_"+str(i)+".wav", Fs, mics[i][1])
-#     plt.plot(mics[i][0], mics[i][1])
-#     plt.show()
-
-# Set up transmit signal
-# normal values:44100, 64, 1, 8, 2, 0x92340f0faaaa4321,
-
-# initialize_transmit_params
-
-# def transmit_signal(Fs, Nbits, Timer0, Timer1, Timer3, code, repetition_pulses=None):
+# def gold_code(polynomial_1, polynomial_2, length):
+#     poly1 = [int(pol_length) for pol_length in polynomial_1]
+#     poly2 = [int(pol_length) for pol_length in polynomial_2]
 #
-#     # Create reference signal
-#     x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs)
+#     ones_array_poly1 = [1] * len(poly1)
+#     ones_array_poly2 = [1] * len(poly2)
 #
-#     if repetition_pulses is not None:
-#         nrep = repetition_pulses
-#         xx = np.kron(np.ones(nrep), x)
-#         return xx
-#     else:
-#         return x
-
-#Generates a gold code of length n using LFSRs
-def gold_code(n):
-
-    # Define Linear-feedback shift register taps
-    taps1 = [1, 2, 5, 6]
-    taps2 = [2, 5, 7, 8]
-
-    #initiaze the taps length of 10
-    lfsr1 = [1] * 10
-    lfsr2 = [1] * 10
-
-    #generate code
-    code = []
-    for i in range(n):
-
-
-        # compute XOR of LFSRs
-        xor = lfsr1 [-1] ^ lfsr2 [-1]
-
-        # Append to code
-        code.append(xor)
-
-        #Update LFSRs
-        lfsr1 = [xor if j in taps else lfsr1[j-1] for j  in range(10)]
-        lfsr2 = [xor if j in taps else lfsr2[j-1] for j  in range(10)]
-
-    return code
-
-
-
-
-
-
-
-
+#     gold = []
+#     for i in range(length):
+#         output = ones_array_poly1[0] ^ ones_array_poly2[0]
+#         gold.append(output)
 #
+#         ones_array_poly1 = [output] + ones_array_poly1[:-1]
+#         ones_array_poly2 = ones_array_poly1[-1] ^ [coeff * ones_array_poly2[i] for i, coeff in enumerate(poly2[::-1])] + ones_array_poly2[:-1]
 #
-# x = transmit_signal(1, 8, 2)
-# print(x)
-# # wavfile.write("Recording-6.wav", Fs, x)
+#     return gold
+
+# def gold_code(polynomial_1, polynomial_2, length):
+#     """
+#     Generate a Gold code sequence using two given polynomials and a specified length.
+#     """
+#     # Convert the polynomials from binary strings to lists of coefficients
+#     poly1 = [int(c) for c in polynomial_1]
+#     poly2 = [int(c) for c in polynomial_2]
 #
-# # PlayBack
-# Fs, x = wavfile.read('Recording-6.wav')
-# Audio(x, autoplay=True, rate=Fs)
-
-# Fs_TX = 44100
-# Nbits = 64
-# Timer0 = 1
-# Timer1 = 8
-# Timer3 = 2
-# code = 0x92340f0faaaa4321
-
-# Create reference signal
-# x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs_TX)
-# nrep = 10
-# xx = np.kron(np.ones(nrep), x)
-
-# period = 1/Fs_TX
-# x = transmit_signal(44100, 64, 1, 8, 2, 0x92340f0faaaa4321, 5)
-# t = np.linspace(0, len(x), len(x))
+#     # Initialize the shift registers to all ones
+#     reg1 = [1] * len(poly1)
+#     reg2 = [1] * len(poly2)
 #
-# plt.plot(t, x)
-# # plt.xlim(0, 600)
-# plt.show()
+#     # Generate the Gold code sequence
+#     gold = []
+#     for i in range(length):
+#         # Calculate the output bit as the XOR of the most significant bit of each register
+#         output = reg1[0] ^ reg2[0]
+#         gold.append(str(output))
+#
+#         # Shift the registers by one bit
+#         reg1 = [output] + reg1[:-1]
+#         reg2 = [reg1[-1] ^ sum([coeff * reg2[i] for i, coeff in enumerate(poly2[::-1])])] + reg2[:-1]
+#
+#     gold_code = "".join(gold)
+#     return gold_code
+
+def mic_plotter(data: bool, device_index=None, duration_recording=None):
+    if data is False:
+        mics = microphone_array(device_index, duration_recording)
+        for i in range(5):
+            plt.plot(mics[i][0], mics[i][1])
+            plt.show()
+        return
+    else:
+        for i in range(5):
+            data = np.loadtxt("Recording_handclap_" + str(i) + ".csv", delimiter=",")
+            plt.plot(data[0], data[1])
+            plt.show()
+        return
 
 
-# Fs, x = wavfile.read("C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\subsystems\Recording_handclap_0.wav")
-# Audio(x, autoplay=True, rate=Fs)
+def data_saver(device_index, duration_recording):
+    mics = microphone_array(device_index, duration_recording)
+    for i in range(5):
+        np.savetxt("Recording_handclap_" + str(i) + ".csv", mics[i], delimiter=",")
+        return
 
-data = np.loadtxt("Recording_handclap_0.csv", delimiter=",")
-plt.plot(data[0], data[1])
-plt.show()
+
+def bit_string(length):
+    bit_string = ""
+    for i in range(length):
+        bit = random.randint(0, 1)
+        bit_string += str(bit)
+
+    return bit_string
+
+
+# # Generates a gold code of length n using LFSRs
+# def gold_code(n):
+#     # Define Linear-feedback shift register taps
+#     taps1 = [1, 2, 5, 6]
+#     taps2 = [2, 5, 7, 8]
+#
+#     # initiaze the taps length of 10
+#     lfsr1 = [1] * 10
+#     lfsr2 = [1] * 10
+#
+#     # generate code
+#     code = []
+#     for i in range(n):
+#         # compute XOR of LFSRs
+#         xor = lfsr1[-1] ^ lfsr2[-1]
+#
+#         # Append to code
+#         code.append(xor)
+#
+#         # Update LFSRs
+#         lfsr1 = [xor if j in taps else lfsr1[j - 1] for j in range(10)]
+#         lfsr2 = [xor if j in taps else lfsr2[j - 1] for j in range(10)]
+#
+#     return code
+
+
+# length = 16
+# for i in range(10):
+#     bit_string_1 = bit_string(length)
+#     bit_string_2 = bit_string(length)
+#     gold_code = gold_code("bit_string_1", "bit_string_2", length)
+#     print(gold_code)
+# print(bit_string(16))
+
+def gold_code(polynomial_1, polynomial_2, length):
+    poly1 = [int(c) for c in polynomial_1]
+    poly2 = [int(c) for c in polynomial_2]
+
+    # convert polynomials to binary strings
+    poly1_str = ''.join(str(bit) for bit in poly1)
+    poly2_str = ''.join(str(bit) for bit in poly2)
+
+    # set up LFSR registers
+    reg1 = int(poly1_str, 2)
+    reg2 = int(poly2_str, 2)
+
+    gold = []
+    for i in range(length):
+        # XOR the outputs of the two registers
+        output = (reg1 & 1) ^ (reg2 & 1)
+        gold.append(output)
+
+        # shift the registers to the right by 1 bit
+        reg1 >>= 1
+        reg2 >>= 1
+
+        # apply feedback to the registers
+        feedback1 = (reg1 >> (len(poly1) - 1)) ^ (reg1 & 1)
+        feedback2 = (reg2 >> (len(poly2) - 1)) ^ (reg2 & 1)
+        reg1 ^= feedback1 << (len(poly1) - 1)
+        reg2 ^= feedback2 << (len(poly2) - 1)
+
+    # convert the list of bits to a binary string
+    gold_str = ''.join(str(bit) for bit in gold)
+
+    return gold_str
+
+
+def autocorrelation_normalized(sequence):
+    length = len(sequence)
+    autocorr = []
+    for lag in range(length):
+        corr_sum = sum(sequence[i] * sequence[i+lag] for i in range(length - lag))
+        autocorr.append(corr_sum)
+    max_val = max(autocorr)
+    normalized = [round(val/max_val, 3) for val in autocorr]
+    return normalized
+
+
+
+poly1 = bit_string(200)
+poly2 = bit_string(200)
+length = 150
+gold = gold_code(poly1, poly2, length)
+autocorr = autocorrelation_normalized([int(bit) for bit in gold])
+print(autocorr)
+
+# bit_string = bit_string(20)
+# hex_string = hex(int(bit_string, 2))
 
