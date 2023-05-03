@@ -1,5 +1,6 @@
 import tkinter as tk
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from tkinter import *
 from tkinter import ttk
@@ -85,7 +86,7 @@ def program_selector():
     _step_0 = str(_selection).split(',')
     _step_1 = _step_0[0].split('(')
     _step_2 = _step_1[1]
-    print(robotMode(int(_step_2)))
+    #print(robotMode(int(_step_2)))
     a.selectedRobotMode = robotMode(int(_step_2))
 
 
@@ -117,8 +118,14 @@ batteryText.set(robot.Robot.batteryVoltage)
 label_3 = ttk.Label(window, text="direction: ")
 label_d = ttk.Label(window)
 directionText = StringVar()
-label_b["textvariable"] = directionText
-batteryText.set(robot.Robot.input_servo)
+label_d["textvariable"] = directionText
+directionText.set(robot.Robot.input_servo)
+
+label_4 = ttk.Label(window, text="update frequency: ")
+label_f = ttk.Label(window)
+frequencyText = StringVar()
+label_f["textvariable"] = frequencyText
+frequencyText.set(str(np.round((1/robot.Robot.averageLoop)*10)/10) + " Hz")
 # end labels
 
 # subsystem status labels
@@ -199,6 +206,8 @@ label_2.grid(column=0, row=2)
 label_b.grid(column=1, row=2)
 label_3.grid(column=0, row=3)
 label_d.grid(column=1, row=3)
+label_4.grid(column=0, row=4)
+label_f.grid(column=1, row=4)
 
 canvas.get_tk_widget().grid(column=0, row=0, columnspan=3, rowspan=3)
 
@@ -215,6 +224,20 @@ lb_programs.grid(column=3, row=4)
 
 
 while True:
+    #update texts
+    batteryText.set(robot.Robot.batteryVoltage)
+    directionText.set(robot.Robot.input_servo)
+    operatingModeText.set(str(a.selectedRobotMode).split('.')[1])
+    localizationStatusText.set(str(robot.Robot.localizationState).split('.')[1])
+    loggingStatusText.set(str(robot.Robot.loggingState).split('.')[1])
+    timeStatusText.set(str(robot.Robot.timingState).split('.')[1])
+    inputStatusText.set(str(robot.Robot.inputState).split('.')[1])
+    comsStatusText.set(str(robot.Robot.communicationState).split('.')[1])
+    motorSpeedText.set(robot.Robot.input_motor)
+    frequencyText.set(str(np.round((1 / robot.Robot.averageLoop) * 10) / 10) + " Hz") # FIXME: figure out why this isn't updating in the GUI
+
+
+    #update robot and gui
     a.updateRobot()
     root.update()
 

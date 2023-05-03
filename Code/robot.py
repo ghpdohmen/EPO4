@@ -37,11 +37,13 @@ class Robot:
     # output values
     input_motor = 150;
     input_servo = 150;
-    COMport = 'COM5'  # TODO: enable in GUI
+    COMport = 'COM4'  # TODO: enable in GUI
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
     loopTime = 0  # delta t, time in between updates
+    averageLoop = 0.1
+    index = 0
 
     def __init__(self, _xCurrent, _yCurrent):
         self.yCurrent = _yCurrent;
@@ -68,7 +70,7 @@ class Robot:
         # self.localizationSubSystem.start()
 
         # printing the loop time, so we can optimize this via multithreading
-        print(self.loopTime)
+        # print(self.loopTime)
 
     # updates all subsystems
     def update(self):
@@ -77,11 +79,19 @@ class Robot:
             self.timeSubSystem.update()
             self.inputSubSystem.update()
             self.loggingSubSystem.update()
+            self.communicationSubSystem.update()
             # self.localizationSubSystem.update()
             # print(self.distanceLeft)
             # printing the loop time, so we can optimize this via multithreading
+
             if self.loopTime != 0:
-                print(str(self.loopTime / 1000000) + " ms")
+                if self.index == 0:
+                    self.index = 1
+                    return
+                self.index += 1
+                self.averageLoop = self.averageLoop + (self.loopTime / 1000000000 - self.averageLoop) / self.index
+                #print("average loop time:" + str(self.averageLoop) + " s")
+                #print("update frequency" + str(1/self.averageLoop) + " Hz ")
 
     def stop(self):
         self.communicationSubSystem.stop()
