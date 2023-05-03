@@ -5,7 +5,7 @@ import numpy as np
 import robot
 from subsystems.subsystem import subSystem
 from subsystems.subsystemStateEnum import subSystemState
-import pyaudio as audio
+#import pyaudio as audio
 
 
 class LocalizationSubSystem(subSystem):
@@ -33,14 +33,14 @@ class LocalizationSubSystem(subSystem):
         if (self.state == subSystemState.Started) | (self.state == subSystemState.Running):
             self.state = subSystemState.Running
             robot.Robot.localizationState = self.state
-            print(self.goldCode)
+
     def stop(self):
         self.state = subSystemState.Stopped
         robot.Robot.localizationState = self.state
 
 
 
-    def audio_devices(*, print_list: bool):
+    def audio_devices(self,*, print_list: bool):
         """
         Find all audio devices visible to pyaudio, if print_list = True, print the list of audio_devices
         @param print_list: print the list of devices
@@ -134,6 +134,36 @@ class LocalizationSubSystem(subSystem):
         print(_gold_str)
 
         return _gold_str
+
+    def gold_code_generator(iterations, length_polynomials):
+        gold_code_array = []
+        cross_correlation = []
+        for i in range(iterations):
+            poly1 = bit_string(length_polynomials)
+            poly2 = bit_string(length_polynomials)
+            gold = gold_code(poly1, poly2, 32)
+            gold_code_array.append(gold)
+
+            gold_array = []
+            for j in range(len(gold)):
+                gold_array.append(gold[j])
+            # print(gold_array)
+
+            gold_array_integer = [int(k) for k in gold_array]
+            # print(gold_array_integer)
+
+            r = np.convolve(gold_array_integer, np.flip(gold_array_integer))
+            second_peak = max(r[32::])
+            difference = r[31] - second_peak
+            cross_correlation.append(difference)
+
+        maximum_difference = max(cross_correlation)
+        for i in range(len(gold_code_array)):
+            if maximum_difference == cross_correlation[i]:
+                gold_code_used = gold_code_array[i]
+                index = i
+
+        return gold_code_used, r
 
     def bit_string(self, _length):
         """

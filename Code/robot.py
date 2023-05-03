@@ -18,7 +18,7 @@ class Robot:
 
     # audio stuff
     code = "A23"  # String, hexadecimal
-    speakerOn = True
+    speakerOn = False
     carrierFrequency = 6000  # in Hz
     bitFrequency = 2000  # in Hz
     repetitionCount = 64  # in number of bits
@@ -64,7 +64,7 @@ class Robot:
             print("no operating mode chosen")
             return
 
-        self.localizationSubSystem.start()
+        #self.localizationSubSystem.start()
         self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
         self.inputSubSystem.start()
@@ -99,7 +99,7 @@ class Robot:
                 self.index += 1
                 self.averageLoop = self.averageLoop + (self.loopTime / 1000000000 - self.averageLoop) / self.index
                 #print("average loop time:" + str(self.averageLoop) + " s")
-                #print("update frequency" + str(1/self.averageLoop) + " Hz ")
+                print("update frequency" + str(1/self.averageLoop) + " Hz ")
 
     def stop(self):
         self.communicationSubSystem.stop()
