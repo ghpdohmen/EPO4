@@ -43,7 +43,6 @@ class communicationSubSystem(subSystem):
             self.serial_port.write(b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n')
             self.serial_port.write(b'D' + bytes(str(robot.Robot.input_servo), 'ascii') + b'\n')
 
-            # TODO: implement audio writing
             # writing the current audio settings
 
             # enable/disable speaker

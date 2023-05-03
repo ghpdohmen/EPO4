@@ -23,17 +23,17 @@ canvas.draw()
 
 # listbox, selecting different programs
 def program_selector():
+    
     selection = lb_programs.curselection()
     step_0 = str(selection).split(',')
     step_1 = step_0[0].split('(')
     step_2 = step_1[1]
-    print(robotMode(step_2))
+    print(robotMode(int(step_2)))
 
 
 l_programs = ["Manual", "Challenge A", "Challenge B", "Challenge C", "Challenge D", "Challenge E"]
 l_programsvar = StringVar(value=l_programs)
 lb_programs = Listbox(root, height=5, listvariable=l_programsvar)
-lb_programs.bind("<Double-Button-1>", lambda event: program_selector())
 
 
 # end listbox

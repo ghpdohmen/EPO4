@@ -1,6 +1,9 @@
 import pyaudio as audio
 import numpy as np
 import matplotlib.pyplot as plt
+import random
+
+import scipy
 # pip install --upgrade --no-cache-dir gdown
 # gdown 1xGUeeM-oY0pyXA0OO8_uKwT-vLAsiyZB  # refsignal.py
 # gdown 1xTibH8tNbpwdSWmkziFGS24WXEYhtMRl  # wavaudioread.py
@@ -11,12 +14,9 @@ from scipy.fft import fft, ifft
 from scipy.signal import convolve, unit_impulse
 from IPython.display import Audio
 
-from Code.subsystems.subsystem import subSystem
+# from subsystems.subsystem import subSystem
 #
-from refsignal import refsignal  # model for the EPO4 audio beacon signal
-
-# from wavaudioread import wavaudioread
-# from recording_tool import recording_tool
+# from Code.robot import robot
 
 # Global Variables
 Fs = 44100
@@ -33,121 +33,181 @@ def audio_devices(*, print_list: bool):
 
     return pyaudio_handle
 
+    # audio_devices(print_list=True)
 
-audio_devices(print_list=True)
+    # TODO: write this as a subsystem
 
+    # from subsystems.subsystemStateEnum import subSystemState
 
-# TODO: write this as a subsystem
-
-from subsystems.subsystemStateEnum import subSystemState
-
-class Localizationsubsystem(subSystem):
-
-    def __int__(self):
-
-    def start(self):
-
-    def update(self):
-
-    def stop(self):
-
-
-    def microphone_array(device_index, duration_recording):
-        # Fs = 44100
-        number_of_samples = duration_recording * Fs
-        N = number_of_samples * 5
-
-        pyaudio_handle = audio_devices(print_list=False)
-        stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=audio.paInt16, rate=Fs, input=True)
-
-        samples = stream.read(N)
-        data = np.frombuffer(samples, dtype='int16')
-
-        data_length = len(data[::5])
-        data_mic_0 = data[0::5]
-        data_mic_1 = data[1::5]
-        data_mic_2 = data[2::5]
-        data_mic_3 = data[3::5]
-        data_mic_4 = data[4::5]
-
-        sample_axis_mic_0 = np.linspace(0, max(data_mic_0), data_length)
-        sample_axis_mic_1 = np.linspace(0, max(data_mic_1), data_length)
-        sample_axis_mic_2 = np.linspace(0, max(data_mic_2), data_length)
-        sample_axis_mic_3 = np.linspace(0, max(data_mic_3), data_length)
-        sample_axis_mic_4 = np.linspace(0, max(data_mic_4), data_length)
-
-        mic_0 = sample_axis_mic_0, data_mic_0
-        mic_1 = sample_axis_mic_1, data_mic_1
-        mic_2 = sample_axis_mic_2, data_mic_2
-        mic_3 = sample_axis_mic_3, data_mic_3
-        mic_4 = sample_axis_mic_4, data_mic_4
-
-        return mic_0, mic_1, mic_2, mic_3, mic_4
-
-
-    # mics = microphone_array(18, 5)
-    # for i in range(0, 5, 1):
-    #     plt.plot(mics[i][0], mics[i][1])
-    #     plt.show()
-
-
-    # Set up transmit signal
-    # normal values:44100, 64, 1, 8, 2, 0x92340f0faaaa4321,
-    def transmit_signal(Fs, Nbits, Timer0, Timer1, Timer3, code, repetition_pulses=None):
-        # Create reference signal
-        x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs)
-
-        if repetition_pulses is not None:
-            nrep = repetition_pulses
-            xx = np.kron(np.ones(nrep), x)
-            return xx
-        else:
-            return x
-
-
+    # class Localizationsubsystem(subSystem):
+    #    enabled = False
     #
-    #
-    # x = transmit_signal(1, 8, 2)
-    # print(x)
-    # # wavfile.write("Recording-6.wav", Fs, x)
-    #
-    # # PlayBack
-    # Fs, x = wavfile.read('Recording-6.wav')
-    # Audio(x, autoplay=True, rate=Fs)
+    # def __int__(self):
+    #     robot.speakerOn = False
+    #     robot.code = "A23"
+    #     robot.carrierFrequency = 6000
+    #     robot.bitFrequency = 2000
+    #     robot.repetitionCount = 64
+    #     robot.speakerOn = True
 
-    # Fs_TX = 44100
-    # Nbits = 64
-    # Timer0 = 1
-    # Timer1 = 8
-    # Timer3 = 2
-    # code = 0x92340f0faaaa4321
 
-    # Create reference signal
-    # x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs_TX)
-    # nrep = 10
-    # xx = np.kron(np.ones(nrep), x)
+#
+#
+#     def start(self):
+#
+#     def update(self):
+#
+#     def stop(self):
 
-    # period = 1/Fs_TX
-    x = transmit_signal(44100, 64, 1, 8, 2, 0x92340f0faaaa4321, 5)
-    t = np.linspace(0, len(x), len(x))
 
-    plt.plot(t, x)
-    # plt.xlim(0, 600)
-    plt.show()
+def microphone_array(device_index, duration_recording):
+    # Fs = 44100
+    number_of_samples = duration_recording * Fs
+    N = number_of_samples
 
-    frames = []
-    second_tracking = 0
-    second_count = 0
-    for i in range(0, int(Fs / N * duration_recording)):
-        data = stream.read(N)
-        frames.append(data)
-        second_tracking += 1
-        if second_tracking == Fs / N:
-            second_count += 1
-            second_tracking = 0
-            print(f'Time Left: {duration_recording - second_count} seconds')
+    pyaudio_handle = audio_devices(print_list=False)
+    stream = pyaudio_handle.open(input_device_index=device_index, channels=5, format=audio.paInt16, rate=Fs, input=True)
 
-    stream.stop_stream()
-    stream.close()
-    pa.terminate()
+    samples = stream.read(N)
+    data = np.frombuffer(samples, dtype='int16')
 
+    data_length = len(data[::5])
+    data_mic_0 = data[0::5]
+    data_mic_1 = data[1::5]
+    data_mic_2 = data[2::5]
+    data_mic_3 = data[3::5]
+    data_mic_4 = data[4::5]
+
+    sample_axis_mic_0 = np.linspace(0, data_length / Fs, data_length)
+    sample_axis_mic_1 = np.linspace(0, data_length / Fs, data_length)
+    sample_axis_mic_2 = np.linspace(0, data_length / Fs, data_length)
+    sample_axis_mic_3 = np.linspace(0, data_length / Fs, data_length)
+    sample_axis_mic_4 = np.linspace(0, data_length / Fs, data_length)
+
+    mic_0 = sample_axis_mic_0, data_mic_0
+    mic_1 = sample_axis_mic_1, data_mic_1
+    mic_2 = sample_axis_mic_2, data_mic_2
+    mic_3 = sample_axis_mic_3, data_mic_3
+    mic_4 = sample_axis_mic_4, data_mic_4
+
+    return mic_0, mic_1, mic_2, mic_3, mic_4
+
+
+# def gold_code(polynomial_1, polynomial_2, length):
+#     """
+#     Generate a Gold code sequence using two given polynomials and a specified length.
+#     """
+#     # Convert the polynomials from binary strings to lists of coefficients
+#     poly1 = [int(c) for c in polynomial_1]
+#     poly2 = [int(c) for c in polynomial_2]
+#
+#     # Initialize the shift registers to all ones
+#     reg1 = [1] * len(poly1)
+#     reg2 = [1] * len(poly2)
+#
+#     # Generate the Gold code sequence
+#     gold = []
+#     for i in range(length):
+#         # Calculate the output bit as the XOR of the most significant bit of each register
+#         output = reg1[0] ^ reg2[0]
+#         gold.append(str(output))
+#
+#         # Shift the registers by one bit
+#         reg1 = [output] + reg1[:-1]
+#         reg2 = [reg1[-1] ^ sum([coeff * reg2[i] for i, coeff in enumerate(poly2[::-1])])] + reg2[:-1]
+#
+#     gold_code = "".join(gold)
+#     return gold_code
+
+def mic_plotter(data: bool, device_index=None, duration_recording=None):
+    if data is False:
+        mics = microphone_array(device_index, duration_recording)
+        for i in range(5):
+            plt.plot(mics[i][0], mics[i][1])
+            plt.show()
+        return
+    else:
+        for i in range(5):
+            data = np.loadtxt("Recording_handclap_" + str(i) + ".csv", delimiter=",")
+            plt.plot(data[0], data[1])
+            plt.show()
+        return
+
+
+def data_saver(device_index, duration_recording):
+    mics = microphone_array(device_index, duration_recording)
+    for i in range(5):
+        np.savetxt("Recording_handclap_" + str(i) + ".csv", mics[i], delimiter=",")
+        return
+
+
+def bit_string(length):
+    bit_string = ""
+    for i in range(length):
+        bit = random.randint(0, 1)
+        bit_string += str(bit)
+
+    return bit_string
+
+
+def gold_code(polynomial_1, polynomial_2, length):
+    poly1 = [int(c) for c in polynomial_1]
+    poly2 = [int(c) for c in polynomial_2]
+
+    # convert polynomials to binary strings
+    poly1_str = ''.join(str(bit) for bit in poly1)
+    poly2_str = ''.join(str(bit) for bit in poly2)
+
+    # set up LFSR registers
+    reg1 = int(poly1_str, 2)
+    reg2 = int(poly2_str, 2)
+
+    gold = []
+    for i in range(length):
+        # XOR the outputs of the two registers
+        output = (reg1 & 1) ^ (reg2 & 1)
+        gold.append(output)
+
+        # shift the registers to the right by 1 bit
+        reg1 >>= 1
+        reg2 >>= 1
+
+        # apply feedback to the registers
+        feedback1 = (reg1 >> (len(poly1) - 1)) ^ (reg1 & 1)
+        feedback2 = (reg2 >> (len(poly2) - 1)) ^ (reg2 & 1)
+        reg1 ^= feedback1 << (len(poly1) - 1)
+        reg2 ^= feedback2 << (len(poly2) - 1)
+
+    # convert the list of bits to a binary string
+    gold_str = ''.join(str(bit) for bit in gold)
+
+    return gold_str
+
+
+poly1 = bit_string(200)
+poly2 = bit_string(200)
+length = 32
+gold = gold_code(poly1, poly2, length)
+# autocorr = autocorrelation_normalized([int(bit) for bit in gold])
+print(gold)
+
+gold_array = []
+for i in range(len(gold)):
+    gold_array.append(gold[i])
+# print(gold_array)
+
+gold_array_integer = [int(i) for i in gold_array]
+# print(gold_array_integer)
+r1 = np.convolve(gold_array_integer, np.flip(gold_array_integer))
+n = list(range(-32 + 1, 32))
+# print(r1.shape)
+plt.plot(n, r1);
+plt.xlabel('n')
+plt.ylabel('r_xy[n]');
+plt.show()
+
+# bit_string = bit_string(20)
+# hex_string = hex(int(bit_string, 2))
+
+
+# gotten from https://github.com/mubeta06/python/blob/master/signal_processing/sp/gold.py
