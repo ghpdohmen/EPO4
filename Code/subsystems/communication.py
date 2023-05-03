@@ -69,12 +69,14 @@ class communicationSubSystem(subSystem):
             #self.serial_port.write(b'F' + _carrier + b'\n'+b'B' + _bitFrequency + b'\n'+b'R' + _repetition + b'\n'+b'C' + bytes(robot.Robot.code, 'ascii') + b'\n')
             # try writing everything at once
             if robot.Robot.speakerOn:
+                print("writing speaker on")
                 self.serial_port.write(
                     b'A1\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
                         str(robot.Robot.input_servo), 'ascii') + b'\n' +
                     b'F' + _carrier + b'\n' + b'B' + _bitFrequency + b'\n' + b'R' + _repetition + b'\n' + b'C' + bytes(
-                        robot.Robot.code, 'ascii') + b'\n')
+                        robot.Robot.code, 'ascii') + b'\n' + b'S\n')
             else:
+                print("writing speaker off")
                 self.serial_port.write(
                     b'A0\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
                         str(robot.Robot.input_servo), 'ascii') + b'\n' +
@@ -86,12 +88,14 @@ class communicationSubSystem(subSystem):
             # complete
             #self.serial_port.write(b'S\n')
             self.state = subSystemState.WaitingForData
+            print("finished writing")
 
 
 
 
         # Here we receive the data and split it in the respective variables for the robot class
         if self.state == subSystemState.WaitingForData:
+            print("waiting for read")
             _incomingData = self.serial_port.read_until(b'\x04')
             _incomingDataSplit = str(_incomingData).split('\\n')
 

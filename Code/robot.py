@@ -4,6 +4,7 @@ from misc.robotStatusEnum import robotStatus
 from subsystems.communication import communicationSubSystem
 from subsystems.csvLoggingSubSystem import csvLoggingSubsystem
 from subsystems.inputSubSystem import inputSubSystem
+from subsystems.localizationsubsystem import LocalizationSubSystem
 from subsystems.subsystemStateEnum import subSystemState
 from subsystems.timing import timeSubSystem
 
@@ -17,10 +18,10 @@ class Robot:
 
     # audio stuff
     code = "A23"  # String, hexadecimal
-    speakerOn = False
-    carrierFrequency = 10000  # in Hz
-    bitFrequency = 1000  # in Hz
-    repetitionCount = 32  # in number of bits
+    speakerOn = True
+    carrierFrequency = 6000  # in Hz
+    bitFrequency = 2000  # in Hz
+    repetitionCount = 64  # in number of bits
 
     # subsystem states
     communicationState = subSystemState.Stopped
@@ -37,7 +38,7 @@ class Robot:
     # output values
     input_motor = 150;
     input_servo = 150;
-    COMport = 'COM4'  # TODO: enable in GUI
+    COMport = 'COM5'  # TODO: enable in GUI
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
@@ -52,7 +53,7 @@ class Robot:
         self.timeSubSystem = timeSubSystem()
         self.inputSubSystem = inputSubSystem()
         self.loggingSubSystem = csvLoggingSubsystem()
-        # self.localizationSubSystem = LocalizationSubSystem()
+        self.localizationSubSystem = LocalizationSubSystem()
 
     # start all subsystems
     def start(self, _operatingMode):
@@ -63,25 +64,32 @@ class Robot:
             print("no operating mode chosen")
             return
 
+        self.localizationSubSystem.start()
         self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
         self.inputSubSystem.start()
         self.loggingSubSystem.start()
-        # self.localizationSubSystem.start()
+
 
         # printing the loop time, so we can optimize this via multithreading
-        # print(self.loopTime)
+        print(self.loopTime)
+        self.status = robotStatus.Running
 
     # updates all subsystems
     def update(self):
         if (self.status == robotStatus.Running) | (self.status == robotStatus.Paused) | (
                 self.status == robotStatus.Planning):
+            #print("update")
             self.timeSubSystem.update()
+            #print("time")
             self.inputSubSystem.update()
+            #print("input")
             self.loggingSubSystem.update()
+            #print("logging")
             self.communicationSubSystem.update()
-            # self.localizationSubSystem.update()
-            # print(self.distanceLeft)
+            #("comms")
+            self.localizationSubSystem.update()
+            #print(self.distanceLeft)
             # printing the loop time, so we can optimize this via multithreading
 
             if self.loopTime != 0:
