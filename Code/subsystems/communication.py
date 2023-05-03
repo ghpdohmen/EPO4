@@ -10,7 +10,7 @@ from subsystems.subsystemStateEnum import subSystemState
 class communicationSubSystem(subSystem):
     # variable declaration
     serial_port = 0
-    baud_rate = 115200
+    baud_rate = 115200 #TODO: experiment with increasing the baud rate to possibly speed up communication UNLIKELY TO WORK, BUT WORTH TESTING
     comport = None
 
     def __int__(self):
@@ -22,9 +22,10 @@ class communicationSubSystem(subSystem):
         Used for starting communication with the robot
         @param _comport: THe COMport used to communicate with the robot. Please give the OUTGOING COMport as given by your bluetooth settings
         """
+        #TODO: Check if comport actually exists
         self.comport = _comport
         self.state = subSystemState.Started
-        self.serial_port = serial.Serial(self.comport, self.baud_rate, rtscts=True)
+        self.serial_port = serial.Serial(self.comport, self.baud_rate, rtscts=True) #TODO: error handling and inform user via GUI
         self.state = subSystemState.ReadyForUpdate
 
     # sends all new data to the robot en gets new data from the robot
@@ -42,6 +43,9 @@ class communicationSubSystem(subSystem):
             # writing the current pwm signal for both the motor and steering
             self.serial_port.write(b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n')
             self.serial_port.write(b'D' + bytes(str(robot.Robot.input_servo), 'ascii') + b'\n')
+            #TODO: test difference between signle write line and concatted write line
+            #writes motor and servo commands
+            #self.serial_port.write(b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n'+b'D' + bytes(str(robot.Robot.input_servo), 'ascii') + b'\n')
 
             # writing the current audio settings
 
@@ -60,6 +64,10 @@ class communicationSubSystem(subSystem):
             self.serial_port.write(b'R' + _repetition + b'\n')
             self.serial_port.write(b'C' + bytes(robot.Robot.code, 'ascii') + b'\n')
 
+            #TODO: test difference between single write line and concatted write line
+            #writes all audio commands
+            #self.serial_port.write(b'F' + _carrier + b'\n'+b'B' + _bitFrequency + b'\n'+b'R' + _repetition + b'\n'+b'C' + bytes(robot.Robot.code, 'ascii') + b'\n')
+
             # start sending the data and set our state to WaitingForData, which we will stay in until the packet is
             # complete
             self.serial_port.write(b'S\n')
@@ -67,7 +75,7 @@ class communicationSubSystem(subSystem):
 
         # Here we receive the data and split it in the respective variables for the robot class
         if self.state == subSystemState.WaitingForData:
-            _incomingData = self.serial_port.read_until(b'\x04')
+            _incomingData = self.serial_port.read_until(b'\x04') #TODO: check if data packet includes some information we don't need at the end. We might be able to remove some overhead there
             _incomingDataSplit = str(_incomingData).split('\\n')
 
             # debug: print _incomingDataSplit to figure out which strings to parse.

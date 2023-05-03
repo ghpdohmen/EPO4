@@ -65,7 +65,7 @@ ssWindow = ttk.Frame(root, width=400, height=200)
 ssWindow["borderwidth"] = 4
 ssWindow["relief"] = "ridge"
 
-#
+# TODO: show robot location, location uncertainty, goal and path? on this plot
 # graph showing path
 figure = plt.Figure(figsize=(3,3), dpi=100)
 fig = figure.add_subplot(111, autoscale_on=False, xlim = (0,4.8), ylim = (0,4.8))
@@ -78,7 +78,6 @@ canvas.draw()
 
 # end graph
 
-# robot declaration
 
 # listbox, selecting different programs
 def program_selector():
