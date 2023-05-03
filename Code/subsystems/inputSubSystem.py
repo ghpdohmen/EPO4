@@ -29,7 +29,7 @@ class inputSubSystem(subSystem):
     def keyboard_w(self):
         if self.enabled:
             _new_power = robot.Robot.input_motor + self.powerSensitivity
-            robot.Robot.input_motor = max(135, min(165,_new_power))
+            robot.Robot.input_motor = max(135, min(165, _new_power))
 
     def keyboard_s(self):
         if self.enabled:

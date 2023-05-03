@@ -15,13 +15,12 @@ class Robot:
     xCurrent = 0
     yCurrent = 0
 
-    #audio stuff
-    code = "A23" #String, hexadecimal
+    # audio stuff
+    code = "A23"  # String, hexadecimal
     speakerOn = False
-    carrierFrequency = 10000 # in Hz
-    bitFrequency = 1000 # in Hz
-    repetitionCount = 32 # in number of bits
-
+    carrierFrequency = 10000  # in Hz
+    bitFrequency = 1000  # in Hz
+    repetitionCount = 32  # in number of bits
 
     # subsystem states
     communicationState = subSystemState.Stopped
@@ -38,11 +37,13 @@ class Robot:
     # output values
     input_motor = 150;
     input_servo = 150;
-    COMport = 'COM5'
+    COMport = 'COM4'  # TODO: enable in GUI
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
     loopTime = 0  # delta t, time in between updates
+    averageLoop = 0.1
+    index = 0
 
     def __init__(self, _xCurrent, _yCurrent):
         self.yCurrent = _yCurrent;
@@ -51,34 +52,49 @@ class Robot:
         self.timeSubSystem = timeSubSystem()
         self.inputSubSystem = inputSubSystem()
         self.loggingSubSystem = csvLoggingSubsystem()
-        #self.localizationSubSystem = LocalizationSubSystem()
+        # self.localizationSubSystem = LocalizationSubSystem()
 
     # start all subsystems
     def start(self, _operatingMode):
         self.operatingMode = _operatingMode
-        #let's quickly check if we have set an operating mode, otherwise running the robot is so hard
+        # let's quickly check if we have set an operating mode, otherwise running the robot is so hard
         if _operatingMode == robotMode.NotChosen:
-            #TODO: implement error message
+            # TODO: implement error message in gui
+            print("no operating mode chosen")
             return
 
         self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
         self.inputSubSystem.start()
         self.loggingSubSystem.start()
-        #self.localizationSubSystem.start()
+        # self.localizationSubSystem.start()
+
+        # printing the loop time, so we can optimize this via multithreading
+        # print(self.loopTime)
 
     # updates all subsystems
     def update(self):
-        self.communicationSubSystem.update()
-        self.timeSubSystem.update()
-        self.inputSubSystem.update()
-        self.loggingSubSystem.update()
-        #self.localizationSubSystem.update()
-        #print(self.distanceLeft)
+        if (self.status == robotStatus.Running) | (self.status == robotStatus.Paused) | (
+                self.status == robotStatus.Planning):
+            self.timeSubSystem.update()
+            self.inputSubSystem.update()
+            self.loggingSubSystem.update()
+            self.communicationSubSystem.update()
+            # self.localizationSubSystem.update()
+            # print(self.distanceLeft)
+            # printing the loop time, so we can optimize this via multithreading
+
+            if self.loopTime != 0:
+                if self.index == 0:
+                    self.index = 1
+                    return
+                self.index += 1
+                self.averageLoop = self.averageLoop + (self.loopTime / 1000000000 - self.averageLoop) / self.index
+                #print("average loop time:" + str(self.averageLoop) + " s")
+                #print("update frequency" + str(1/self.averageLoop) + " Hz ")
 
     def stop(self):
         self.communicationSubSystem.stop()
         self.timeSubSystem.stop()
         self.inputSubSystem.stop()
         self.loggingSubSystem.stop()
-

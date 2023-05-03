@@ -1,4 +1,4 @@
-#enum used to keep track of the current program used by the robot, set by the GUI
+# enum used to keep track of the current program used by the robot, set by the GUI
 from enum import Enum
 
 
