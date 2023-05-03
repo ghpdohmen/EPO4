@@ -2,6 +2,8 @@ import pyaudio as audio
 import numpy as np
 import matplotlib.pyplot as plt
 import random
+
+import scipy
 # pip install --upgrade --no-cache-dir gdown
 # gdown 1xGUeeM-oY0pyXA0OO8_uKwT-vLAsiyZB  # refsignal.py
 # gdown 1xTibH8tNbpwdSWmkziFGS24WXEYhtMRl  # wavaudioread.py
@@ -148,72 +150,64 @@ def bit_string(length):
     return bit_string
 
 
-# def gold_code(polynomial_1, polynomial_2, length):
-#     poly1 = [int(c) for c in polynomial_1]
-#     poly2 = [int(c) for c in polynomial_2]
-#
-#     # convert polynomials to binary strings
-#     poly1_str = ''.join(str(bit) for bit in poly1)
-#     poly2_str = ''.join(str(bit) for bit in poly2)
-#
-#     # set up LFSR registers
-#     reg1 = int(poly1_str, 2)
-#     reg2 = int(poly2_str, 2)
-#
-#     gold = []
-#     for i in range(length):
-#         # XOR the outputs of the two registers
-#         output = (reg1 & 1) ^ (reg2 & 1)
-#         gold.append(output)
-#
-#         # shift the registers to the right by 1 bit
-#         reg1 >>= 1
-#         reg2 >>= 1
-#
-#         # apply feedback to the registers
-#         feedback1 = (reg1 >> (len(poly1) - 1)) ^ (reg1 & 1)
-#         feedback2 = (reg2 >> (len(poly2) - 1)) ^ (reg2 & 1)
-#         reg1 ^= feedback1 << (len(poly1) - 1)
-#         reg2 ^= feedback2 << (len(poly2) - 1)
-#
-#     # convert the list of bits to a binary string
-#     gold_str = ''.join(str(bit) for bit in gold)
-#
-#     return gold_str
+def gold_code(polynomial_1, polynomial_2, length):
+    poly1 = [int(c) for c in polynomial_1]
+    poly2 = [int(c) for c in polynomial_2]
+
+    # convert polynomials to binary strings
+    poly1_str = ''.join(str(bit) for bit in poly1)
+    poly2_str = ''.join(str(bit) for bit in poly2)
+
+    # set up LFSR registers
+    reg1 = int(poly1_str, 2)
+    reg2 = int(poly2_str, 2)
+
+    gold = []
+    for i in range(length):
+        # XOR the outputs of the two registers
+        output = (reg1 & 1) ^ (reg2 & 1)
+        gold.append(output)
+
+        # shift the registers to the right by 1 bit
+        reg1 >>= 1
+        reg2 >>= 1
+
+        # apply feedback to the registers
+        feedback1 = (reg1 >> (len(poly1) - 1)) ^ (reg1 & 1)
+        feedback2 = (reg2 >> (len(poly2) - 1)) ^ (reg2 & 1)
+        reg1 ^= feedback1 << (len(poly1) - 1)
+        reg2 ^= feedback2 << (len(poly2) - 1)
+
+    # convert the list of bits to a binary string
+    gold_str = ''.join(str(bit) for bit in gold)
+
+    return gold_str
 
 
-def autocorrelation_normalized(sequence):
-    length = len(sequence)
-    autocorr = []
-    for lag in range(length):
-        corr_sum = sum(sequence[i] * sequence[i + lag] for i in range(length - lag))
-        autocorr.append(corr_sum)
-    max_val = max(autocorr)
-    normalized = [round(val / max_val, 3) for val in autocorr]
-    return normalized
-
-
-# poly1 = bit_string(200)
-# poly2 = bit_string(200)
-# length = 150
-# gold = gold_code(poly1, poly2, length)
+poly1 = bit_string(200)
+poly2 = bit_string(200)
+length = 32
+gold = gold_code(poly1, poly2, length)
 # autocorr = autocorrelation_normalized([int(bit) for bit in gold])
-# print(autocorr)
+print(gold)
+
+gold_array = []
+for i in range(len(gold)):
+    gold_array.append(gold[i])
+# print(gold_array)
+
+gold_array_integer = [int(i) for i in gold_array]
+# print(gold_array_integer)
+r1 = np.convolve(gold_array_integer, np.flip(gold_array_integer))
+n = list(range(-32 + 1, 32))
+# print(r1.shape)
+plt.plot(n, r1);
+plt.xlabel('n')
+plt.ylabel('r_xy[n]');
+plt.show()
 
 # bit_string = bit_string(20)
 # hex_string = hex(int(bit_string, 2))
 
 
 # gotten from https://github.com/mubeta06/python/blob/master/signal_processing/sp/gold.py
-
-import pylab
-from sp import mls
-from sp import filter
-nbits = 9
-m = mls.mls(nbits)
-pylab.figure()
-pylab.title('%d bit M-Sequence Periodic Autocorrelation' % nbits)
-m = numpy.where(m, 1.0, -1.0)
-pylab.plot((numpy.roll(filter.ccorr(m, m).real, 2**nbits/2 - 1)))
-pylab.xlim(0, len(m))
-pylab.show()
