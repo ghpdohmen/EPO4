@@ -184,30 +184,66 @@ def gold_code(polynomial_1, polynomial_2, length):
     return gold_str
 
 
-poly1 = bit_string(200)
-poly2 = bit_string(200)
-length = 32
-gold = gold_code(poly1, poly2, length)
-# autocorr = autocorrelation_normalized([int(bit) for bit in gold])
-print(gold)
+# poly1 = bit_string(200)
+# poly2 = bit_string(200)
+# length = 32
+# gold = gold_code(poly1, poly2, length)
+# # autocorr = autocorrelation_normalized([int(bit) for bit in gold])
+# print(gold)
+#
+# gold_array = []
+# for i in range(len(gold)):
+#     gold_array.append(gold[i])
+# # print(gold_array)
+#
+# gold_array_integer = [int(i) for i in gold_array]
+# # print(gold_array_integer)
+# r1 = np.convolve(gold_array_integer, np.flip(gold_array_integer))
+# n = list(range(-32 + 1, 32))
+# # print(r1.shape)
+# plt.plot(n, r1);
+# plt.xlabel('n')
+# plt.ylabel('r_xy[n]');
+# plt.show()
+#
+# print(r1, r1[31]- r1[29], r1[29], r1[31])
 
-gold_array = []
-for i in range(len(gold)):
-    gold_array.append(gold[i])
-# print(gold_array)
+# iterations = 1000
+# length_polynomials = 100
+def gold_code_generator(iterations, length_polynomials):
+    gold_code_array = []
+    cross_correlation = []
+    for i in range(iterations):
+        poly1 = bit_string(length_polynomials)
+        poly2 = bit_string(length_polynomials)
+        gold = gold_code(poly1, poly2, 32)
+        gold_code_array.append(gold)
 
-gold_array_integer = [int(i) for i in gold_array]
-# print(gold_array_integer)
-r1 = np.convolve(gold_array_integer, np.flip(gold_array_integer))
+        gold_array = []
+        for j in range(len(gold)):
+            gold_array.append(gold[j])
+        # print(gold_array)
+
+        gold_array_integer = [int(k) for k in gold_array]
+        # print(gold_array_integer)
+
+        r = np.convolve(gold_array_integer, np.flip(gold_array_integer))
+        second_peak = max(r[32::])
+        difference = r[31] - second_peak
+        cross_correlation.append(difference)
+
+    maximum_difference = max(cross_correlation)
+    for i in range(len(gold_code_array)):
+        if maximum_difference == cross_correlation[i]:
+            gold_code_used = gold_code_array[i]
+            index = i
+
+    return gold_code_used, r
+
+gold_code_used, r = gold_code_generator(1000, 100)
+print(gold_code_used)
 n = list(range(-32 + 1, 32))
-# print(r1.shape)
-plt.plot(n, r1);
+plt.plot(n, r);
 plt.xlabel('n')
 plt.ylabel('r_xy[n]');
 plt.show()
-
-# bit_string = bit_string(20)
-# hex_string = hex(int(bit_string, 2))
-
-
-# gotten from https://github.com/mubeta06/python/blob/master/signal_processing/sp/gold.py
