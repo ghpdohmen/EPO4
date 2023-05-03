@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="1f8352e8-0cf6-46a8-8926-ba2732923664" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+<<<<<<< HEAD
       <change beforePath="$PROJECT_DIR$/Code/robot.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/robot.py" afterDir="false" />
+=======
+>>>>>>> main
       <change beforePath="$PROJECT_DIR$/Code/subsystems/microphone_array.py" beforeDir="false" afterPath="$PROJECT_DIR$/Code/subsystems/microphone_array.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -113,7 +116,11 @@
       <workItem from="1682926195780" duration="1078000" />
       <workItem from="1683034658549" duration="113000" />
       <workItem from="1683037929981" duration="2168000" />
+<<<<<<< HEAD
       <workItem from="1683102518276" duration="264000" />
+=======
+      <workItem from="1683097845561" duration="4075000" />
+>>>>>>> main
     </task>
     <servers />
   </component>
