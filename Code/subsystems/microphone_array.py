@@ -33,7 +33,7 @@ def audio_devices(*, print_list: bool):
 
     return pyaudio_handle
 
-    # audio_devices(print_list=True)
+    #audio_devices(print_list=True)
 
     # TODO: write this as a subsystem
 
@@ -44,7 +44,7 @@ def audio_devices(*, print_list: bool):
     #
     # def __int__(self):
     #     robot.speakerOn = False
-    #     robot.code = "A23"
+    #     robot.code = "EB3A994F"
     #     robot.carrierFrequency = 6000
     #     robot.bitFrequency = 2000
     #     robot.repetitionCount = 64
@@ -238,12 +238,14 @@ def gold_code_generator(iterations, length_polynomials):
             gold_code_used = gold_code_array[i]
             index = i
 
-    return gold_code_used, r
+    return gold_code_used, r, maximum_difference
 
-gold_code_used, r = gold_code_generator(1000, 100)
-print(gold_code_used)
+gold_code_used, r, maximum_difference = gold_code_generator(10000000, 200)
+print(gold_code_used, maximum_difference)
 n = list(range(-32 + 1, 32))
 plt.plot(n, r);
 plt.xlabel('n')
 plt.ylabel('r_xy[n]');
+plt.savefig("autocorrelation.png")
+plt.savefig("autocorrelation.pdf")
 plt.show()
