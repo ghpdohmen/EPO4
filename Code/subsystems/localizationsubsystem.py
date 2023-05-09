@@ -11,16 +11,16 @@ from subsystems.subsystemStateEnum import subSystemState
 class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
-    deviceIndex = 0
+    deviceIndex = 1
     durationRecording = 10
     bitStringLength = 200
     codeLength = 16
-    goldCode = None
+    goldCode = None #moet dit niet EB3A994F zijn?
 
     def __init__(self):
-        _poly1 = self.bit_string(self.bitStringLength)
-        _poly2 = self.bit_string(self.bitStringLength)
-        self.goldCode = self.gold_code(_poly1,_poly2,self.codeLength)
+        # _poly1 = self.bit_string(self.bitStringLength)
+        # _poly2 = self.bit_string(self.bitStringLength)
+        # self.goldCode = self.gold_code(_poly1,_poly2,self.codeLength)
 
     def start(self):
         self.state = subSystemState.Started
