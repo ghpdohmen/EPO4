@@ -1,8 +1,10 @@
+from pyaudio import *
 import numpy as np
+
+
 import robot
 from subsystems.subsystemStateEnum import subSystemState
 from subsystems.subsystem import subSystem
-import pyaudio as audio
 
 
 class LocalizationSubSystem(subSystem):
@@ -14,19 +16,21 @@ class LocalizationSubSystem(subSystem):
 
     def __init__(self):
         return
+
     def start(self):
         self.state = subSystemState.Started
-        robot.Robot.localizationState =  self.state
+        robot.Robot.localizationState = self.state
         self.pyaudioHandle = self.audio_devices(True)
 
-        #set audio stuff on robot
+        # set audio stuff on robot
         robot.Robot.code = self.goldCode
+
     def update(self):
         if (self.state == subSystemState.Started) | (self.state == subSystemState.Running):
             self.state = subSystemState.Running
             robot.Robot.localizationState = self.state
 
-        if robot.speakerOn == False:
+        if not robot.speakerOn:
             robot.speakerOn = True
         else:
             self.i += 1
@@ -42,15 +46,13 @@ class LocalizationSubSystem(subSystem):
         self.state = subSystemState.Stopped
         robot.Robot.localizationState = self.state
 
-
-
-    def audio_devices(self,*, print_list: bool):
+    def audio_devices(self, *, print_list: bool):
         """
         Find all audio devices visible to pyaudio, if print_list = True, print the list of audio_devices
         @param print_list: print the list of devices
         @return: returns the pyaudio handle
         """
-        pyaudio_handle = audio.PyAudio()
+        pyaudio_handle = PyAudio()
 
         if print_list:
             for i in range(pyaudio_handle.get_device_count()):
@@ -71,7 +73,7 @@ class LocalizationSubSystem(subSystem):
 
         _pyaudio_handle = self.audio_devices(print_list=False)
         _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=audio.paInt16, rate=Fs,
-                                     input=True)
+                                       input=True)
 
         _samples = _stream.read(_number_of_samples)
         _data = np.frombuffer(_samples, dtype='int16')
