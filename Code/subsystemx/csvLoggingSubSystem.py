@@ -2,15 +2,15 @@ import csv
 import time
 
 import robot
-from subsystems.subsystem import subSystem
-from subsystems.subsystemStateEnum import subSystemState
+from subsystemx.subsystem import subSystem
+from subsystemx.subsystemStateEnum import subSystemState
 
 
 class csvLoggingSubsystem(subSystem):
 
     def __init__(self):
         self.state = subSystemState.Stopped
-        self.file = open('C:/Users/guusd/Desktop/log' + time.strftime(str(time.time()))+'.csv', 'w')
+        self.file = open(time.strftime(str(time.time()))+'.csv', 'w')
 
     def start(self):
         self.state = subSystemState.Started

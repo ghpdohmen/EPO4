@@ -1,12 +1,12 @@
-# holds all info of the robot and manages all subsystems
+# holds all info of the robot and manages all subsystemx
 from misc.robotModeEnum import robotMode
 from misc.robotStatusEnum import robotStatus
-from subsystems.communication import communicationSubSystem
-from subsystems.csvLoggingSubSystem import csvLoggingSubsystem
-from subsystems.inputSubSystem import inputSubSystem
-from subsystems.localizationsubsystem import LocalizationSubSystem
-from subsystems.subsystemStateEnum import subSystemState
-from subsystems.timing import timeSubSystem
+from subsystemx.communication import communicationSubSystem
+from subsystemx.csvLoggingSubSystem import csvLoggingSubsystem
+from subsystemx.inputSubSystem import inputSubSystem
+from subsystemx.localizationsubsystem import LocalizationSubSystem
+from subsystemx.subsystemStateEnum import subSystemState
+from subsystemx.timing import timeSubSystem
 
 
 class Robot:
@@ -38,7 +38,7 @@ class Robot:
     # output values
     input_motor = 150;
     input_servo = 150;
-    COMport = 'COM5'  # TODO: enable in GUI
+    COMport = 'COM6'  # TODO: enable in GUI
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
@@ -55,7 +55,7 @@ class Robot:
         self.loggingSubSystem = csvLoggingSubsystem()
         self.localizationSubSystem = LocalizationSubSystem()
 
-    # start all subsystems
+    # start all subsystemx
     def start(self, _operatingMode):
         self.operatingMode = _operatingMode
         # let's quickly check if we have set an operating mode, otherwise running the robot is so hard
@@ -75,7 +75,7 @@ class Robot:
         print(self.loopTime)
         self.status = robotStatus.Running
 
-    # updates all subsystems
+    # updates all subsystemx
     def update(self):
         if (self.status == robotStatus.Running) | (self.status == robotStatus.Paused) | (
                 self.status == robotStatus.Planning):

@@ -3,15 +3,23 @@ import numpy as np
 
 
 import robot
+<<<<<<< HEAD:Code/subsystems/localizationsubsystem.py
 from subsystems.subsystemStateEnum import subSystemState
 from subsystems.subsystem import subSystem
+=======
+
+import pyaudio as audio
+>>>>>>> Localization:Code/subsystemx/localizationsubsystem.py
+
+from subsystemx.subsystem import subSystem
+from subsystemx.subsystemStateEnum import subSystemState
 
 
 class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
     deviceIndex = 1
-    durationRecording = 0.18181818181
+    durationRecording = 0.2
     i = 0
 
     def __init__(self):
@@ -30,17 +38,23 @@ class LocalizationSubSystem(subSystem):
             self.state = subSystemState.Running
             robot.Robot.localizationState = self.state
 
+<<<<<<< HEAD:Code/subsystems/localizationsubsystem.py
         if not robot.speakerOn:
             robot.speakerOn = True
+=======
+        if not robot.Robot.speakerOn:
+            robot.Robot.speakerOn = True
+>>>>>>> Localization:Code/subsystemx/localizationsubsystem.py
         else:
             self.i += 1
-            robot.speakerOn = False
+            robot.Robot.speakerOn = False
         # robot.code = "EB3A994F"
-        robot.carrierFrequency = 6000
-        robot.bitFrequency = 2000
-        robot.repetitionCount = 64
-        mics = self.microphone_array(self.device_index, self.duration_recording)
-        np.savetxt("Recording_reference_1_" + str(self.i) + ".csv", mics[0], delimiter=",")
+        robot.Robot.carrierFrequency = 6000
+        robot.Robot.bitFrequency = 2000
+        robot.Robot.repetitionCount = 64
+        mics = self.microphone_array(self.deviceIndex, self.durationRecording)
+        for j in range(5):
+            np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
 
     def stop(self):
         self.state = subSystemState.Stopped
@@ -69,10 +83,14 @@ class LocalizationSubSystem(subSystem):
         @return: returns samples of each of the 5 microphones
         """
         # Fs = 44100
-        _number_of_samples = _duration_recording * self.Fs
+        _number_of_samples = int(_duration_recording * self.Fs)  #np.round gebruiken
 
         _pyaudio_handle = self.audio_devices(print_list=False)
+<<<<<<< HEAD:Code/subsystems/localizationsubsystem.py
         _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=audio.paInt16, rate=Fs,
+=======
+        _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=audio.paInt16, rate=self.Fs,
+>>>>>>> Localization:Code/subsystemx/localizationsubsystem.py
                                        input=True)
 
         _samples = _stream.read(_number_of_samples)
