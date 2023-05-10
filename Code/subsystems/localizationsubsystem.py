@@ -9,11 +9,11 @@ class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
     deviceIndex = 1
-    durationRecording = 0.0909090909
+    durationRecording = 0.18181818181
     i = 0
 
     def __init__(self):
-
+        return
     def start(self):
         self.state = subSystemState.Started
         robot.Robot.localizationState =  self.state
