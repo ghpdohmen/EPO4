@@ -17,7 +17,7 @@ class Robot:
     yCurrent = 0
 
     # audio stuff
-    code = "A23"  # String, hexadecimal
+    code = "EB3A994F"  # String, hexadecimal
     speakerOn = False
     carrierFrequency = 6000  # in Hz
     bitFrequency = 2000  # in Hz
