@@ -3,13 +3,10 @@ import numpy as np
 
 
 import robot
-<<<<<<< HEAD:Code/subsystems/localizationsubsystem.py
 from subsystems.subsystemStateEnum import subSystemState
 from subsystems.subsystem import subSystem
-=======
 
 import pyaudio as audio
->>>>>>> Localization:Code/subsystemx/localizationsubsystem.py
 
 from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
@@ -28,7 +25,7 @@ class LocalizationSubSystem(subSystem):
     def start(self):
         self.state = subSystemState.Started
         robot.Robot.localizationState = self.state
-        self.pyaudioHandle = self.audio_devices(True)
+        self.pyaudioHandle = self.audio_devices(print_list=True)
 
         # set audio stuff on robot
         robot.Robot.code = self.goldCode
@@ -38,16 +35,12 @@ class LocalizationSubSystem(subSystem):
             self.state = subSystemState.Running
             robot.Robot.localizationState = self.state
 
-<<<<<<< HEAD:Code/subsystems/localizationsubsystem.py
-        if not robot.speakerOn:
-            robot.speakerOn = True
-=======
         if not robot.Robot.speakerOn:
             robot.Robot.speakerOn = True
->>>>>>> Localization:Code/subsystemx/localizationsubsystem.py
         else:
             self.i += 1
             robot.Robot.speakerOn = False
+
         # robot.code = "EB3A994F"
         robot.Robot.carrierFrequency = 6000
         robot.Robot.bitFrequency = 2000
@@ -86,11 +79,7 @@ class LocalizationSubSystem(subSystem):
         _number_of_samples = int(_duration_recording * self.Fs)  #np.round gebruiken
 
         _pyaudio_handle = self.audio_devices(print_list=False)
-<<<<<<< HEAD:Code/subsystems/localizationsubsystem.py
-        _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=audio.paInt16, rate=Fs,
-=======
         _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=audio.paInt16, rate=self.Fs,
->>>>>>> Localization:Code/subsystemx/localizationsubsystem.py
                                        input=True)
 
         _samples = _stream.read(_number_of_samples)
