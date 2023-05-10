@@ -2,8 +2,11 @@
 import serial as serial
 
 import robot
-from subsystems.subsystem import subSystem
-from subsystems.subsystemStateEnum import subSystemState
+from subsystemx.subsystem import subSystem
+from subsystemx.subsystemStateEnum import subSystemState
+
+
+
 
 
 # communication subsystem. Handles all communication with KITT
@@ -28,6 +31,19 @@ class communicationSubSystem(subSystem):
         self.serial_port = serial.Serial(self.comport, self.baud_rate, rtscts=True) #TODO: error handling and inform user via GUI
         self.state = subSystemState.ReadyForUpdate
         print("started comms")
+
+        #added from here:
+        _carrier = (6000).to_bytes(2, byteorder='big')
+        self.serial_port.write(b'F' + _carrier + b'\n')
+
+        _bitFrequency = (2000).to_bytes(2, byteorder='big')
+        self.serial_port.write(b'B' + _bitFrequency + b'\n')
+
+        _repetition = (64).to_bytes(2, byteorder='big')
+        self.serial_port.write(b'R' + _repetition + b'\n')
+
+        code = (0xEB3A994F).to_bytes(4, byteorder='big')
+        self.serial_port.write(b'C'+ code + b'\n')
 
     # sends all new data to the robot en gets new data from the robot
     def update(self):
@@ -56,11 +72,11 @@ class communicationSubSystem(subSystem):
             #    self.serial_port.write(b'A0\n')
 
             # setting code word and different frequencies/counts
-            _carrier = robot.Robot.carrierFrequency.to_bytes(2, byteorder='big')
+            # _carrier = robot.Robot.carrierFrequency.to_bytes(2, byteorder='big')
             #self.serial_port.write((b'F' + _carrier + b'\n'))
-            _bitFrequency = robot.Robot.bitFrequency.to_bytes(2, byteorder='big')
+            # _bitFrequency = robot.Robot.bitFrequency.to_bytes(2, byteorder='big')
             #self.serial_port.write(b'B' + _bitFrequency + b'\n')
-            _repetition = robot.Robot.repetitionCount.to_bytes(2, byteorder='big')
+            # _repetition = robot.Robot.repetitionCount.to_bytes(2, byteorder='big')
             #self.serial_port.write(b'R' + _repetition + b'\n')
             #self.serial_port.write(b'C' + bytes(robot.Robot.code, 'ascii') + b'\n')
 
@@ -72,16 +88,16 @@ class communicationSubSystem(subSystem):
                 #print("writing speaker on")
                 self.serial_port.write(
                     b'A1\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
-                        str(robot.Robot.input_servo), 'ascii') + b'\n' +
-                    b'F' + _carrier + b'\n' + b'B' + _bitFrequency + b'\n' + b'R' + _repetition + b'\n' + b'C' + bytes(
-                        robot.Robot.code, 'ascii') + b'\n' + b'S\n')
+                        str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n') #+
+                    # b'F' + _carrier + b'\n' + b'B' + _bitFrequency + b'\n' + b'R' + _repetition + b'\n' + b'C' + bytes(
+                    #     robot.Robot.code, 'ascii') + b'\n' + b'S\n')
             else:
                 #print("writing speaker off")
                 self.serial_port.write(
                     b'A0\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
-                        str(robot.Robot.input_servo), 'ascii') + b'\n' +
-                    b'F' + _carrier + b'\n' + b'B' + _bitFrequency + b'\n' + b'R' + _repetition + b'\n' + b'C' + bytes(
-                        robot.Robot.code, 'ascii') + b'\n' + b'S\n')
+                        str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n') #+
+                    # b'F' + _carrier + b'\n' + b'B' + _bitFrequency + b'\n' + b'R' + _repetition + b'\n' + b'C' + bytes(
+                    #     robot.Robot.code, 'ascii') + b'\n' + b'S\n')
 
 
             # start sending the data and set our state to WaitingForData, which we will stay in until the packet is

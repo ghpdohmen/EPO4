@@ -1,8 +1,8 @@
 import robot
 from misc.robotModeEnum import robotMode
 from misc.robotStatusEnum import robotStatus
-from subsystems.subsystem import subSystem
-from subsystems.subsystemStateEnum import subSystemState
+from subsystemx.subsystem import subSystem
+from subsystemx.subsystemStateEnum import subSystemState
 
 
 # handles manual control mode

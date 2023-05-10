@@ -1,5 +1,5 @@
-# prototype for all subsystems
-from subsystems.subsystemStateEnum import subSystemState
+# prototype for all subsystemx
+from subsystemx.subsystemStateEnum import subSystemState
 
 
 class subSystem:
