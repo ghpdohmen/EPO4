@@ -126,19 +126,60 @@ def data_saver(device_index, duration_recording):
         return
 
 
-# def bit_string(length):
+# def bit_string(self, _length):
 #     """
-#     @param length:
-#     @return:
+#     Generates a random bit string with a given length
+#     @param _length: length of the bit string
+#     @return: random bit string
 #     """
-#     bit_string = ""
-#     for i in range(length):
-#         bit = random.randint(0, 1)
-#         bit_string += str(bit)
+#     _bit_string = ""
+#     for i in range(_length):
+#         _bit = random.randint(0, 1)
+#         _bit_string += str(_bit)
 #
-#     return bit_string
+#     return _bit_string
 
-
+    # def gold_code(self, _polynomial_1, _polynomial_2, _length):
+    #     """
+    #
+    #     @param _polynomial_1: First polynomial with random bit string
+    #     @param _polynomial_2: Second polynomial with random bit string
+    #     @param _length: length of the code
+    #     @return: into a string
+    #     """
+    #     _poly1 = [int(c) for c in _polynomial_1]
+    #     _poly2 = [int(c) for c in _polynomial_2]
+    #
+    #     # convert polynomials to binary strings
+    #     _poly1_str = ''.join(str(bit) for bit in _poly1)
+    #     _poly2_str = ''.join(str(bit) for bit in _poly2)
+    #
+    #     # set up LFSR registers
+    #     _reg1 = int(_poly1_str, 2)
+    #     _reg2 = int(_poly2_str, 2)
+    #
+    #     _gold = []
+    #     for i in range(_length):
+    #         # XOR the outputs of the two registers
+    #         _output = (_reg1 & 1) ^ (_reg2 & 1)
+    #         _gold.append(_output)
+    #
+    #         # shift the registers to the right by 1 bit
+    #         _reg1 >>= 1
+    #         _reg2 >>= 1
+    #
+    #         # apply feedback to the registers
+    #         _feedback1 = (_reg1 >> (len(_poly1) - 1)) ^ (_reg1 & 1)
+    #         _feedback2 = (_reg2 >> (len(_poly2) - 1)) ^ (_reg2 & 1)
+    #         _reg1 ^= _feedback1 << (len(_poly1) - 1)
+    #         _reg2 ^= _feedback2 << (len(_poly2) - 1)
+    #
+    #     # convert the list of bits to a binary string
+    #     _gold_str = ''.join(str(_bit) for _bit in _gold)
+    #     print(_gold_str)
+    #
+    #     return _gold_str
+    #
 # def gold_code(polynomial_1, polynomial_2, length):
 #     poly1 = [int(c) for c in polynomial_1]
 #     poly2 = [int(c) for c in polynomial_2]
@@ -218,18 +259,18 @@ def data_saver(device_index, duration_recording):
 # mic_plotter(False, 1, 0.032)
 # # mic_plotter(False, 1, 0.064)
 #
-# for i in range(20):
-#     device_index = 1
-#     duration_recording = 0.032
-#     robot.speakerOn = False
-#     robot.code = "EB3A994F"
-#     robot.carrierFrequency = 6000
-#     robot.bitFrequency = 2000
-#     robot.repetitionCount = 64
-#     robot.speakerOn = True
-#     mics = microphone_array(device_index, duration_recording)
-#     for j in range(5):
-#         np.savetxt("Recording_reference_" + str(j) + "_" + str(i) + ".csv", mics[i], delimiter=",")
+for i in range(20):
+    device_index = 1
+    duration_recording = 0.032
+    robot.speakerOn = False
+    robot.code = "EB3A994F"
+    robot.carrierFrequency = 6000
+    robot.bitFrequency = 2000
+    robot.repetitionCount = 64
+    robot.speakerOn = True
+    mics = microphone_array(device_index, duration_recording)
+    for j in range(5):
+        np.savetxt("Recording_reference_" + str(j) + "_" + str(i) + ".csv", mics[i], delimiter=",")
 
 
 # reference = np.empty([2, 176400])
