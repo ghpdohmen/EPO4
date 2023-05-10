@@ -1,3 +1,4 @@
+import numpy as np
 #Used for the assignments in the manual
 
 #constants
@@ -13,3 +14,5 @@ v = 0 # velocity in m/s
 
 #model
 fd = b*abs(v) + c*v*v
+
+time = np.arange(0, 8, 0.01)
