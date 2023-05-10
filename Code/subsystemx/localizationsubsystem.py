@@ -3,8 +3,8 @@ import numpy as np
 
 
 import robot
-from subsystems.subsystemStateEnum import subSystemState
-from subsystems.subsystem import subSystem
+from subsystemx.subsystemStateEnum import subSystemState
+from subsystemx.subsystem import subSystem
 
 import pyaudio as audio
 
@@ -16,7 +16,7 @@ class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
     deviceIndex = 1
-    durationRecording = 0.2
+    durationRecording = 0.064
     i = 0
 
     def __init__(self):
@@ -25,10 +25,10 @@ class LocalizationSubSystem(subSystem):
     def start(self):
         self.state = subSystemState.Started
         robot.Robot.localizationState = self.state
-        self.pyaudioHandle = self.audio_devices(print_list=True)
+        # self.pyaudioHandle = self.audio_devices(print_list=True)
 
         # set audio stuff on robot
-        robot.Robot.code = self.goldCode
+        # robot.Robot.code = self.goldCode
 
     def update(self):
         if (self.state == subSystemState.Started) | (self.state == subSystemState.Running):
@@ -42,9 +42,9 @@ class LocalizationSubSystem(subSystem):
             robot.Robot.speakerOn = False
 
         # robot.code = "EB3A994F"
-        robot.Robot.carrierFrequency = 6000
-        robot.Robot.bitFrequency = 2000
-        robot.Robot.repetitionCount = 64
+        # robot.Robot.carrierFrequency = 6000
+        # robot.Robot.bitFrequency = 2000
+        # robot.Robot.repetitionCount = 64
         mics = self.microphone_array(self.deviceIndex, self.durationRecording)
         for j in range(5):
             np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
