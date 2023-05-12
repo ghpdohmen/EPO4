@@ -1,7 +1,6 @@
 import pyaudio as audio
 import numpy as np
 import matplotlib.pyplot as plt
-import random
 import robot
 
 # import scipy
@@ -15,7 +14,7 @@ import robot
 # from scipy.signal import convolve, unit_impulse
 # from IPython.display import Audio
 
-# from subsystemx.subsystem import subSystem
+from subsystemx.subsystem import subSystem
 #
 # from Code.robot import robot
 
@@ -35,7 +34,7 @@ def audio_devices(*, print_list: bool):
     return pyaudio_handle
 
 
-audio_devices(print_list=True)
+# audio_devices(print_list=True)
 
 
 # TODO: write this as a subsystem
@@ -294,10 +293,21 @@ def data_saver(device_index, duration_recording):
 #     for i in range(5):
 #         np.savetxt("Recording_x,y_" + str(j) + str(i) + ".csv", mics[i], delimiter=",")
 
-for i in range(5):
+# for i in range(5):
     # data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_3_" + str(i) + ".csv", delimiter=",")
-    data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_3_3.csv", delimiter=",")
-    plt.plot(data[0], data[1])
-    plt.title("Microphone " + str(i+1))
-    plt.xlim(0, 500)
-    plt.show()
+# for i in range(1, 7):
+#     data = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\Recording_reference_" + str(i) + "_3.csv", delimiter=",")
+#     plt.plot(data[0], data[1])
+#     # plt.title("Microphone " + str(i+1))
+#     plt.title("microphone 4, recording " + str(i))
+#     plt.xlim(50, 500)
+#     plt.show()
+
+data = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\Recording_reference_2_3.csv", delimiter=",")
+plt.plot(data[0], data[1])
+# plt.title("Microphone " + str(i+1))
+plt.title("microphone 4, recording 2")
+plt.xlim(0, 300)
+plt.show()
+
+# 11101011001110101001100101001111
