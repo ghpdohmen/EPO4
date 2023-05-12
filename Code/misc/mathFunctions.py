@@ -18,4 +18,22 @@ def ish(value: float, check: float, marginOfError: float) -> bool:
     else:
         return True
 
+def steer_to_angle(input: float, type: str) -> float:
+    """takes the steering input and returns the angle in radian or degree
+
+    Args:
+        input (float): steering input 
+        type (str): type of output required, either radian or degree
+
+    Returns:
+        float: steering input as either degrees or radians
+    """
+    if type == "radian":
+        radian = (0.0077*input)-1.1549
+        return radian
+    elif type == "degree":
+        degree = (0.4432*input)-66.168
+        return degree
+    else:
+        return print("give valid type - radian or degree")    
 
