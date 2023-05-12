@@ -17,3 +17,5 @@ def ish(value: float, check: float, marginOfError: float) -> bool:
         return False
     else:
         return True
+
+

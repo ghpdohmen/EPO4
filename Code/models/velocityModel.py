@@ -28,7 +28,6 @@ for t in range(0,8500,dt):
     fres = fa-fb-fd
     a = fres/m
     v += a*(dt/1000)
-    print(v)
     z += v*(dt/1000)
     velocitypos[t] = v
     timepos[t] = z

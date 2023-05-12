@@ -38,7 +38,7 @@ class Robot:
     # output values
     input_motor = 150;
     input_servo = 150;
-    COMport = 'COM6'  # TODO: enable in GUI
+    COMport = 'COM4'  # TODO: enable in GUI
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
@@ -88,7 +88,7 @@ class Robot:
             #print("logging")
             self.communicationSubSystem.update()
             #("comms")
-            self.localizationSubSystem.update()
+            #self.localizationSubSystem.update()
             #print(self.distanceLeft)
             # printing the loop time, so we can optimize this via multithreading
 
