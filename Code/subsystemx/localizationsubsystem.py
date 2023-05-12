@@ -16,7 +16,7 @@ class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
     deviceIndex = 1
-    durationRecording = 0.064
+    durationRecording = 0.5
     i = 0
 
     def __init__(self):
@@ -37,9 +37,9 @@ class LocalizationSubSystem(subSystem):
 
         if not robot.Robot.speakerOn:
             robot.Robot.speakerOn = True
-        else:
-            self.i += 1
-            robot.Robot.speakerOn = False
+        # else:
+        #     self.i += 1
+        #     robot.Robot.speakerOn = False
 
         # robot.code = "EB3A994F"
         # robot.Robot.carrierFrequency = 6000
@@ -47,7 +47,8 @@ class LocalizationSubSystem(subSystem):
         # robot.Robot.repetitionCount = 64
         mics = self.microphone_array(self.deviceIndex, self.durationRecording)
         for j in range(5):
-            np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
+        #     np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
+            np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_140x318_1_" + str(j) + ".csv", mics[j], delimiter=",")
 
     def stop(self):
         self.state = subSystemState.Stopped

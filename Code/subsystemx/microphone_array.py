@@ -15,6 +15,7 @@ import robot
 # from IPython.display import Audio
 
 from subsystemx.subsystem import subSystem
+
 #
 # from Code.robot import robot
 
@@ -109,7 +110,9 @@ def mic_plotter(data: bool, device_index=None, duration_recording=None):
         return
     else:
         for i in range(5):
-            data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_" + str(i) + "_1.csv", delimiter=",")
+            data = np.loadtxt(
+                r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_" + str(i) + "_1.csv",
+                delimiter=",")
             plt.plot(data[0], data[1])
             plt.show()
         return
@@ -129,6 +132,7 @@ def data_saver(device_index, duration_recording):
     for i in range(5):
         np.savetxt("Recording_handclap_" + str(i) + ".csv", mics[i], delimiter=",")
         return
+
 
 # def bit_string(self, _length):
 #     """
@@ -276,38 +280,60 @@ def data_saver(device_index, duration_recording):
 #     for j in range(5):
 #         np.savetxt("Recording_reference_" + str(j) + "_" + str(i) + ".csv", mics[i], delimiter=",")
 
-
-# reference = np.empty([2, 176400])
-# for i in range(20):
-#     data = np.loadtxt("Recording_reference_0_" + str(i) + ".csv", delimiter=",")
-#     reference[0] = data[0]
-#     reference[1] = data[1] * 2
-#
-# reference[1] = reference[1]/20
-# print(reference)
-# plt.plot(reference[0], reference[1])
-# plt.show()
-
-# for j in range(10):
-#     mics = microphone_array(1, 10)
-#     for i in range(5):
-#         np.savetxt("Recording_x,y_" + str(j) + str(i) + ".csv", mics[i], delimiter=",")
-
 # for i in range(5):
-    # data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_3_" + str(i) + ".csv", delimiter=",")
-# for i in range(1, 7):
-#     data = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\Recording_reference_" + str(i) + "_3.csv", delimiter=",")
+#     data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_1_" + str(i) + ".csv", delimiter=",")
+# for i in range(1, 5):
+#     data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\Recording_reference_mic1_" + str(i) + ".csv", delimiter=",")
 #     plt.plot(data[0], data[1])
 #     # plt.title("Microphone " + str(i+1))
-#     plt.title("microphone 4, recording " + str(i))
-#     plt.xlim(50, 500)
+#     plt.title("microphone 1, recording " + str(i))
+#     # plt.xlim(50, 500)
 #     plt.show()
 
-data = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\Recording_reference_2_3.csv", delimiter=",")
+data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\Recording_reference_mic3_2.csv",
+                  delimiter=",")
+
+#
 plt.plot(data[0], data[1])
-# plt.title("Microphone " + str(i+1))
-plt.title("microphone 4, recording 2")
-plt.xlim(0, 300)
+plt.title("microphone 3, recording 2")
+plt.xlim(2300, 3050)
 plt.show()
+
+def truncater(start, stop):
+    data_truncated = data[0][start:stop], data[1][start:stop]
+    np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_2.csv", data_truncated,
+               delimiter=",")
+    return
+
+#
+# truncater(1737, 2455)
+# data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_2.csv",
+#                   delimiter=",")
+# plt.plot(data[0], data[1])
+# plt.title("microphone 3, reference 2")
+# plt.xlim(1737, 2455)
+# plt.show()
+# print(data.shape)
+
+# reference = np.zeros((2, 718))
+# for i in range(1, 3):
+#     data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic2_" + str(i) + ".csv", delimiter=",")
+#     reference[0] = np.linspace(0, 718, 718)
+#     reference[1] = np.add(reference[1], data[1])
+#     # print(reference[1])
+#
+# reference[1] = reference[1]/3
+# reference[1] = reference[1]/np.max(reference[1])
+# # print(np.max(reference[1]))
+# plt.plot(reference[0], reference[1])
+# plt.xlim(0, 718)
+# plt.show()
+# #
+# np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic2_reference_final.csv", reference,
+#                delimiter=",")
+
+
+# print(data1.shape, data2.shape, data3.shape)
+
 
 # 11101011001110101001100101001111
