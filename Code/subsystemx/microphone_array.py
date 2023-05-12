@@ -290,47 +290,47 @@ def data_saver(device_index, duration_recording):
 #     # plt.xlim(50, 500)
 #     plt.show()
 
-data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\Recording_reference_mic3_2.csv",
+data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\Recording_reference_mic5_3.csv",
                   delimiter=",")
 
 #
-plt.plot(data[0], data[1])
-plt.title("microphone 3, recording 2")
-plt.xlim(2300, 3050)
-plt.show()
+# plt.plot(data[0], data[1])
+# plt.title("microphone 5, recording 3")
+# plt.xlim(3019, 3730)
+# plt.show()
 
 def truncater(start, stop):
     data_truncated = data[0][start:stop], data[1][start:stop]
-    np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_2.csv", data_truncated,
+    np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_3.csv", data_truncated,
                delimiter=",")
     return
 
 #
-# truncater(1737, 2455)
-# data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_2.csv",
+# truncater(3019, 3730)
+# data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_3.csv",
 #                   delimiter=",")
 # plt.plot(data[0], data[1])
-# plt.title("microphone 3, reference 2")
-# plt.xlim(1737, 2455)
+# plt.title("microphone5, reference 3")
+# plt.xlim(3019, 3730)
 # plt.show()
 # print(data.shape)
 
-# reference = np.zeros((2, 718))
-# for i in range(1, 3):
-#     data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic2_" + str(i) + ".csv", delimiter=",")
-#     reference[0] = np.linspace(0, 718, 718)
-#     reference[1] = np.add(reference[1], data[1])
-#     # print(reference[1])
-#
-# reference[1] = reference[1]/3
-# reference[1] = reference[1]/np.max(reference[1])
-# # print(np.max(reference[1]))
-# plt.plot(reference[0], reference[1])
-# plt.xlim(0, 718)
-# plt.show()
-# #
-# np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic2_reference_final.csv", reference,
-#                delimiter=",")
+reference = np.zeros((2, 711))
+for i in range(1, 3):
+    data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_" + str(i) + ".csv", delimiter=",")
+    reference[0] = np.linspace(0, 711, 711)
+    reference[1] = np.add(reference[1], data[1])
+    # print(reference[1])
+
+reference[1] = reference[1]/3
+reference[1] = reference[1]/np.max(reference[1])
+# print(np.max(reference[1]))
+plt.plot(reference[0], reference[1])
+plt.xlim(0, 711)
+plt.show()
+# # #
+np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_reference_final.csv", reference,
+               delimiter=",")
 
 
 # print(data1.shape, data2.shape, data3.shape)
