@@ -10,7 +10,7 @@ v = 0.3 #speed in m/s
 
 #variables
 robotAngle = 0
-steeringAngle = 22 # in degrees
+steeringAngle = 30 # in degrees
 posX = 0
 posY = 0
 stoptime = 40 # in seconds
@@ -38,6 +38,7 @@ for t in range(0,stoptime*1000, math.floor(dt * 1000)):
     timepos[1, t] = posY
 
 plt.plot(timepos[0],timepos[1])
+plt.plot(0, r, marker='o', markersize='2', markeredgecolor='red')
 ax =plt.gca()
 ax.set_aspect('equal', adjustable='box')
 plt.show()
