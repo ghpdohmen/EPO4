@@ -46,9 +46,9 @@ class LocalizationSubSystem(subSystem):
         # robot.Robot.bitFrequency = 2000
         # robot.Robot.repetitionCount = 64
         mics = self.microphone_array(self.deviceIndex, self.durationRecording)
-        for j in range(5):
+        for j in range(1, 6):
         #     np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
-            np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_140x318_1_" + str(j) + ".csv", mics[j], delimiter=",")
+            np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_1_" + str(j) + ".csv", mics[j], delimiter=",")
 
     def stop(self):
         self.state = subSystemState.Stopped
@@ -87,22 +87,22 @@ class LocalizationSubSystem(subSystem):
         _data = np.frombuffer(_samples, dtype='int16')
 
         _data_length = len(_data[::5])
-        _data_mic_0 = _data[0::5]
-        _data_mic_1 = _data[1::5]
-        _data_mic_2 = _data[2::5]
-        _data_mic_3 = _data[3::5]
-        _data_mic_4 = _data[4::5]
+        _data_mic_1 = _data[0::5]
+        _data_mic_2 = _data[1::5]
+        _data_mic_3 = _data[2::5]
+        _data_mic_4 = _data[3::5]
+        _data_mic_5 = _data[4::5]
 
-        _sample_axis_mic_0 = np.linspace(0, _data_length, _data_length)
         _sample_axis_mic_1 = np.linspace(0, _data_length, _data_length)
         _sample_axis_mic_2 = np.linspace(0, _data_length, _data_length)
         _sample_axis_mic_3 = np.linspace(0, _data_length, _data_length)
         _sample_axis_mic_4 = np.linspace(0, _data_length, _data_length)
+        _sample_axis_mic_5 = np.linspace(0, _data_length, _data_length)
 
-        _mic_0 = _sample_axis_mic_0, _data_mic_0
         _mic_1 = _sample_axis_mic_1, _data_mic_1
         _mic_2 = _sample_axis_mic_2, _data_mic_2
         _mic_3 = _sample_axis_mic_3, _data_mic_3
         _mic_4 = _sample_axis_mic_4, _data_mic_4
+        _mic_5 = _sample_axis_mic_5, _data_mic_5
 
-        return _mic_0, _mic_1, _mic_2, _mic_3, _mic_4
+        return _mic_1, _mic_2, _mic_3, _mic_4, _mic_5
