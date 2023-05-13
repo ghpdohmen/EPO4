@@ -412,8 +412,8 @@ def tdoa(signal_reference, signal_recorded, min_value):
             break
 
     # cut reference and recorded signal to one pulse + same length
-    begin = int(max_value_reference[0] - 1100)
-    end = int(max_value_reference[0] + 100)
+    begin = int(max_value_reference[0] - 800)
+    end = int(max_value_reference[0] + 1000)
 
     signal_recorded_used = np.zeros((2, end - begin))
     signal_recorded_used[0] = signal_recorded[0][begin:end]
@@ -446,24 +446,29 @@ signal_recorded = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_mid
 channel, signal_reference_1, signal_recorded_1, distance, channel_half = tdoa(signal_reference, signal_recorded, 0.01)
 
 # print(signal_reference_1.shape, signal_recorded_1.shape, signal_reference.shape, signal_recorded.shape)
+# channel = ch3(signal_reference[1], signal_recorded[1], 0.01)
+# channel_taken = channel[:1000]
+# max_channel, = np.where(abs(channel) == max(abs(channel_taken)))
+# distance = max_channel/Fs*34300
+# print(max_channel)
 
 print(distance)
-# plt.plot(signal_reference_1)
-# plt.title("Reference recording microphone 2")
-# plt.show()
-#
+plt.plot(signal_reference[0], signal_reference[1])
+plt.title("Reference recording microphone 2")
+plt.show()
+
+plt.plot(signal_recorded[0], signal_recorded[1])
+plt.title("Signal Recording microphone 2")
+# plt.xlim(1750, 3800)
+plt.show()
+
 # plt.plot(signal_recorded[0], signal_recorded[1])
-# plt.title("Signal Recording microphone 2")
-# # plt.xlim(1750, 3800)
-# plt.show()
-#
-# plt.plot(signal_recorded_1[0], signal_recorded_1[1])
 # plt.title("Signal Recording microphone 2 tdoa")
 # plt.show()
-#
-# plt.plot(channel)
-# plt.title("channel impulse response")
-# plt.show()
+
+plt.plot(channel)
+plt.title("channel impulse response")
+plt.show()
 #
 # plt.plot(channel_half)
 # plt.title("half channel impulse response")
