@@ -537,3 +537,69 @@ plt.show()
 # signal_reference = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\Recording_reference_mic1_1.csv", delimiter=',')
 # plt.plot(signal_reference[0], signal_reference[1])
 # plt.show()
+
+
+# multilateration TDOA (matrix)
+import numpy as np
+from scipy.linalg import pinv
+
+def solve_xandD (A, b):
+
+  A_inv = pinv (A)   #pseudo-inverse
+  x_d = A_inv @ b
+
+  # Microphone locations
+  microphone_locations = np.array([[0,480],[480,480],[480,0],[0,0],[0,240]])
+
+  num_mics = microphone_locations.shape[0] # number of microphones
+
+  #Measured range differences (TDOA * speed of sound)
+  # rij = np.array([r12, r13, r14, r15, r23, r24, r25, r34, r35, r45])    # This part must be different
+  rij = np.array([200, 100, 140, 30, 20, 40, 120, 30, 40, 10])
+
+
+  # Construct the matrix A
+
+  A = np.zeros((num_mics * (num_mics -1) // 2, num_mics+1)) # has form of 10 x 5
+  row = 0
+
+  # loop over microphone pairs
+  for i in range(num_mics):
+    for j in range(i + 1, num_mics):
+      x_diff = 2 * (microphone_locations[j] - microphone_locations[i]).T
+
+      A[row, 0] = x_diff[0]
+      A[row, 1] = x_diff[1]
+      A[row, j] = -2 *rij[row]
+
+      #Assign zero to every column expect 0 and j
+      for k in range (num_mics):
+        if k != 0 and k != j:
+          A[row, k] = 0
+
+      row += 1
+
+  # Construct the matrix b
+
+  b = np.zeros((num_mics * (num_mics -1) // 2, 1)) # has form of 10 x 1
+  row = 0
+  # loop over microphone pairs
+  for i in range(num_mics):
+    for j in range(i + 1, num_mics):
+      xi_norm_squarad = microphone_locations[i, 0]**2  # Extract the x-coordinates and normalize
+      xj_norm_squarad = microphone_locations[j, 1]**2  # Extract the y-coordinates and normalize
+
+      b[row] = rij[row]**2 - xi_norm_squarad - xj_norm_squarad
+
+      row += 1
+
+  return x_d
+
+# # Compute the x and d
+# x_d = solve_xandD(A, b)
+# x = x_d[:2]  #select the first two elements from the arrary (x,y)
+# d = x_d[2:]  #select from the third element to the end
+#
+# # Print the estimated location and nuisance parameters
+# print("Estimated Location (x): ({:.2f}, {:.2f})".format(*[float(val) for val in x]))
+# print("Estimated Nuisance Parameters (d):", d)
