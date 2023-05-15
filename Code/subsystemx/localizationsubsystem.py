@@ -16,7 +16,7 @@ class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
     deviceIndex = 1
-    durationRecording = 0.5
+    durationRecording = 0.096
     i = 0
 
     def __init__(self):

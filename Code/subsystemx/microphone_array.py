@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import robot
 
-# import scipy
+import scipy.signal as sp
 # pip install --upgrade --no-cache-dir gdown
 # gdown 1xGUeeM-oY0pyXA0OO8_uKwT-vLAsiyZB  # refsignal.py
 # gdown 1xTibH8tNbpwdSWmkziFGS24WXEYhtMRl  # wavaudioread.py
@@ -11,6 +11,7 @@ import robot
 
 # from scipy.io import wavfile
 from scipy.fft import fft, ifft
+from scipy.signal import butter, buttord, lfilter
 from scipy.signal import convolve, unit_impulse
 # from IPython.display import Audio
 
@@ -355,8 +356,7 @@ def truncater(start, stop):
 def ch3(x, y, epsi):
     Nx = len(x)  # Length of x
     Ny = len(y)  # Length of y
-    # L = Lhat
-    L = Ny - Nx + 1  # Length of h #mss Lhat ipv Ny-Nx+1?
+    L = Ny - Nx + 1  # Length of h
 
     # len(x) == len(y)
     x = np.concatenate((x, np.zeros(L - 1)))
@@ -370,7 +370,7 @@ def ch3(x, y, epsi):
     H[ii] = 0
 
     h = np.real(ifft(H))  # ensure the result is real
-    # h = h[0:Lhat]        # optional: truncate to length Lhat (L is not reliable?)
+    # h = h[0:34300]        # optional: truncate to length Lhat (L is not reliable?)
 
     return h
 
@@ -432,18 +432,24 @@ def tdoa(signal_reference, signal_recorded, min_value):
     # print(time)
 
     # calculate distance between microphones
-    distance = time * 34300 - 10
+    distance = time * 34300
 
     return channel, signal_reference, signal_recorded_used, distance, channel_half[0]
     # return distance
 
 
-signal_reference = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\mic1_reference_final.csv", delimiter=',')
-signal_recorded = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_middle_1_0.csv", delimiter=',')
+#
+# signal_reference = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\mic5_reference_final.csv", delimiter=',')
+# signal_recorded = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_middle_1_4.csv", delimiter=',')
+
+# signal_used = np.zeros((2,1420))
+# signal_used[0] = signal_recorded[0][2050:3470]
+# signal_used[1] = signal_recorded[1][2050:3470]
 
 # distance = tdoa(signal_reference, signal_recorded, 0.02)
 # print(distance)
-channel, signal_reference_1, signal_recorded_1, distance, channel_half = tdoa(signal_reference, signal_recorded, 0.01)
+# channel, signal_reference_1, signal_recorded_1, distance, channel_half = tdoa(signal_reference, signal_recorded, 0.01)
+# channel, signal_reference_1, signal_recorded_1, distance, channel_half = tdoa(signal_used, signal_recorded, 0.01)
 
 # print(signal_reference_1.shape, signal_recorded_1.shape, signal_reference.shape, signal_recorded.shape)
 # channel = ch3(signal_reference[1], signal_recorded[1], 0.01)
@@ -452,28 +458,82 @@ channel, signal_reference_1, signal_recorded_1, distance, channel_half = tdoa(si
 # distance = max_channel/Fs*34300
 # print(max_channel)
 
-print(distance)
-plt.plot(signal_reference[0], signal_reference[1])
-plt.title("Reference recording microphone 2")
-plt.show()
+
+# channel = ch3(signal_reference[1], signal_recorded[1], 0.01)
+# indexes, = np.where(abs(channel[0:5000]) > 60)
+# print(indexes)
+# # difference = indexes[3] - indexes[2]
+# # print(difference)
+# time = (indexes[5]-1650) * 1/Fs
+# distance = time * 34300
+# print(distance)
+# print(channel.shape)
+
+# print(distance)
+# plt.plot(signal_reference[0], signal_reference[1])
+# plt.title("Reference recording microphone 2")
+# plt.show()
+
+
+
+
+
+signal_reference = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\mic3_reference_final.csv", delimiter=',')
+signal_recorded = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_middle_2_2.csv", delimiter=',')
 
 plt.plot(signal_recorded[0], signal_recorded[1])
-plt.title("Signal Recording microphone 2")
-# plt.xlim(1750, 3800)
 plt.show()
 
-# plt.plot(signal_recorded[0], signal_recorded[1])
-# plt.title("Signal Recording microphone 2 tdoa")
+# maxima, = sp.argrelmax(abs(signal_recorded[1]), order=800)
+# print(maxima, maxima[1]-maxima[0])
+# #
+# truncation = np.zeros((2, maxima[1]-maxima[0]))
+# # # truncation[0] = np.concatenate((np.zeros(maxima[0]), signal_recorded[0][maxima[0]:maxima[1]]))
+# # # truncation[1] = np.concatenate((np.zeros(maxima[0]), signal_recorded[1][maxima[0]:maxima[1]]))
+# truncation[0] = signal_recorded[0][(maxima[0]-300):(maxima[1]-300)]
+# truncation[1] = signal_recorded[1][(maxima[0]-300):(maxima[1]-300)]
+
+# plt.plot(truncation[0], truncation[1])
+# plt.title("Truncated Signal")
 # plt.show()
 
-plt.plot(channel)
-plt.title("channel impulse response")
-plt.show()
+# print(truncation.shape)
+# truncation_1 = np.zeros((2, maxima[1]-300))
+# truncation_1[0] = np.concatenate((np.zeros(int(truncation[0][0])), truncation[0]))
+# truncation_1[1] = np.concatenate((np.zeros(int(truncation[0][0])), truncation[1]))
 #
-# plt.plot(channel_half)
-# plt.title("half channel impulse response")
+# plt.plot(truncation_1[0], truncation_1[1])
+# plt.title("Truncated_1 Signal")
 # plt.show()
+#
+# # # minima, = sp.argrelmin(truncation[1], order=800)
+# # # print(minima+maxima[0])
+# #
+# # window_start = max(0, maxima[1] - 1400 // 2)
+# # window_end = min(len(signal_recorded[1]), maxima[1] + 1400 // 2)
+# #
+# # isolated_pulse = signal_recorded[1][window_start:window_end]
+# # t = np.linspace(0, len(isolated_pulse), len(isolated_pulse))
+# # print(isolated_pulse)
+#
+# # plt.plot(t, isolated_pulse)
+# # plt.show()
+#
+# channel = ch3(signal_reference[1], truncation_1[1], 0.01)
+# plt.plot(channel)
+# plt.show()
+#
+# maximum, = np.where(abs(channel) == max(abs(channel)))
+# # print(maximum)
+# time = maximum * 1 / Fs
+# distance = time * 34300
+# print(distance)
+
 
 
 # mic1: -800, +1000
 # mic2: -550, +600 or -1100, +100
+
+# signal_reference = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\Recording_reference_mic1_1.csv", delimiter=',')
+# plt.plot(signal_reference[0], signal_reference[1])
+# plt.show()
