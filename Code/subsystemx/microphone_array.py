@@ -600,27 +600,15 @@ print(distance)
 # plt.show()
 
 
-# multilateration TDOA (matrix)
+# multilateration estimate_location (matrix)
 import numpy as np
 from scipy.linalg import pinv
 
-
-def solve_xandD(A, b):
-    A_inv = pinv(A)  # pseudo-inverse
-    x_d = A_inv @ b
-
-    # Microphone locations
-    microphone_locations = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
-
+def estimate_location(microphone_locations, rij):
     num_mics = microphone_locations.shape[0]  # number of microphones
 
-    # Measured range differences (TDOA * speed of sound)
-    # rij = np.array([r12, r13, r14, r15, r23, r24, r25, r34, r35, r45])    # This part must be different
-    rij = np.array([200, 100, 140, 30, 20, 40, 120, 30, 40, 10])
-
     # Construct the matrix A
-
-    A = np.zeros((num_mics * (num_mics - 1) // 2, num_mics + 1))  # has form of 10 x 5
+    A = np.zeros((num_mics * (num_mics - 1) // 2, num_mics + 1))  # create zero matrix with the correct shape
     row = 0
 
     # loop over microphone pairs
@@ -628,38 +616,111 @@ def solve_xandD(A, b):
         for j in range(i + 1, num_mics):
             x_diff = 2 * (microphone_locations[j] - microphone_locations[i]).T
 
-            A[row, 0] = x_diff[0]
-            A[row, 1] = x_diff[1]
-            A[row, j] = -2 * rij[row]
+            A[row, 0] = x_diff[0]     #x-value
+            A[row, 1] = x_diff[1]     #y-value
+            A[row, j] = -2 * rij[row]    # range difference between microphones
 
-            # Assign zero to every column expect 0 and j
+            # Assign zero to every column except 0 and j
             for k in range(num_mics):
-                if k != 0 and k != j:
+                if k != 0 and k != 1 and k != j:
                     A[row, k] = 0
 
             row += 1
 
     # Construct the matrix b
-
     b = np.zeros((num_mics * (num_mics - 1) // 2, 1))  # has form of 10 x 1
     row = 0
+
     # loop over microphone pairs
     for i in range(num_mics):
         for j in range(i + 1, num_mics):
-            xi_norm_squarad = microphone_locations[i, 0] ** 2  # Extract the x-coordinates and normalize
-            xj_norm_squarad = microphone_locations[j, 1] ** 2  # Extract the y-coordinates and normalize
+            xi_norm_squared = np.linalg.norm(microphone_locations[i]) ** 2  # Extract and normalize
+            xj_norm_squared = np.linalg.norm(microphone_locations[j]) ** 2
 
-            b[row] = rij[row] ** 2 - xi_norm_squarad - xj_norm_squarad
+            b[row] = rij[row] ** 2 - xi_norm_squared - xj_norm_squared
 
             row += 1
 
-    return x_d
+    # Solve for x and d
+    A_inv = pinv(A)  # pseudo-inverse
+    x_d = A_inv @ b
+    x = x_d[:2]  # select the first two elements from the array (x, y)
+    d = x_d[2:]  # select from the third element to the end
 
-# # Compute the x and d
-# x_d = solve_xandD(A, b)
-# x = x_d[:2]  #select the first two elements from the arrary (x,y)
-# d = x_d[2:]  #select from the third element to the end
-#
+    return x, d
+
+# Microphone locations
+microphone_locations = np.array([[0,480],[480,480],[480,0],[0,0],[0,240]])
+
+#Measured range differences (TDOA * speed of sound(343))
+# rij = np.array([r12, r13, r14, r15, r23, r24, r25, r34, r35, r45])    # This part needs to change
+rij = np.array([0.01*343, 0.02*343, 0.04*343, 0.05*343, 0.02*343, 0.03*343, 0.08*343, 0.02*343, 0.02*343, 0.1*343]) #random test values
+
+# Compute the x and d
+x, d = estimate_location(microphone_locations, rij)
+
+# TODO: check the nuisance parameters, does it influence the estimate location?
 # # Print the estimated location and nuisance parameters
 # print("Estimated Location (x): ({:.2f}, {:.2f})".format(*[float(val) for val in x]))
 # print("Estimated Nuisance Parameters (d):", d)
+
+# # Ideal OOK gold code plot
+# # Set the parameters
+# carrier_frequency = 6000  # 6 kHz
+# bit_frequency = 2000  # 2kHz
+# code = '11101011001110101001100101001111'  # "EB3A994F"
+#
+# # Calculate the time duration for each bit
+# bit_duration = 1 / bit_frequency  # seconds
+#
+# # Calculate the time steps for generating the signal
+# total_time = len(code) * bit_duration
+# time = np.linspace(0, total_time, int(total_time * carrier_frequency))
+#
+# # Generate the carrier signal
+# carrier_signal = np.sin(2 * np.pi * carrier_frequency * time)
+#
+# # Generate the OOK signal based on the code
+# ook_signal = []
+# for bit in code:
+#     if bit == '1':
+#         ook_signal.extend(np.ones(int(bit_duration * carrier_frequency)))
+#     elif bit == '0':
+#         ook_signal.extend(np.zeros(int(bit_duration * carrier_frequency)))
+#
+# # Plot the OOK signal
+# plt.plot(time, ook_signal)
+# plt.xlabel('Time (s)')
+# plt.ylabel('Amplitude')
+# plt.title('OOK Signal')
+# # plt.xlim([0, 0.03])
+# plt.grid(True)
+# plt.show()
+
+# Ideal OOK refsignal
+# from refsignal import refsignal
+# from scipy.fft import fft, ifft
+# Fs_TX = 44100
+# Nbits = 64
+# Timer0 = 1 # 10 kHz
+# Timer1 = 8 # 5 kHz
+# Timer3 = 2 # 3 Hz
+# code = 0x92340f0faaaa4321 #1001001000110100000011110000111110101010101010100100001100100001#
+#
+# x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs_TX)
+# X = fft(x)
+#
+# period = 1/Fs_TX
+# t = np.linspace(0, len(x)*period, len(x))
+# f = np.linspace(0, Fs_TX/1000, len(x))
+#
+# fig, ax = plt.subplots(2, 1, figsize=(10, 7))
+#
+# ax[0].plot(t, x)
+# ax[0].set_title("Ideal OOK in the Time Domain")
+# ax[0].set_xlabel("Time [s]")
+# ax[0].set_ylabel("Magnitude")
+# ax[0].set_xlim([0, 0.015])
+# # ax[0].set_ylim([0, 2])
+
+
