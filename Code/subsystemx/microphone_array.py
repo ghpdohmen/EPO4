@@ -476,27 +476,30 @@ def tdoa(signal_reference, signal_recorded, min_value):
 
 
 signal_reference = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_reference_final.csv", delimiter=',')
-signal_recorded = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_2_2.csv",
+    r"E:\TU Delft\Github\EPO4\Code\References\mic3_reference_final.csv", delimiter=',')
+signal_recorded = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_middle_2_2.csv",
                              delimiter=',')
 
 Y = fft(signal_reference[1])
 freq = np.linspace(0, Fs, len(Y))
 
 
-# plt.plot(freq, abs(Y))
-# plt.xlim(0, 10000)
-# plt.show()
+plt.plot(freq, abs(Y))
+plt.xlim(0, 10000)
+plt.show()
 
 def filtering(signal):
-    Fpass = 7000
-    Fstop = 8000
+    Fpass_lower = 4000
+    Fpass_higher = 7000
+    Fstop_lower = 3000
+    Fstop_higher = 8000
     pass_damp = 3
     stop_damp = 40
 
     # N, Wn = buttord(Fpass / Fs * 2, Fstop / Fs * 2, pass_damp, stop_damp)
     # b, a = butter(N, Fpass / Fs * 2)
-    N, Wn = buttord([], [])
+    N, Wn = buttord([Fpass_lower/Fs*2, Fpass_higher/Fs*2], [Fstop_lower / Fs * 2, Fstop_lower / Fs * 2], pass_damp, stop_damp)
+    b, a = butter(N, Wn, btype='bandpass')
 
     # impulse response:
     # h = lfilter(b, a, np.concatenate(([1], np.zeros(99))))
@@ -517,14 +520,14 @@ freq = np.linspace(0, Fs, len(Z))
 plt.plot(freq, abs(Z))
 plt.xlim(0, 10000)
 plt.show()
-
+#
 signal_recorded_test[1] = signal_recorded_test[1]/max(signal_recorded_test[1])
 plt.plot(signal_recorded_test[0], signal_recorded_test[1])
 plt.xlim(0, 5000)
 plt.show()
-
-plt.plot(signal_reference[0], signal_reference[1])
-plt.show()
+#
+# plt.plot(signal_reference[0], signal_reference[1])
+# plt.show()
 
 # freq = np.linspace(0, Fs, len(Z))
 # plt.plot(freq, abs(Z))
