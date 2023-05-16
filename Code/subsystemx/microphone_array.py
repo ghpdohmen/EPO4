@@ -475,14 +475,72 @@ def tdoa(signal_reference, signal_recorded, min_value):
 # plt.show()
 
 
+signal_reference = np.loadtxt(
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_reference_final.csv", delimiter=',')
+signal_recorded = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_2_2.csv",
+                             delimiter=',')
+
+Y = fft(signal_reference[1])
+freq = np.linspace(0, Fs, len(Y))
 
 
+# plt.plot(freq, abs(Y))
+# plt.xlim(0, 10000)
+# plt.show()
 
-signal_reference = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\mic3_reference_final.csv", delimiter=',')
-signal_recorded = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_middle_2_2.csv", delimiter=',')
+def filtering(signal):
+    Fpass = 7000
+    Fstop = 8000
+    pass_damp = 3
+    stop_damp = 40
 
-plt.plot(signal_recorded[0], signal_recorded[1])
+    # N, Wn = buttord(Fpass / Fs * 2, Fstop / Fs * 2, pass_damp, stop_damp)
+    # b, a = butter(N, Fpass / Fs * 2)
+    N, Wn = buttord([], [])
+
+    # impulse response:
+    # h = lfilter(b, a, np.concatenate(([1], np.zeros(99))))
+    # H = fft(h)
+    # freq_1 = np.linspace(0, Fs, len(H))
+    # plt.plot(freq_1, abs(H))
+    # plt.show()
+
+    filtered_signal = np.zeros((2, len(signal[0])))
+    filtered_signal[0] = signal[0]
+    filtered_signal[1] = lfilter(b, a, signal[1])
+    return filtered_signal
+
+
+signal_recorded_test = filtering(signal_recorded)
+Z = fft(signal_recorded_test[1])
+freq = np.linspace(0, Fs, len(Z))
+plt.plot(freq, abs(Z))
+plt.xlim(0, 10000)
 plt.show()
+
+signal_recorded_test[1] = signal_recorded_test[1]/max(signal_recorded_test[1])
+plt.plot(signal_recorded_test[0], signal_recorded_test[1])
+plt.xlim(0, 5000)
+plt.show()
+
+plt.plot(signal_reference[0], signal_reference[1])
+plt.show()
+
+# freq = np.linspace(0, Fs, len(Z))
+# plt.plot(freq, abs(Z))
+# plt.xlim(0, 10000)
+# plt.show()
+
+# plt.plot(signal_recorded[0], signal_recorded[1])
+# plt.xlim(0, 5000)
+# plt.show()
+#
+# signal_recorded[1] = ifft(Z)
+# plt.plot(signal_recorded[0], signal_recorded[1])
+# plt.xlim(0, 5000)
+# plt.show()
+# plt.plot(signal_recorded[0], signal_recorded[1])
+# plt.show()
 
 # maxima, = sp.argrelmax(abs(signal_recorded[1]), order=800)
 # print(maxima, maxima[1]-maxima[0])
@@ -530,7 +588,6 @@ plt.show()
 # print(distance)
 
 
-
 # mic1: -800, +1000
 # mic2: -550, +600 or -1100, +100
 
@@ -543,57 +600,56 @@ plt.show()
 import numpy as np
 from scipy.linalg import pinv
 
-def solve_xandD (A, b):
 
-  A_inv = pinv (A)   #pseudo-inverse
-  x_d = A_inv @ b
+def solve_xandD(A, b):
+    A_inv = pinv(A)  # pseudo-inverse
+    x_d = A_inv @ b
 
-  # Microphone locations
-  microphone_locations = np.array([[0,480],[480,480],[480,0],[0,0],[0,240]])
+    # Microphone locations
+    microphone_locations = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
 
-  num_mics = microphone_locations.shape[0] # number of microphones
+    num_mics = microphone_locations.shape[0]  # number of microphones
 
-  #Measured range differences (TDOA * speed of sound)
-  # rij = np.array([r12, r13, r14, r15, r23, r24, r25, r34, r35, r45])    # This part must be different
-  rij = np.array([200, 100, 140, 30, 20, 40, 120, 30, 40, 10])
+    # Measured range differences (TDOA * speed of sound)
+    # rij = np.array([r12, r13, r14, r15, r23, r24, r25, r34, r35, r45])    # This part must be different
+    rij = np.array([200, 100, 140, 30, 20, 40, 120, 30, 40, 10])
 
+    # Construct the matrix A
 
-  # Construct the matrix A
+    A = np.zeros((num_mics * (num_mics - 1) // 2, num_mics + 1))  # has form of 10 x 5
+    row = 0
 
-  A = np.zeros((num_mics * (num_mics -1) // 2, num_mics+1)) # has form of 10 x 5
-  row = 0
+    # loop over microphone pairs
+    for i in range(num_mics):
+        for j in range(i + 1, num_mics):
+            x_diff = 2 * (microphone_locations[j] - microphone_locations[i]).T
 
-  # loop over microphone pairs
-  for i in range(num_mics):
-    for j in range(i + 1, num_mics):
-      x_diff = 2 * (microphone_locations[j] - microphone_locations[i]).T
+            A[row, 0] = x_diff[0]
+            A[row, 1] = x_diff[1]
+            A[row, j] = -2 * rij[row]
 
-      A[row, 0] = x_diff[0]
-      A[row, 1] = x_diff[1]
-      A[row, j] = -2 *rij[row]
+            # Assign zero to every column expect 0 and j
+            for k in range(num_mics):
+                if k != 0 and k != j:
+                    A[row, k] = 0
 
-      #Assign zero to every column expect 0 and j
-      for k in range (num_mics):
-        if k != 0 and k != j:
-          A[row, k] = 0
+            row += 1
 
-      row += 1
+    # Construct the matrix b
 
-  # Construct the matrix b
+    b = np.zeros((num_mics * (num_mics - 1) // 2, 1))  # has form of 10 x 1
+    row = 0
+    # loop over microphone pairs
+    for i in range(num_mics):
+        for j in range(i + 1, num_mics):
+            xi_norm_squarad = microphone_locations[i, 0] ** 2  # Extract the x-coordinates and normalize
+            xj_norm_squarad = microphone_locations[j, 1] ** 2  # Extract the y-coordinates and normalize
 
-  b = np.zeros((num_mics * (num_mics -1) // 2, 1)) # has form of 10 x 1
-  row = 0
-  # loop over microphone pairs
-  for i in range(num_mics):
-    for j in range(i + 1, num_mics):
-      xi_norm_squarad = microphone_locations[i, 0]**2  # Extract the x-coordinates and normalize
-      xj_norm_squarad = microphone_locations[j, 1]**2  # Extract the y-coordinates and normalize
+            b[row] = rij[row] ** 2 - xi_norm_squarad - xj_norm_squarad
 
-      b[row] = rij[row]**2 - xi_norm_squarad - xj_norm_squarad
+            row += 1
 
-      row += 1
-
-  return x_d
+    return x_d
 
 # # Compute the x and d
 # x_d = solve_xandD(A, b)
