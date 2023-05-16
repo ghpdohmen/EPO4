@@ -2,6 +2,7 @@ import pyaudio as audio
 import numpy as np
 import matplotlib.pyplot as plt
 import robot
+import math
 
 import scipy.signal as sp
 # pip install --upgrade --no-cache-dir gdown
@@ -476,17 +477,27 @@ def tdoa(signal_reference, signal_recorded, min_value):
 
 
 signal_reference = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\References\mic3_reference_final.csv", delimiter=',')
-signal_recorded = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_middle_2_2.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_reference_final.csv", delimiter=',')
+signal_recorded = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_2_2.csv",
                              delimiter=',')
 
-Y = fft(signal_reference[1])
-freq = np.linspace(0, Fs, len(Y))
+signal_reference_padded = np.zeros((2, 2 * len(signal_reference[0])))
+# test = np.linspace(0, len(signal_reference_padded[0]), len(signal_reference_padded[0]))
+# print(test)
+signal_reference_padded[0] = np.linspace(0, len(signal_reference_padded[0]), len(signal_reference_padded[0]))
+signal_reference_padded[1] = np.concatenate((signal_reference[1], np.zeros(len(signal_reference[1]))))
 
 
-plt.plot(freq, abs(Y))
-plt.xlim(0, 10000)
-plt.show()
+# plt.plot(signal_reference_padded[0], signal_reference_padded[1])
+# plt.show()
+
+# Y = fft(signal_reference[1])
+# freq = np.linspace(0, Fs, len(Y))
+
+
+# plt.plot(freq, abs(Y))
+# plt.xlim(0, 10000)
+# plt.show()
 
 def filtering(signal):
     Fpass_lower = 4000
@@ -498,7 +509,8 @@ def filtering(signal):
 
     # N, Wn = buttord(Fpass / Fs * 2, Fstop / Fs * 2, pass_damp, stop_damp)
     # b, a = butter(N, Fpass / Fs * 2)
-    N, Wn = buttord([Fpass_lower/Fs*2, Fpass_higher/Fs*2], [Fstop_lower / Fs * 2, Fstop_lower / Fs * 2], pass_damp, stop_damp)
+    N, Wn = buttord([Fpass_lower / Fs * 2, Fpass_higher / Fs * 2], [Fstop_lower / Fs * 2, Fstop_lower / Fs * 2],
+                    pass_damp, stop_damp)
     b, a = butter(N, Wn, btype='bandpass')
 
     # impulse response:
@@ -514,51 +526,39 @@ def filtering(signal):
     return filtered_signal
 
 
-signal_recorded_test = filtering(signal_recorded)
-Z = fft(signal_recorded_test[1])
-freq = np.linspace(0, Fs, len(Z))
-plt.plot(freq, abs(Z))
-plt.xlim(0, 10000)
+signal_recorded_filtered = filtering(signal_recorded)
+# plt.plot(signal_recorded_filtered[0], signal_recorded_filtered[1])
+# plt.xlim(0, 2000)
+# plt.show()
+
+maxima, = sp.argrelmax(signal_recorded[1], order=800)
+# print(maxima, maxima[1] - maxima[0])
+
+truncation = np.zeros((2, maxima[1] - maxima[0]))
+# # # # truncation[0] = np.concatenate((np.zeros(maxima[0]), signal_recorded[0][maxima[0]:maxima[1]]))
+# # # # truncation[1] = np.concatenate((np.zeros(maxima[0]), signal_recorded[1][maxima[0]:maxima[1]]))
+truncation[0] = signal_recorded[0][(maxima[0] - 130):(maxima[1] - 130)]
+truncation[1] = signal_recorded[1][(maxima[0] - 130):(maxima[1] - 130)]
+
+# signal_reference_padded[0] = np.linspace(0, len(signal_reference_padded[0]), len(signal_reference_padded[0]))
+# signal_reference_padded[1] = np.concatenate((signal_reference[1], np.zeros(len(signal_reference[1]))))
+
+truncation_padded = np.zeros((2, math.ceil(max(truncation[0]))))
+truncation_padded[0] = np.linspace(0, len(truncation_padded[0]), len(truncation_padded[0]))
+truncation_padded[1] = np.concatenate((np.zeros(int(truncation[0][0])), truncation[1]))
+
+plt.plot(truncation_padded[0], truncation_padded[1])
 plt.show()
-#
-signal_recorded_test[1] = signal_recorded_test[1]/max(signal_recorded_test[1])
-plt.plot(signal_recorded_test[0], signal_recorded_test[1])
-plt.xlim(0, 5000)
+
+channel = ch3(signal_reference_padded[1], truncation_padded[1], 0.01)
+plt.plot(channel)
 plt.show()
-#
-# plt.plot(signal_reference[0], signal_reference[1])
-# plt.show()
-
-# freq = np.linspace(0, Fs, len(Z))
-# plt.plot(freq, abs(Z))
-# plt.xlim(0, 10000)
-# plt.show()
-
-# plt.plot(signal_recorded[0], signal_recorded[1])
-# plt.xlim(0, 5000)
-# plt.show()
-#
-# signal_recorded[1] = ifft(Z)
-# plt.plot(signal_recorded[0], signal_recorded[1])
-# plt.xlim(0, 5000)
-# plt.show()
-# plt.plot(signal_recorded[0], signal_recorded[1])
-# plt.show()
-
-# maxima, = sp.argrelmax(abs(signal_recorded[1]), order=800)
-# print(maxima, maxima[1]-maxima[0])
-# #
-# truncation = np.zeros((2, maxima[1]-maxima[0]))
-# # # truncation[0] = np.concatenate((np.zeros(maxima[0]), signal_recorded[0][maxima[0]:maxima[1]]))
-# # # truncation[1] = np.concatenate((np.zeros(maxima[0]), signal_recorded[1][maxima[0]:maxima[1]]))
-# truncation[0] = signal_recorded[0][(maxima[0]-300):(maxima[1]-300)]
-# truncation[1] = signal_recorded[1][(maxima[0]-300):(maxima[1]-300)]
 
 # plt.plot(truncation[0], truncation[1])
 # plt.title("Truncated Signal")
 # plt.show()
 
-# print(truncation.shape)
+# # print(truncation.shape)
 # truncation_1 = np.zeros((2, maxima[1]-300))
 # truncation_1[0] = np.concatenate((np.zeros(int(truncation[0][0])), truncation[0]))
 # truncation_1[1] = np.concatenate((np.zeros(int(truncation[0][0])), truncation[1]))
@@ -580,15 +580,16 @@ plt.show()
 # # plt.plot(t, isolated_pulse)
 # # plt.show()
 #
+# channel = ch3(signal_reference[1], signal_recorded[1], 0.01)
 # channel = ch3(signal_reference[1], truncation_1[1], 0.01)
 # plt.plot(channel)
 # plt.show()
-#
-# maximum, = np.where(abs(channel) == max(abs(channel)))
-# # print(maximum)
-# time = maximum * 1 / Fs
-# distance = time * 34300
-# print(distance)
+# #
+maximum, = np.where(abs(channel) == max(abs(channel)))
+# print(maximum)
+time = maximum * 1 / Fs
+distance = time * 34300
+print(distance)
 
 
 # mic1: -800, +1000
