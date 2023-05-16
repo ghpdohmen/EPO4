@@ -63,6 +63,13 @@ for t in range(0,1000*stoptime,math.floor(dt*1000)):
     if t > 16000:
         fb = 3
         steeringAngle = 20
+    if t > 22500:
+        fb = 1.5
+        steeringAngle = 22.5
+    if t > 27500:
+        fb = 0
+        fa = 3
+        steeringAngle = -5
 
 
 plt.plot(timepos[0],timepos[1])
