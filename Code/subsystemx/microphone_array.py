@@ -599,27 +599,15 @@ plt.show()
 # plt.show()
 
 
-# multilateration TDOA (matrix)
+# multilateration estimate_location (matrix)
 import numpy as np
 from scipy.linalg import pinv
 
-
-def solve_xandD(A, b):
-    A_inv = pinv(A)  # pseudo-inverse
-    x_d = A_inv @ b
-
-    # Microphone locations
-    microphone_locations = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
-
+def estimate_location(microphone_locations, rij):
     num_mics = microphone_locations.shape[0]  # number of microphones
 
-    # Measured range differences (TDOA * speed of sound)
-    # rij = np.array([r12, r13, r14, r15, r23, r24, r25, r34, r35, r45])    # This part must be different
-    rij = np.array([200, 100, 140, 30, 20, 40, 120, 30, 40, 10])
-
     # Construct the matrix A
-
-    A = np.zeros((num_mics * (num_mics - 1) // 2, num_mics + 1))  # has form of 10 x 5
+    A = np.zeros((num_mics * (num_mics - 1) // 2, num_mics + 1))  # create zero matrix with the correct shape
     row = 0
 
     # loop over microphone pairs
@@ -631,34 +619,48 @@ def solve_xandD(A, b):
             A[row, 1] = x_diff[1]
             A[row, j] = -2 * rij[row]
 
-            # Assign zero to every column expect 0 and j
+            # Assign zero to every column except 0 and j
             for k in range(num_mics):
-                if k != 0 and k != j:
+                if k != 0 and k != 1 and k != j:
                     A[row, k] = 0
 
             row += 1
 
     # Construct the matrix b
-
     b = np.zeros((num_mics * (num_mics - 1) // 2, 1))  # has form of 10 x 1
     row = 0
+
     # loop over microphone pairs
     for i in range(num_mics):
         for j in range(i + 1, num_mics):
-            xi_norm_squarad = microphone_locations[i, 0] ** 2  # Extract the x-coordinates and normalize
-            xj_norm_squarad = microphone_locations[j, 1] ** 2  # Extract the y-coordinates and normalize
+            xi_norm_squared = np.linalg.norm(microphone_locations[i]) ** 2  # Extract and normalize
+            xj_norm_squared = np.linalg.norm(microphone_locations[j]) ** 2
 
-            b[row] = rij[row] ** 2 - xi_norm_squarad - xj_norm_squarad
+            b[row] = rij[row] ** 2 - xi_norm_squared - xj_norm_squared
 
             row += 1
 
-    return x_d
+    # Solve for x and d
+    A_inv = pinv(A)  # pseudo-inverse
+    x_d = A_inv @ b
+    x = x_d[:2]  # select the first two elements from the array (x, y)
+    d = x_d[2:]  # select from the third element to the end
 
-# # Compute the x and d
-# x_d = solve_xandD(A, b)
-# x = x_d[:2]  #select the first two elements from the arrary (x,y)
-# d = x_d[2:]  #select from the third element to the end
-#
+    return x, d
+
+# Microphone locations
+microphone_locations = np.array([[0,480],[480,480],[480,0],[0,0],[0,240]])
+
+#Measured range differences (TDOA * speed of sound(343))
+# rij = np.array([r12, r13, r14, r15, r23, r24, r25, r34, r35, r45])    # This part must be different
+rij = np.array([0.01*343, 0.02*343, 0.04*343, 0.05*343, 0.02*343, 0.03*343, 0.08*343, 0.02*343, 0.02*343, 0.1*343]) #random test values
+
+# Compute the x and d
+x, d = estimate_location(microphone_locations, rij)
+
+# TODO: check the nuisance parameters, does it influence the estimate location?
 # # Print the estimated location and nuisance parameters
 # print("Estimated Location (x): ({:.2f}, {:.2f})".format(*[float(val) for val in x]))
 # print("Estimated Nuisance Parameters (d):", d)
+
+
