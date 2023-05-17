@@ -33,7 +33,22 @@ def steer_to_angle(input: float, type: str) -> float:
         return radian
     elif type == "degree":
         degree = (0.4432*input)-66.168
+        if degree < 0.5:
+            degree = 0 #added for small offset in model
         return degree
     else:
-        return print("give valid type - radian or degree")    
+        return print("give valid type - radian or degree")
+
+def motor_to_force(input: float) -> float:
+    """
+    Transforms the motor input to a force (equal to Fa - Fb)
+    @param input: between 135 and 165
+    @return: force in newtons
+    """
+    if(146 < input < 156):
+        return 0
+    if(input >= 156):
+        return (input-150)/15*10
+    if (input <= 146):
+        return (150-input) / 15 * -10
 

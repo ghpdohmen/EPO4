@@ -227,7 +227,6 @@ lb_programs.grid(column=3, row=4)
 # speed.grid(column=0, columnspan=3)
 # end grid
 
-# FIXME: I don't think variables are updating properly right now, according to my tests with the robotMode.
 
 while True:
     # update texts
