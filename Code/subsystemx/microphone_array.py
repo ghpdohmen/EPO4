@@ -526,6 +526,14 @@ def peak(signal_reference, signal_recorded):
     maximum, = np.where(abs(channel) == max(abs(channel)))
     return maximum
 
+def tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2):
+    mic_1 = peak(signal_reference_1, signal_recorded_1)
+    mic_2 = peak(signal_reference_2, signal_recorded_2)
+    distance_mics = abs(mic_1 - mic_2)
+    time = distance_mics / Fs
+    distance = time * 34300
+    print(distance_mics, distance)
+    return distance
 
 signal_reference = np.loadtxt(
         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic1_reference_final.csv",
@@ -534,27 +542,29 @@ signal_recorded = np.loadtxt(
         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_3_1.csv",
         delimiter=',')
 
-plt.plot(signal_recorded[0], signal_recorded[1])
-plt.show()
 
+# mic_3 = peak(signal_reference, signal_recorded)
 
-mic_3 = peak(signal_reference, signal_recorded)
-
-signal_reference = np.loadtxt(
-        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_reference_final.csv",
+signal_reference_1 = np.loadtxt(
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_reference_final.csv",
         delimiter=',')
-signal_recorded = np.loadtxt(
-        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_3_5.csv",
+signal_recorded_1 = np.loadtxt(
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_1_3.csv",
         delimiter=',')
 
-mic_2 = peak(signal_reference, signal_recorded)
+signal_reference_2 = np.loadtxt(
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic4_reference_final.csv",
+        delimiter=',')
 
-def tdoa(mic_1, mic_2):
-    distance_mics = abs(mic_1 - mic_2)
-    time = distance_mics / Fs
-    distance = time * 34300
-    print(distance_mics, distance)
-    return distance
+signal_recorded_2 = np.loadtxt(
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_1_4.csv",
+        delimiter=',')
+
+tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2)
+
+# mic_2 = peak(signal_reference, signal_recorded)
+
+
 
 
 # print(mic_3, mic_2)
