@@ -44,7 +44,7 @@ class Robot:
     # output values
     input_motor = 150;
     input_servo = 150;
-    COMport = 'COM5'  # TODO: enable in GUI
+    COMport = 'COM4'  # TODO: enable in GUI
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
@@ -55,10 +55,10 @@ class Robot:
     #robot constants
     wheelBase = 0.335 #in meters
     mass = 5.6 #in kg
-    faMax = 10 # in N
-    fbMax = 14 # in N
-    b = 5 # Nm/s Viscous friction coefficient
-    c = 0.1 # Nm/s Air drag coefficient
+    faMax = 13.5 # in N
+    fbMax = -17.5 # in N #TODO: tune me!
+    b = 9 # Nm/s Viscous friction coefficient
+    c = 0.08 # Nm/s Air drag coefficient
 
 
     def __init__(self, _xCurrent, _yCurrent):

@@ -1,4 +1,5 @@
 # Container of all kind of random functions needed
+import robot
 
 
 # . Returns true or false
@@ -48,7 +49,7 @@ def motor_to_force(input: float) -> float:
     if(146 < input < 156):
         return 0
     if(input >= 156):
-        return (input-150)/15*10
+        return (input-150)/15*robot.Robot.faMax
     if (input <= 146):
-        return (150-input) / 15 * -10
+        return (150-input) / 15 * robot.Robot.fbMax
 

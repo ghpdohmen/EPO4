@@ -56,6 +56,7 @@ class modelSubSystem (subSystem):
             self.w = 0
         robot.Robot.modelState = self.state
         print("location: (" + str(self.posx) + " , " + str(self.posy) + " )")
+        print("velocity: " + str(robot.Robot.velocity))
         robot.xCurrent = self.posx
         robot.yCurrent = self.posy #FIXME: this is somehow not updating on the robot?
 
