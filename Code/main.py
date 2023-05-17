@@ -68,15 +68,21 @@ ssWindow["relief"] = "ridge"
 
 # TODO: show robot location, location uncertainty, goal and path? on this plot
 # graph showing path
-figure = plt.Figure(figsize=(3,3), dpi=100)
-fig = figure.add_subplot(111, autoscale_on=False, xlim = (0,4.8), ylim = (0,4.8))
+figure = plt.Figure(figsize=(3, 3), dpi=100)
+fig = figure.add_subplot(111, autoscale_on=False, xlim=(0, 5), ylim=(0, 5))
 fig.set_aspect('equal')
 fig.grid()
-#fig.plot([1, 2, 3, 4, 4.8], [5, 6, 1, 3, 8, 9, 3, 5])
 canvas = FigureCanvasTkAgg(figure)
 canvas.draw()
+plot_button = tk.Button(text="plot", command=lambda: fig_plot(canvas))
 
 
+def fig_plot(canvas):
+    fig.clear()
+    x = np.array([0, 1, 2, 3, 4, 5])
+    y = np.array([5, 4, 3, 2, 1, 0])
+    fig.plot(x, y)
+    canvas.draw()
 # end graph
 
 
@@ -86,7 +92,7 @@ def program_selector():
     _step_0 = str(_selection).split(',')
     _step_1 = _step_0[0].split('(')
     _step_2 = _step_1[1]
-    #print(robotMode(int(_step_2)))
+    # print(robotMode(int(_step_2)))
     a.selectedRobotMode = robotMode(int(_step_2))
 
 
@@ -125,7 +131,7 @@ label_4 = ttk.Label(window, text="update frequency: ")
 label_f = ttk.Label(window)
 frequencyText = StringVar()
 label_f["textvariable"] = frequencyText
-frequencyText.set(str(np.round((1/robot.Robot.averageLoop)*10)/10) + " Hz")
+frequencyText.set(str(np.round((1 / robot.Robot.averageLoop) * 10) / 10) + " Hz")
 # end labels
 
 # subsystem status labels
@@ -210,6 +216,7 @@ label_4.grid(column=0, row=4)
 label_f.grid(column=1, row=4)
 
 canvas.get_tk_widget().grid(column=0, row=0, columnspan=3, rowspan=3)
+plot_button.grid(column=1, row=4)
 
 button_start.grid(column=3, row=0)
 button_stop.grid(column=3, row=1)
@@ -222,9 +229,8 @@ lb_programs.grid(column=3, row=4)
 
 # FIXME: I don't think variables are updating properly right now, according to my tests with the robotMode.
 
-
 while True:
-    #update texts
+    # update texts
     batteryText.set(robot.Robot.batteryVoltage)
     directionText.set(robot.Robot.input_servo)
     operatingModeText.set(str(a.selectedRobotMode).split('.')[1])
@@ -234,10 +240,10 @@ while True:
     inputStatusText.set(str(robot.Robot.inputState).split('.')[1])
     comsStatusText.set(str(robot.Robot.communicationState).split('.')[1])
     motorSpeedText.set(robot.Robot.input_motor)
-    frequencyText.set(str(np.round((1 / robot.Robot.averageLoop) * 10) / 10) + " Hz") # FIXME: figure out why this isn't updating in the GUI
+    frequencyText.set(str(np.round(
+        (1 / robot.Robot.averageLoop) * 10) / 10) + " Hz")  # FIXME: figure out why this isn't updating in the GUI
 
-
-    #update robot and gui
+    # update robot and gui
     a.updateRobot()
     root.update()
 
