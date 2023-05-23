@@ -535,32 +535,54 @@ def tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recor
     print(distance_mics, distance)
     return distance
 
-signal_reference = np.loadtxt(
-        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic1_reference_final.csv",
-        delimiter=',')
-signal_recorded = np.loadtxt(
-        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_3_1.csv",
-        delimiter=',')
+# signal_reference = np.loadtxt(
+#         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic1_reference_final.csv",
+#         delimiter=',')
+# signal_recorded = np.loadtxt(
+#         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_3_1.csv",
+#         delimiter=',')
 
 
 # mic_3 = peak(signal_reference, signal_recorded)
 
 signal_reference_1 = np.loadtxt(
-        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_reference_final.csv",
+        r"C:\Users\weika\OneDrive\Documents\school\EPO4\Code\References\mic4_reference_final.csv",
         delimiter=',')
 signal_recorded_1 = np.loadtxt(
-        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_1_3.csv",
+        r"C:\Users\weika\OneDrive\Documents\school\EPO4\Code\Square\Recording_236x122_2_4.csv",
         delimiter=',')
 
 signal_reference_2 = np.loadtxt(
-        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic4_reference_final.csv",
+        r"C:\Users\weika\OneDrive\Documents\school\EPO4\Code\References\mic5_reference_final.csv",
         delimiter=',')
 
 signal_recorded_2 = np.loadtxt(
-        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_1_4.csv",
+        r"C:\Users\weika\OneDrive\Documents\school\EPO4\Code\Square\Recording_236x122_2_5.csv",
         delimiter=',')
 
-tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2)
+# tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2)
+# rij = []
+file_numbers = [1, 2, 3, 4, 5]  # Update with the relevant file numbers
+for i in range(len(file_numbers)):
+    # signal_reference_file_1 = r"C:\Users\weika\OneDrive\Documents\school\EPO4\Code\References\mic{}_reference_final.csv".format(file_numbers[i])
+    # signal_recorded_file_1 = r"C:\Users\weika\OneDrive\Documents\school\EPO4\Code\Square\Recording_236x122_2_{}.csv".format(file_numbers[i])
+
+    for j in range(i+1, len(file_numbers)):
+        signal_reference_file_1 = r"C:\Users\weika\OneDrive\Documents\school\EPO4\Code\References\mic{}_reference_final.csv".format(file_numbers[i])
+        signal_recorded_file_1 = r"C:\Users\weika\OneDrive\Documents\school\EPO4\Code\Square\Recording_236x122_2_{}.csv".format(file_numbers[i])
+        signal_reference_file_2 = r"C:\Users\weika\OneDrive\Documents\school\EPO4\Code\References\mic{}_reference_final.csv".format(
+            file_numbers[j])
+        signal_recorded_file_2 = r"C:\Users\weika\OneDrive\Documents\school\EPO4\Code\Square\Recording_236x122_2_{}.csv".format(
+            file_numbers[j])
+
+        signal_reference_1 = np.loadtxt(signal_reference_file_1, delimiter=',')
+        signal_recorded_1 = np.loadtxt(signal_recorded_file_1, delimiter=',')
+        signal_reference_2 = np.loadtxt(signal_reference_file_2, delimiter=',')
+        signal_recorded_2 = np.loadtxt(signal_recorded_file_2, delimiter=',')
+
+        distance = tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2)
+        # rij.append(distance)
+
 
 # mic_2 = peak(signal_reference, signal_recorded)
 
@@ -695,7 +717,7 @@ def estimate_location(microphone_locations, rij):
             xi_norm_squared = np.linalg.norm(microphone_locations[i]) ** 2  # Extract and normalize
             xj_norm_squared = np.linalg.norm(microphone_locations[j]) ** 2
 
-            b[row] = rij[row] ** 2 - xi_norm_squared - xj_norm_squared
+            b[row] = rij[row] ** 2 - xi_norm_squared + xj_norm_squared
 
             row += 1
 
@@ -712,15 +734,15 @@ microphone_locations = np.array([[0,480],[480,480],[480,0],[0,0],[0,240]])
 
 #Measured range differences (TDOA * speed of sound(343))
 # rij = np.array([r12, r13, r14, r15, r23, r24, r25, r34, r35, r45])    # This part needs to change
-rij = np.array([0.01*343, 0.02*343, 0.04*343, 0.05*343, 0.02*343, 0.03*343, 0.08*343, 0.02*343, 0.02*343, 0.1*343]) #random test values
-
+# rij = np.array([0.01*343, 0.02*343, 0.04*343, 0.05*343, 0.02*343, 0.03*343, 0.08*343, 0.02*343, 0.02*343, 0.1*343]) #random test values
+rij = np.array([4, 4, 5, 96, 0, 1, 93, 1, 93, 92])      #(240x240) recording 3
 # Compute the x and d
 x, d = estimate_location(microphone_locations, rij)
 
 # TODO: check the nuisance parameters, does it influence the estimate location?
-# # Print the estimated location and nuisance parameters
-# print("Estimated Location (x): ({:.2f}, {:.2f})".format(*[float(val) for val in x]))
-# print("Estimated Nuisance Parameters (d):", d)
+# Print the estimated location and nuisance parameters
+print("Estimated Location (x): ({:.2f}, {:.2f})".format(*[float(val) for val in x]))
+print("Estimated Nuisance Parameters (d):", d)
 
 # # Ideal OOK gold code plot
 # # Set the parameters
