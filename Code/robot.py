@@ -22,7 +22,7 @@ class Robot:
 
     # audio stuff
     # code = "EB3A994F"  # String, hexadecimal
-    # speakerOn = False
+    speakerOn = False
     # carrierFrequency = 6000  # in Hz
     # bitFrequency = 2000  # in Hz
     # repetitionCount = 64  # in number of bits
@@ -44,7 +44,7 @@ class Robot:
     # output values
     input_motor = 150;
     input_servo = 150;
-    COMport = 'COM4'  # TODO: enable in GUI
+    COMport = 'COM5'  # TODO: enable in GUI
 
     # timing
     runTime = 0  # time since hitting start (in seconds)

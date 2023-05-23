@@ -2,19 +2,22 @@ import pyaudio as audio
 import numpy as np
 import matplotlib.pyplot as plt
 import robot
+import math
 
-# import scipy
+import scipy.signal as sp
 # pip install --upgrade --no-cache-dir gdown
 # gdown 1xGUeeM-oY0pyXA0OO8_uKwT-vLAsiyZB  # refsignal.py
 # gdown 1xTibH8tNbpwdSWmkziFGS24WXEYhtMRl  # wavaudioread.py
 # gdown 10f3-zLIpu81jjQtr-Mr7BCtFz6u3o4N1 # recording_tool.py
 
 # from scipy.io import wavfile
-# from scipy.fft import fft, ifft
-# from scipy.signal import convolve, unit_impulse
+from scipy.fft import fft, ifft
+from scipy.signal import butter, buttord, lfilter
+from scipy.signal import convolve, unit_impulse
 # from IPython.display import Audio
 
 from subsystemx.subsystem import subSystem
+
 #
 # from Code.robot import robot
 
@@ -63,7 +66,6 @@ def audio_devices(*, print_list: bool):
 
 
 def microphone_array(device_index, duration_recording):
-    Fs = 44100
     number_of_samples = duration_recording * Fs
 
     pyaudio_handle = audio_devices(print_list=False)
@@ -73,25 +75,25 @@ def microphone_array(device_index, duration_recording):
     data = np.frombuffer(samples, dtype='int16')
 
     data_length = len(data[::5])
-    data_mic_0 = data[0::5]
-    data_mic_1 = data[1::5]
-    data_mic_2 = data[2::5]
-    data_mic_3 = data[3::5]
-    data_mic_4 = data[4::5]
+    data_mic_1 = data[0::5]
+    data_mic_2 = data[1::5]
+    data_mic_3 = data[2::5]
+    data_mic_4 = data[3::5]
+    data_mic_5 = data[4::5]
 
-    sample_axis_mic_0 = np.linspace(0, data_length, data_length)
     sample_axis_mic_1 = np.linspace(0, data_length, data_length)
     sample_axis_mic_2 = np.linspace(0, data_length, data_length)
     sample_axis_mic_3 = np.linspace(0, data_length, data_length)
     sample_axis_mic_4 = np.linspace(0, data_length, data_length)
+    sample_axis_mic_5 = np.linspace(0, data_length, data_length)
 
-    mic_0 = sample_axis_mic_0, data_mic_0
     mic_1 = sample_axis_mic_1, data_mic_1
     mic_2 = sample_axis_mic_2, data_mic_2
     mic_3 = sample_axis_mic_3, data_mic_3
     mic_4 = sample_axis_mic_4, data_mic_4
+    mic_5 = sample_axis_mic_5, data_mic_5
 
-    return mic_0, mic_1, mic_2, mic_3, mic_4
+    return mic_1, mic_2, mic_3, mic_4, mic_5
 
 
 def mic_plotter(data: bool, device_index=None, duration_recording=None):
@@ -109,10 +111,22 @@ def mic_plotter(data: bool, device_index=None, duration_recording=None):
         return
     else:
         for i in range(5):
-            data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_" + str(i) + "_1.csv", delimiter=",")
+            data = np.loadtxt(
+                r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_" + str(i) + "_1.csv",
+                delimiter=",")
             plt.plot(data[0], data[1])
             plt.show()
         return
+
+
+def reference_plotter():
+    for i in range(1, 6):
+        data = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\mic" + str(i) + "_reference_final.csv",
+                          delimiter=",")
+        plt.plot(data[0], data[1])
+        plt.title("Microphone " + str(i) + " reference")
+        plt.show()
+    return
 
 
 # mic_plotter(True)
@@ -129,6 +143,7 @@ def data_saver(device_index, duration_recording):
     for i in range(5):
         np.savetxt("Recording_handclap_" + str(i) + ".csv", mics[i], delimiter=",")
         return
+
 
 # def bit_string(self, _length):
 #     """
@@ -248,7 +263,7 @@ def data_saver(device_index, duration_recording):
 #
 #     return gold_code_used, r, maximum_difference
 
-
+# 11101011001110101001100101001111
 # gold_code_used, r, maximum_difference = gold_code_generator(10000000, 200)
 # print(gold_code_used, maximum_difference)
 # n = list(range(-32 + 1, 32))
@@ -260,54 +275,483 @@ def data_saver(device_index, duration_recording):
 # plt.show()
 
 
-# mic_plotter(False, 1, 0.032)
-# # mic_plotter(False, 1, 0.064)
-#
-# for i in range(20):
-#     device_index = 1
-#     duration_recording = 0.032
-#     robot.speakerOn = False
-#     robot.code = "EB3A994F"
-#     robot.carrierFrequency = 6000
-#     robot.bitFrequency = 2000
-#     robot.repetitionCount = 64
-#     robot.speakerOn = True
-#     mics = microphone_array(device_index, duration_recording)
-#     for j in range(5):
-#         np.savetxt("Recording_reference_" + str(j) + "_" + str(i) + ".csv", mics[i], delimiter=",")
-
-
-# reference = np.empty([2, 176400])
-# for i in range(20):
-#     data = np.loadtxt("Recording_reference_0_" + str(i) + ".csv", delimiter=",")
-#     reference[0] = data[0]
-#     reference[1] = data[1] * 2
-#
-# reference[1] = reference[1]/20
-# print(reference)
-# plt.plot(reference[0], reference[1])
-# plt.show()
-
-# for j in range(10):
-#     mics = microphone_array(1, 10)
-#     for i in range(5):
-#         np.savetxt("Recording_x,y_" + str(j) + str(i) + ".csv", mics[i], delimiter=",")
-
 # for i in range(5):
-    # data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_3_" + str(i) + ".csv", delimiter=",")
-# for i in range(1, 7):
-#     data = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\Recording_reference_" + str(i) + "_3.csv", delimiter=",")
+#     data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_1_" + str(i) + ".csv", delimiter=",")
+# for i in range(1, 5):
+#     data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\Recording_reference_mic1_" + str(i) + ".csv", delimiter=",")
 #     plt.plot(data[0], data[1])
 #     # plt.title("Microphone " + str(i+1))
-#     plt.title("microphone 4, recording " + str(i))
-#     plt.xlim(50, 500)
+#     plt.title("microphone 1, recording " + str(i))
+#     # plt.xlim(50, 500)
 #     plt.show()
 
-data = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\Recording_reference_2_3.csv", delimiter=",")
-plt.plot(data[0], data[1])
-# plt.title("Microphone " + str(i+1))
-plt.title("microphone 4, recording 2")
-plt.xlim(0, 300)
+#
+
+#
+# plt.plot(data[0], data[1])
+# plt.title("microphone 5, recording 3")
+# plt.xlim(3019, 3730)
+# plt.show()
+
+def truncater(start, stop):
+    data = np.loadtxt(
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\Recording_reference_mic5_3.csv",
+        delimiter=",")
+    data_truncated = data[0][start:stop], data[1][start:stop]
+    np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_3.csv", data_truncated,
+               delimiter=",")
+    return
+
+
+#
+# truncater(3019, 3730)
+# data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_3.csv",
+#                   delimiter=",")
+# plt.plot(data[0], data[1])
+# plt.title("microphone5, reference 3")
+# plt.xlim(3019, 3730)
+# plt.show()
+# print(data.shape)
+
+# reference = np.zeros((2, 711))
+# for i in range(1, 3):
+#     data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_" + str(i) + ".csv", delimiter=",")
+#     reference[0] = np.linspace(0, 711, 711)
+#     reference[1] = np.add(reference[1], data[1])
+#     # print(reference[1])
+#
+# reference[1] = reference[1]/3
+# reference[1] = reference[1]/np.max(reference[1])
+# # print(np.max(reference[1]))
+# plt.plot(reference[0], reference[1])
+# plt.xlim(0, 711)
+# plt.show()
+# # # #
+# np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_reference_final.csv", reference,
+#                delimiter=",")
+
+
+# for i in range(5):
+#     data = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_middle_1_" + str(i) + ".csv", delimiter=",")
+#     plt.plot(data[0], data[1])
+#     plt.title("480x480, Microphone " + str(i) + " reference")
+#     plt.show()
+
+
+def ch3(x, y, epsi):
+    Nx = len(x)  # Length of x
+    Ny = len(y)  # Length of y
+    L = Ny - Nx + 1  # Length of h
+
+    # len(x) == len(y)
+    x = np.concatenate((x, np.zeros(L - 1)))
+
+    # Deconvolution in frequency domain
+    Y = fft(y)
+    X = fft(x, Ny)
+    H = Y / (X + 10e-15)
+    # Threshold to avoid blow ups of noise during inversion
+    ii = np.absolute(X) < epsi * max(abs(X))
+    H[ii] = 0
+
+    h = np.real(ifft(H))  # ensure the result is real
+    # h = h[0:34300]        # optional: truncate to length Lhat (L is not reliable?)
+
+    return h
+
+def filtering(signal):
+    Fpass_lower = 4000
+    Fpass_higher = 8000
+    Fstop_lower = 3000
+    Fstop_higher = 9000
+    pass_damp = 3
+    stop_damp = 40
+
+    # N, Wn = buttord(Fpass / Fs * 2, Fstop / Fs * 2, pass_damp, stop_damp)
+    # b, a = butter(N, Fpass / Fs * 2)
+    N, Wn = buttord([Fpass_lower / Fs * 2, Fpass_higher / Fs * 2], [Fstop_lower / Fs * 2, Fstop_higher / Fs * 2],
+                    pass_damp, stop_damp)
+    b, a = butter(N, Wn, btype='bandpass')
+
+    # impulse response:
+    # h = lfilter(b, a, np.concatenate(([1], np.zeros(99))))
+    # H = fft(h)
+    # freq_1 = np.linspace(0, Fs, len(H))
+    # plt.plot(freq_1, abs(H))
+    # plt.show()
+
+    filtered_signal = np.zeros((2, len(signal[0])))
+    filtered_signal[0] = signal[0]
+    filtered_signal[1] = lfilter(b, a, signal[1])
+    return filtered_signal
+
+
+# plt.plot(signal_recorded[0], signal_recorded[1])
+# plt.xlim(0, 2000)
+# plt.show()
+# def tdoa(signal_reference, signal_recorded, min_value):
+#     signal_reference = signal_reference[1]
+#     # find index of, and maximum value of reference signal
+#     period = 1 / Fs
+#     begin = 0
+#     end = 2000
+#     slices = slice(begin, end, 1)
+#     max_value = max(abs(signal_recorded[1][slices]));
+#
+#     for i in range(0, len(signal_recorded[0]), 2000):
+#         if end < len(signal_recorded[0]):
+#             begin += 2000
+#             end += 2000
+#             slices = slice(begin, end, 1)
+#             if max(abs(signal_recorded[1][slices])) > max_value:
+#                 max_value = max(abs(signal_recorded[1][slices]));
+#                 max_value_reference, = np.where(abs(signal_recorded[1][slices]) == max_value);
+#                 max_value_reference = max_value_reference + begin;
+#                 max_value_reference = np.append(max_value_reference, max_value);
+#                 if max_value > 0.8 * max(abs(signal_recorded[1])):
+#                     break
+#         else:
+#             break
+#
+#     # cut reference and recorded signal to one pulse + same length
+#     begin = int(max_value_reference[0] - 800)
+#     end = int(max_value_reference[0] + 1000)
+#
+#     signal_recorded_used = np.zeros((2, end - begin))
+#     signal_recorded_used[0] = signal_recorded[0][begin:end]
+#     signal_recorded_used[1] = signal_recorded[1][begin:end]
+#
+#     # estimate channel
+#     channel = ch3(signal_reference, signal_recorded_used[1], 0.01)
+#     channel_half = np.array_split(channel, 2)
+#     # middle = int(len(channel)/2)
+#     # print(channel_half[0].shape)
+#     # channel_half = channel[:middle]
+#     # find index of maximum value of channel
+#     max_value_channel, = np.where(abs(channel_half[0]) == max(abs(channel_half[0])))
+#     # calculate the corresponding amount of time
+#     time = period * max_value_channel
+#     # print(time)
+#
+#     # calculate distance between microphones
+#     distance = time * 34300
+#
+#     return channel, signal_reference, signal_recorded_used, distance, channel_half[0]
+    # return distance
+
+
+def peak(signal_reference, signal_recorded):
+    # signal_reference = np.loadtxt(
+    #     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_reference_final.csv",
+    #     delimiter=',')
+    # signal_recorded = np.loadtxt(
+    #     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_2_2.csv",
+    #     delimiter=',')
+
+    signal_recorded_filtered = filtering(signal_recorded)
+    maxima, = sp.argrelmax(signal_recorded_filtered[1], order=800)
+    if signal_recorded_filtered[1][maxima[0]] < 0.9 * max(signal_recorded_filtered[1]):
+        maxima = maxima[1::]
+    # print(maxima, maxima[1] - maxima[0])
+
+    truncation = np.zeros((2, maxima[1] - maxima[0]))
+    truncation[0] = signal_recorded[0][(maxima[0] - 130):(maxima[1] - 130)]
+    truncation[1] = signal_recorded[1][(maxima[0] - 130):(maxima[1] - 130)]
+
+    truncation_padded = np.zeros((2, math.ceil(max(truncation[0]))))
+    truncation_padded[0] = np.linspace(0, len(truncation_padded[0]), len(truncation_padded[0]))
+    truncation_padded[1] = np.concatenate((np.zeros(int(truncation[0][0])), truncation[1]))
+
+    channel = ch3(signal_reference[1], truncation_padded[1], 0.01)
+
+    maximum, = np.where(abs(channel) == max(abs(channel)))
+    return maximum, channel
+
+def tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2):
+    mic_1, _ = peak(signal_reference_1, signal_recorded_1)
+    mic_2, _ = peak(signal_reference_2, signal_recorded_2)
+    distance_mics = abs(mic_1 - mic_2)
+    time = distance_mics / Fs
+    distance = time * 34300
+    print(distance_mics, distance)
+    return distance
+
+
+signal_reference_1 = np.loadtxt(
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic1_reference_final.csv",
+        delimiter=',')
+signal_recorded_1 = np.loadtxt(
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_4_1.csv",
+        delimiter=',')
+
+signal_reference_2 = np.loadtxt(
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_reference_final.csv",
+        delimiter=',')
+
+signal_recorded_2 = np.loadtxt(
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_4_5.csv",
+        delimiter=',')
+
+tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2)
+
+# plt.plot(signal_recorded_2[0], signal_recorded_2[1])
+# plt.show()
+
+_, channel_1 = peak(signal_reference_1, signal_recorded_1)
+plt.plot(channel_1)
 plt.show()
 
-# 11101011001110101001100101001111
+_, channel_2 = peak(signal_reference_2, signal_recorded_2)
+plt.plot(channel_2)
+plt.show()
+
+
+# signal_recorded_filtered = signal_recorded_2
+# signal_recorded_filtered = filtering(signal_recorded_2)
+# # signal_recorded_filtered[1] = signal_recorded_filtered[1] / max(signal_recorded_filtered[1])
+#
+# plt.plot(signal_recorded_filtered[0], signal_recorded_filtered[1])
+# plt.show()
+# #
+# maxima, = sp.argrelmax(signal_recorded_filtered[1], order=1000)
+# print(maxima,)
+# if signal_recorded_filtered[1][maxima[0]] < 0.9 * max(signal_recorded_filtered[1]):
+#     maxima = maxima[1::]
+# print(maxima)
+#
+# truncation = np.zeros((2, maxima[1] - maxima[0]))
+# truncation[0] = signal_recorded_2[0][(maxima[0] - 130):(maxima[1] - 130)]
+# truncation[1] = signal_recorded_2[1][(maxima[0] - 130):(maxima[1] - 130)]
+#
+# truncation_padded = np.zeros((2, math.ceil(max(truncation[0]))))
+# truncation_padded[0] = np.linspace(0, len(truncation_padded[0]), len(truncation_padded[0]))
+# truncation_padded[1] = np.concatenate((np.zeros(int(truncation[0][0])), truncation[1]))
+#
+# plt.plot(truncation_padded[0], truncation_padded[1])
+# plt.show()
+#
+# channel = ch3(signal_reference_2[1], truncation_padded[1], 0.01)
+# plt.plot(channel)
+# plt.show()
+#
+# maximum, = np.where(abs(channel) == max(abs(channel)))
+# # print(maximum)
+
+
+
+
+# print(mic_3, mic_2)
+# distance_mics = abs(mic_3 - mic_2)
+# time = distance_mics / Fs
+# distance = time * 34300
+# print(distance_mics, distance)
+
+
+
+
+
+# signal_reference = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic3_reference_final.csv", delimiter=',')
+# signal_recorded_1 = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_2_2.csv",
+#                              delimiter=',')
+# signal_recorded_2 = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_2_4.csv",
+#                              delimiter=',')
+#
+# plt.plot(signal_reference[0], signal_reference[1])
+# plt.title("Signal Reference Mic 3")
+# plt.show()
+#
+# plt.plot(signal_recorded_1[0], signal_recorded_1[1])
+# plt.title("Signal Recorded Mic 3")
+# plt.xlim(0, 2000)
+# plt.show()
+#
+# plt.plot(signal_recorded_2[0], signal_recorded_2[1])
+# plt.title("Signal Recorded Mic 4")
+# plt.xlim(0, 2000)
+# plt.show()
+#
+#
+# signal_recorded_filtered_1 = filtering(signal_recorded_1)
+# plt.plot(signal_recorded_filtered_1[0], signal_recorded_filtered_1[1])
+# plt.title("Signal Recorded Mic 3 Filtered")
+# plt.xlim(0, 2000)
+# plt.show()
+#
+# signal_recorded_filtered_2 = filtering(signal_recorded_2)
+# plt.plot(signal_recorded_filtered_2[0], signal_recorded_filtered_2[1])
+# plt.title("Signal Recorded Mic 4 Filtered")
+# plt.xlim(0, 2000)
+# plt.show()
+#
+# maxima_1, = sp.argrelmax(signal_recorded_1[1], order=800)
+# # print(maxima_1)
+#
+# truncation_1 = np.zeros((2, maxima_1[1] - maxima_1[0]))
+# truncation_1[0] = signal_recorded_1[0][(maxima_1[0] - 70):(maxima_1[1] - 70)]
+# truncation_1[1] = signal_recorded_1[1][(maxima_1[0] - 70):(maxima_1[1] - 70)]
+#
+# truncation_padded_1 = np.zeros((2, math.ceil(max(truncation_1[0]))))
+# truncation_padded_1[0] = np.linspace(0, len(truncation_padded_1[0]), len(truncation_padded_1[0]))
+# truncation_padded_1[1] = np.concatenate((np.zeros(int(truncation_1[0][0])), truncation_1[1]))
+#
+# maxima_2, = sp.argrelmax(signal_recorded_2[1], order=800)
+# truncation_2 = np.zeros((2, maxima_2[1] - maxima_2[0]))
+# truncation_2[0] = signal_recorded_1[0][(maxima_2[0] - 70):(maxima_2[1] - 70)]
+# truncation_2[1] = signal_recorded_1[1][(maxima_2[0] - 70):(maxima_2[1] - 70)]
+#
+# truncation_padded_2 = np.zeros((2, math.ceil(max(truncation_2[0]))))
+# truncation_padded_2[0] = np.linspace(0, len(truncation_padded_2[0]), len(truncation_padded_2[0]))
+# truncation_padded_2[1] = np.concatenate((np.zeros(int(truncation_2[0][0])), truncation_2[1]))
+#
+# plt.plot(truncation_padded_1[0], truncation_padded_1[1])
+# plt.title("Signal Recorded Mic 3 Truncated")
+# plt.show()
+#
+# plt.plot(truncation_padded_2[0], truncation_padded_2[1])
+# plt.title("Signal Recorded Mic 4 Truncated")
+# plt.show()
+#
+# channel = ch3(truncation_padded_1[1], truncation_padded_2[1], 0.01)
+# plt.plot(channel)
+# plt.show()
+#
+# maximum, = np.where(abs(channel) == max(abs(channel)))
+# # print(maximum)
+# time = maximum / Fs
+# distance = time * 34300
+# print(distance)
+
+
+# mic1: -800, +1000
+# mic2: -550, +600 or -1100, +100
+
+# signal_reference = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\References\Recording_reference_mic1_1.csv", delimiter=',')
+# plt.plot(signal_reference[0], signal_reference[1])
+# plt.show()
+
+
+# multilateration estimate_location (matrix)
+import numpy as np
+from scipy.linalg import pinv
+
+def estimate_location(microphone_locations, rij):
+    num_mics = microphone_locations.shape[0]  # number of microphones
+
+    # Construct the matrix A
+    A = np.zeros((num_mics * (num_mics - 1) // 2, num_mics + 1))  # create zero matrix with the correct shape
+    row = 0
+
+    # loop over microphone pairs
+    for i in range(num_mics):
+        for j in range(i + 1, num_mics):
+            x_diff = 2 * (microphone_locations[j] - microphone_locations[i]).T
+
+            A[row, 0] = x_diff[0]     #x-value
+            A[row, 1] = x_diff[1]     #y-value
+            A[row, j] = -2 * rij[row]    # range difference between microphones
+
+            # Assign zero to every column except 0 and j
+            for k in range(num_mics):
+                if k != 0 and k != 1 and k != j:
+                    A[row, k] = 0
+
+            row += 1
+
+    # Construct the matrix b
+    b = np.zeros((num_mics * (num_mics - 1) // 2, 1))  # has form of 10 x 1
+    row = 0
+
+    # loop over microphone pairs
+    for i in range(num_mics):
+        for j in range(i + 1, num_mics):
+            xi_norm_squared = np.linalg.norm(microphone_locations[i]) ** 2  # Extract and normalize
+            xj_norm_squared = np.linalg.norm(microphone_locations[j]) ** 2
+
+            b[row] = rij[row] ** 2 - xi_norm_squared - xj_norm_squared
+
+            row += 1
+
+    # Solve for x and d
+    A_inv = pinv(A)  # pseudo-inverse
+    x_d = A_inv @ b
+    x = x_d[:2]  # select the first two elements from the array (x, y)
+    d = x_d[2:]  # select from the third element to the end
+
+    return x, d
+
+# Microphone locations
+microphone_locations = np.array([[0,480],[480,480],[480,0],[0,0],[0,240]])
+
+#Measured range differences (TDOA * speed of sound(343))
+# rij = np.array([r12, r13, r14, r15, r23, r24, r25, r34, r35, r45])    # This part needs to change
+rij = np.array([0.01*343, 0.02*343, 0.04*343, 0.05*343, 0.02*343, 0.03*343, 0.08*343, 0.02*343, 0.02*343, 0.1*343]) #random test values
+
+# Compute the x and d
+x, d = estimate_location(microphone_locations, rij)
+
+# TODO: check the nuisance parameters, does it influence the estimate location?
+# # Print the estimated location and nuisance parameters
+# print("Estimated Location (x): ({:.2f}, {:.2f})".format(*[float(val) for val in x]))
+# print("Estimated Nuisance Parameters (d):", d)
+
+# # Ideal OOK gold code plot
+# # Set the parameters
+# carrier_frequency = 6000  # 6 kHz
+# bit_frequency = 2000  # 2kHz
+# code = '11101011001110101001100101001111'  # "EB3A994F"
+#
+# # Calculate the time duration for each bit
+# bit_duration = 1 / bit_frequency  # seconds
+#
+# # Calculate the time steps for generating the signal
+# total_time = len(code) * bit_duration
+# time = np.linspace(0, total_time, int(total_time * carrier_frequency))
+#
+# # Generate the carrier signal
+# carrier_signal = np.sin(2 * np.pi * carrier_frequency * time)
+#
+# # Generate the OOK signal based on the code
+# ook_signal = []
+# for bit in code:
+#     if bit == '1':
+#         ook_signal.extend(np.ones(int(bit_duration * carrier_frequency)))
+#     elif bit == '0':
+#         ook_signal.extend(np.zeros(int(bit_duration * carrier_frequency)))
+#
+# # Plot the OOK signal
+# plt.plot(time, ook_signal)
+# plt.xlabel('Time (s)')
+# plt.ylabel('Amplitude')
+# plt.title('OOK Signal')
+# # plt.xlim([0, 0.03])
+# plt.grid(True)
+# plt.show()
+
+# Ideal OOK refsignal
+# from refsignal import refsignal
+# from scipy.fft import fft, ifft
+# Fs_TX = 44100
+# Nbits = 64
+# Timer0 = 1 # 10 kHz
+# Timer1 = 8 # 5 kHz
+# Timer3 = 2 # 3 Hz
+# code = 0x92340f0faaaa4321 #1001001000110100000011110000111110101010101010100100001100100001#
+#
+# x, _ = refsignal(Nbits, Timer0, Timer1, Timer3, code, Fs_TX)
+# X = fft(x)
+#
+# period = 1/Fs_TX
+# t = np.linspace(0, len(x)*period, len(x))
+# f = np.linspace(0, Fs_TX/1000, len(x))
+#
+# fig, ax = plt.subplots(2, 1, figsize=(10, 7))
+#
+# ax[0].plot(t, x)
+# ax[0].set_title("Ideal OOK in the Time Domain")
+# ax[0].set_xlabel("Time [s]")
+# ax[0].set_ylabel("Magnitude")
+# ax[0].set_xlim([0, 0.015])
+# # ax[0].set_ylim([0, 2])
+
+
