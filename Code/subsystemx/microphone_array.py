@@ -417,14 +417,14 @@ def peak(signal_reference, signal_recorded):
     return maximum, channel
 
 
-def tdoa_1(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2):
-    mic_1, _ = peak(signal_reference_1, signal_recorded_1)
-    mic_2, _ = peak(signal_reference_2, signal_recorded_2)
-    distance_mics = abs(mic_1 - mic_2)
-    time = distance_mics / Fs
-    distance = time * 34300
-    print(distance_mics, distance)
-    return distance
+# def tdoa_1(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2):
+#     mic_1, _ = peak(signal_reference_1, signal_recorded_1)
+#     mic_2, _ = peak(signal_reference_2, signal_recorded_2)
+#     distance_mics = abs(mic_1 - mic_2)
+#     time = distance_mics / Fs
+#     distance = time * 34300
+#     print(distance_mics, distance)
+#     return distance
 
 
 def isolation(recorded_signal, reference_signal):
@@ -471,7 +471,8 @@ def tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recor
     distance_mics = abs(maximum_1 - maximum_2)
     time = distance_mics / Fs
     distance = time * 34300
-    print(distance_mics, distance)
+    print(distance)
+    return distance
 
 # first recording
 # 1-2 4.67
@@ -533,7 +534,6 @@ signal_recorded_2 = np.loadtxt(
 
 
 tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2)
-
 
 # multilateration estimate_location (matrix)
 

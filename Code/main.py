@@ -121,7 +121,7 @@ lb_programs.bind("<Double-Button-1>", lambda event: program_selector())
 # ----------------------------------------------------------------------------------------------------------------------
 # updating comports
 
-#comport updater:
+# comport updater:
 def comport_updater():
     _number = comport_text.get('1.0', 'end')
     robot.Robot.COMport = "COM"+str(_number)
