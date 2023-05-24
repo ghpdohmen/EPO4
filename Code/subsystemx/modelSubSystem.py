@@ -59,6 +59,7 @@ class modelSubSystem (subSystem):
         print("velocity: " + str(robot.Robot.velocity))
         robot.xCurrent = self.posx
         robot.yCurrent = self.posy #FIXME: this is somehow not updating on the robot?
+        print("Fa:" + str(self.fa))
 
     def stop(self):
         self.state = subSystemState.Stopped

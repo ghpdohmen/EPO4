@@ -124,7 +124,8 @@ lb_programs.bind("<Double-Button-1>", lambda event: program_selector())
 #comport updater:
 def comport_updater():
     _number = comport_text.get('1.0', 'end')
-    robot.Robot.COMport = "COM"+str(_number)
+    _comport = "COM"+str(_number)
+    robot.Robot.COMport = _comport.split('\n')[0]
     print(robot.Robot.COMport)
 
 comport_text = Text(root, width=2, height=1)
