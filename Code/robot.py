@@ -5,6 +5,7 @@ from subsystemx.communication import communicationSubSystem
 from subsystemx.csvLoggingSubSystem import csvLoggingSubsystem
 from subsystemx.inputSubSystem import inputSubSystem
 from subsystemx.localizationsubsystem import LocalizationSubSystem
+from subsystemx.modelSubSystem import modelSubSystem
 from subsystemx.subsystemStateEnum import subSystemState
 from subsystemx.timing import timeSubSystem
 
@@ -13,8 +14,11 @@ class Robot:
     # current robot state
     operatingMode = robotMode.Manual
     status = robotStatus.Paused
-    xCurrent = 0
-    yCurrent = 0
+    xCurrent = 0 #in meters
+    yCurrent = 0  #in meters
+    robotAngle = 0 # in degrees
+    velocity = 0
+    speakerOn = False
 
     # audio stuff
     # code = "EB3A994F"  # String, hexadecimal
@@ -29,6 +33,8 @@ class Robot:
     inputState = subSystemState.Stopped
     localizationState = subSystemState.Stopped
     loggingState = subSystemState.Stopped
+    modelState = subSystemState.Stopped
+
 
     # sensor values
     distanceLeft = 0
@@ -46,6 +52,15 @@ class Robot:
     averageLoop = 0.1
     index = 0
 
+    #robot constants
+    wheelBase = 0.335 #in meters
+    mass = 5.6 #in kg
+    faMax = 13.5 # in N
+    fbMax = -17.5 # in N #TODO: tune me!
+    b = 9 # Nm/s Viscous friction coefficient
+    c = 0.08 # Nm/s Air drag coefficient
+
+
     def __init__(self, _xCurrent, _yCurrent):
         self.yCurrent = _yCurrent;
         self.xCurrent = _xCurrent;
@@ -54,6 +69,7 @@ class Robot:
         self.inputSubSystem = inputSubSystem()
         self.loggingSubSystem = csvLoggingSubsystem()
         self.localizationSubSystem = LocalizationSubSystem()
+        self.modelSubSystem = modelSubSystem()
 
     # start all subsystemx
     def start(self, _operatingMode):
@@ -72,7 +88,7 @@ class Robot:
 
 
         # printing the loop time, so we can optimize this via multithreading
-        print(self.loopTime)
+        #print(self.loopTime)
         self.status = robotStatus.Running
 
     # updates all subsystemx
@@ -86,10 +102,13 @@ class Robot:
             #print("input")
             self.loggingSubSystem.update()
             #print("logging")
+            self.modelSubSystem.update()
             self.communicationSubSystem.update()
             #("comms")
-            self.localizationSubSystem.update()
+            #self.localizationSubSystem.update()
             #print(self.distanceLeft)
+            print("location: (" + str(self.xCurrent) + " , " + str(self.yCurrent) + " )")
+
             # printing the loop time, so we can optimize this via multithreading
 
             if self.loopTime != 0:
@@ -99,10 +118,11 @@ class Robot:
                 self.index += 1
                 self.averageLoop = self.averageLoop + (self.loopTime / 1000000000 - self.averageLoop) / self.index
                 #print("average loop time:" + str(self.averageLoop) + " s")
-                print("update frequency" + str(1/self.averageLoop) + " Hz ")
+                #print("update frequency" + str(1/self.averageLoop) + " Hz ")
 
     def stop(self):
         self.communicationSubSystem.stop()
         self.timeSubSystem.stop()
         self.inputSubSystem.stop()
         self.loggingSubSystem.stop()
+        self.modelSubSystem.stop()

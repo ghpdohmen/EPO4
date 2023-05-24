@@ -5,10 +5,10 @@
 #                                           OLD SCRIPT, DO NOT USE
 # ----------------------------------------------------------------------------------------------------------------------
 import serial as serial
-
+import serial.tools.list_ports
 comport = 'COM5'
 baud_rate = 115200
-serial_port = serial.Serial(comport, baud_rate, rtscts=True)
+print([comport.description for comport in serial.tools.list_ports.comports()])
 
 
 def car_control(key_input):

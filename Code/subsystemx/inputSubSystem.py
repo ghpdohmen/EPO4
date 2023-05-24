@@ -9,8 +9,8 @@ from subsystemx.subsystemStateEnum import subSystemState
 
 class inputSubSystem(subSystem):
     enabled = False  # used internally
-    powerSensitivity = 2  # tune this for a quicker or slower response to W/S inputs. Should always be a INT
-    turningSensitivity = 4  # tune this for a quicker or slower response to A/D inputs. Should always be a INT
+    powerSensitivity = 10  # tune this for a quicker or slower response to W/S inputs. Should always be a INT
+    turningSensitivity = 5  # tune this for a quicker or slower response to A/D inputs. Should always be a INT
 
     def start(self):
         self.state = subSystemState.Started
