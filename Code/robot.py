@@ -56,7 +56,8 @@ class Robot:
     wheelBase = 0.335 #in meters
     mass = 5.6 #in kg
     faMax = 10.5 # in N #TODO: implement fa for different velocities
-    fbMax = -17.5 # in N #TODO: tune me!
+    fbMax = -21
+    # in N #TODO: tune me!
     b = 9 # Nm/s Viscous friction coefficient
     c = 0.08 # Nm/s Air drag coefficient
 

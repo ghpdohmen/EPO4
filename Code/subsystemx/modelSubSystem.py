@@ -55,14 +55,14 @@ class modelSubSystem (subSystem):
         else:
             self.w = 0
         robot.Robot.modelState = self.state
-        print("steeringAngle: " + str(self.steeringAngle))
-        print("robotAngle: " + str(robot.Robot.robotAngle))
+        #print("steeringAngle: " + str(self.steeringAngle))
+        #print("robotAngle: " + str(robot.Robot.robotAngle))
         #print("vY: " + str(self.vY))
-        print("locationMSS: (" + str(self.posx) + " , " + str(self.posy) + " )")
+        #print("locationMSS: (" + str(self.posx) + " , " + str(self.posy) + " )")
         #print("velocity: " + str(robot.Robot.velocity))
         robot.xCurrent = self.posx
         robot.yCurrent = self.posy #FIXME: this is somehow not updating on the robot?
-        #print("Fa:" + str(self.fa))
+        print("Fb:" + str(self.fa))
 
     def stop(self):
         self.state = subSystemState.Stopped
