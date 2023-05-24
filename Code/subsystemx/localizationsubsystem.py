@@ -18,7 +18,7 @@ class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
     deviceIndex = 1
-    durationRecording = 0.096
+    durationRecording = 0.144
     i = 0
 
     def __init__(self):
@@ -48,13 +48,14 @@ class LocalizationSubSystem(subSystem):
         # robot.Robot.bitFrequency = 2000
         # robot.Robot.repetitionCount = 64
         _mic_1, _mic_2, _mic_3, _mic_4, _mic_5 = self.microphone_array(self.deviceIndex, self.durationRecording)
-        # mics = self.microphone_array(self.deviceIndex, self.durationRecording)
-        self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5)
-        # for j in range(1, 6):
-        #     #     np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
-        #     np.savetxt(
-        #         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_mic4_bad_2_" + str(j) + ".csv",
-        #         mics[j-1], delimiter=",")
+        mics = self.microphone_array(self.deviceIndex, self.durationRecording)
+        # self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5)
+        self.estimate_location(self.tdoa_2(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
+        for j in range(1, 6):
+            #     np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
+            np.savetxt(
+                r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_test_2_" + str(j) + ".csv",
+                mics[j - 1], delimiter=",")
 
     def stop(self):
         self.state = subSystemState.Stopped
@@ -186,29 +187,48 @@ class LocalizationSubSystem(subSystem):
         reference_mics_array = [reference_mic_1, reference_mic_2, reference_mic_3, reference_mic_4, reference_mic_5]
         return reference_mics_array
 
-    def isolation(self, _mic_1, _mic_2, _mic_3, _mic_4, _mic_5):
-        reference_mics_array = self.reference_array()
-        mics_array = [_mic_1, _mic_2, _mic_3, _mic_4, _mic_5]
-        for i in range(5):
-            correlation = sp.correlate(mics_array[i][1], reference_mics_array[i][1], mode='same')
-            peak_index, = sp.argrelmax(correlation, order=800)
-            if peak_index[0] < 1000:
-                index = 1
-            else:
-                index = 0
-            pulse_delay = peak_index[index] - (len(reference_mics_array[i][1]) // 2)
+    def isolation(self, recorded_signal, reference_signal):
+        # reference_mics_array = self.reference_array()
+        # mics_array = [_mic_1, _mic_2, _mic_3, _mic_4, _mic_5]
+        # for i in range(5):
+        #     correlation = sp.correlate(mics_array[i][1], reference_mics_array[i][1], mode='same')
+        #     peak_index, = sp.argrelmax(correlation, order=800)
+        #     if peak_index[0] < 1000:
+        #         index = 1
+        #     else:
+        #         index = 0
+        #     pulse_delay = peak_index[index] - (len(reference_mics_array[i][1]) // 2)
+        #
+        #     isolated_pulse = np.zeros((2, len(reference_mics_array[i][0])))
+        #     isolated_pulse[0] = mics_array[i][0][pulse_delay:pulse_delay + len(mics_array[i][0] * 2)]
+        #     isolated_pulse[1] = mics_array[i][1][pulse_delay:pulse_delay + len(mics_array[i][0] * 2)]
+        #
+        #     return isolated_pulse
 
-            isolated_pulse = np.zeros((2, len(reference_mics_array[i][0])))
-            isolated_pulse[0] = mics_array[i][0][pulse_delay:pulse_delay + len(mics_array[i][0] * 2)]
-            isolated_pulse[1] = mics_array[i][1][pulse_delay:pulse_delay + len(mics_array[i][0] * 2)]
+        correlation = sp.correlate(recorded_signal[1], reference_signal[1], mode='same')
 
-            return isolated_pulse
+        peak_index, = sp.argrelmax(correlation, order=800)
+        if peak_index[0] < 1000:
+            index = 1
+        else:
+            index = 0
+        pulse_delay = peak_index[index] - (len(reference_signal[1]) // 2)
 
+        isolated_pulse = np.zeros((2, len(reference_signal[0])))
+        isolated_pulse[0] = recorded_signal[0][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
+        isolated_pulse[1] = recorded_signal[1][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
+
+        return isolated_pulse
 
     def tdoa(self, _mic_1, _mic_2, _mic_3, _mic_4, _mic_5):
         reference_mics_array = self.reference_array()
-        signals_filtered_array = self.filtering(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5)
 
+        signals_filtered_array = []
+        signals_filtered_array.append(self.filtering(_mic_1))
+        signals_filtered_array.append(self.filtering(_mic_2))
+        signals_filtered_array.append(self.filtering(_mic_3))
+        signals_filtered_array.append(self.filtering(_mic_4))
+        signals_filtered_array.append(self.filtering(_mic_5))
 
         isolated_pulse_mic_1 = self.isolation(signals_filtered_array[0], reference_mics_array[0])
         zeros_1 = np.zeros(int(isolated_pulse_mic_1[0][0]))
@@ -271,6 +291,82 @@ class LocalizationSubSystem(subSystem):
         print(distance)
         return distance
 
+    def tdoa_2(self, _mic_1, _mic_2, _mic_3, _mic_4, _mic_5):
+        reference_mics_array = self.reference_array()
+
+        # signals_filtered_array = []
+        # signals_filtered_array.append(self.filtering(_mic_1))
+        # signals_filtered_array.append(self.filtering(_mic_2))
+        # signals_filtered_array.append(self.filtering(_mic_3))
+        # signals_filtered_array.append(self.filtering(_mic_4))
+        # signals_filtered_array.append(self.filtering(_mic_5))
+
+        # isolated_pulse_mic_1 = self.isolation(signals_filtered_array[0], reference_mics_array[0])
+        # zeros_1 = np.zeros(int(isolated_pulse_mic_1[0][0]))
+        # channel_signal_1 = np.zeros((2, math.ceil(max(isolated_pulse_mic_1[0]))))
+        # channel_signal_1[0] = np.concatenate((zeros_1, isolated_pulse_mic_1[0]))
+        # channel_signal_1[1] = np.concatenate((zeros_1, isolated_pulse_mic_1[1]))
+        channel_1 = self.ch3(reference_mics_array[0][1], _mic_1[1], 0.02)
+        # maximum_1, = np.where(abs(channel_1) == max(abs(channel_1)))
+        peak_index, = sp.argrelmax(channel_1, order=1500)
+        maximum_1 = peak_index[1]
+
+        # isolated_pulse_mic_2 = self.isolation(signals_filtered_array[1], reference_mics_array[1])
+        # zeros_2 = np.zeros(int(isolated_pulse_mic_2[0][0]))
+        # channel_signal_2 = np.zeros((2, math.ceil(max(isolated_pulse_mic_2[0]))))
+        # channel_signal_2[0] = np.concatenate((zeros_2, isolated_pulse_mic_2[0]))
+        # channel_signal_2[1] = np.concatenate((zeros_2, isolated_pulse_mic_2[1]))
+        channel_2 = self.ch3(reference_mics_array[0][1], _mic_2[1], 0.02)
+        peak_index, = sp.argrelmax(channel_2, order=2000)
+        maximum_2 = peak_index[1]
+
+        # isolated_pulse_mic_3 = self.isolation(signals_filtered_array[2], reference_mics_array[2])
+        # zeros_3 = np.zeros(int(isolated_pulse_mic_3[0][0]))
+        # channel_signal_3 = np.zeros((2, math.ceil(max(isolated_pulse_mic_3[0]))))
+        # channel_signal_3[0] = np.concatenate((zeros_3, isolated_pulse_mic_3[0]))
+        # channel_signal_3[1] = np.concatenate((zeros_3, isolated_pulse_mic_3[1]))
+        channel_3 = self.ch3(reference_mics_array[0][1], _mic_3[1], 0.02)
+        peak_index, = sp.argrelmax(channel_3, order=2000)
+        maximum_3 = peak_index[1]
+
+        # isolated_pulse_mic_4 = self.isolation(signals_filtered_array[3], reference_mics_array[3])
+        # zeros_4 = np.zeros(int(isolated_pulse_mic_4[0][0]))
+        # channel_signal_4 = np.zeros((2, math.ceil(max(isolated_pulse_mic_4[0]))))
+        # channel_signal_4[0] = np.concatenate((zeros_4, isolated_pulse_mic_4[0]))
+        # channel_signal_4[1] = np.concatenate((zeros_4, isolated_pulse_mic_4[1]))
+        channel_4 = self.ch3(reference_mics_array[0][1], _mic_4[1], 0.02)
+        peak_index, = sp.argrelmax(channel_4, order=2000)
+        maximum_4 = peak_index[1]
+
+        # isolated_pulse_mic_5 = self.isolation(signals_filtered_array[4], reference_mics_array[4])
+        # zeros_5 = np.zeros(int(isolated_pulse_mic_5[0][0]))
+        # channel_signal_5 = np.zeros((2, math.ceil(max(isolated_pulse_mic_5[0]))))
+        # channel_signal_5[0] = np.concatenate((zeros_5, isolated_pulse_mic_5[0]))
+        # channel_signal_5[1] = np.concatenate((zeros_5, isolated_pulse_mic_5[1]))
+        channel_5 = self.ch3(reference_mics_array[0][1], _mic_5[1], 0.02)
+        peak_index, = sp.argrelmax(channel_5, order=2000)
+        maximum_5 = peak_index[1]
+
+        # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+        distance = np.zeros(10)
+        distance[0] = abs(maximum_1 - maximum_2)
+        distance[1] = abs(maximum_1 - maximum_3)
+        distance[2] = abs(maximum_1 - maximum_4)
+        distance[3] = abs(maximum_1 - maximum_5)
+        distance[4] = abs(maximum_2 - maximum_3)
+        distance[5] = abs(maximum_2 - maximum_4)
+        distance[6] = abs(maximum_2 - maximum_5)
+        distance[7] = abs(maximum_3 - maximum_4)
+        distance[8] = abs(maximum_3 - maximum_5)
+        distance[9] = abs(maximum_4 - maximum_5)
+
+        time = np.zeros(10)
+        distance_cm = np.zeros(10)
+        for i in range(10):
+            time[i] = distance[i] / self.Fs
+            distance_cm[i] = time[i] * 34300
+        print(distance)
+        return distance
     # def tdoa(self, signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2):
     #     signal_filtered_1 = self.filtering(signal_recorded_1)
     #     isolated_pulse_1 = self.isolation(signal_filtered_1, signal_reference_1)
@@ -340,5 +436,5 @@ class LocalizationSubSystem(subSystem):
         x_d = A_inv @ b
         x = x_d[:2]  # select the first two elements from the array (x, y)
         d = x_d[2:]  # select from the third element to the end
-
+        print(x)
         return x, d

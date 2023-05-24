@@ -80,7 +80,7 @@ class Robot:
             print("no operating mode chosen")
             return
 
-        #self.localizationSubSystem.start()
+        self.localizationSubSystem.start()
         self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
         self.inputSubSystem.start()
@@ -105,7 +105,7 @@ class Robot:
             self.modelSubSystem.update()
             self.communicationSubSystem.update()
             #("comms")
-            #self.localizationSubSystem.update()
+            self.localizationSubSystem.update()
             #print(self.distanceLeft)
             print("location: (" + str(self.xCurrent) + " , " + str(self.yCurrent) + " )")
 

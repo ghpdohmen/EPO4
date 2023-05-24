@@ -428,10 +428,12 @@ def peak(signal_reference, signal_recorded):
 
 
 def isolation(recorded_signal, reference_signal):
-    correlation = sp.correlate(recorded_signal[1], reference_signal[1], mode='same')
-    # plt.plot(correlation)
-    # plt.title("correlation")
-    # plt.show()
+    filtered_signal = filtering(recorded_signal)
+    correlation = sp.correlate(filtered_signal[1], reference_signal[1], mode='same')
+    plt.plot(correlation)
+    plt.title("correlation")
+    plt.show()
+
 
     peak_index, = sp.argrelmax(correlation, order=800)
     # print("peak index = ", peak_index)
@@ -516,9 +518,17 @@ signal_reference_1 = np.loadtxt(
 
 # print(signal_reference_1.shape)
 
+# signal_recorded_1 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_test_1_1.csv",
+#     delimiter=',')
 signal_recorded_1 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_1_1.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_236x122_test_1_1.csv",
     delimiter=',')
+
+plt.plot(signal_recorded_1[0], signal_recorded_1[1])
+plt.show()
+
+isolation(signal_recorded_1, signal_reference_1)
 
 # plt.plot(signal_recorded_1[0], signal_recorded_1[1])
 # plt.title("Recorded signal 1")
@@ -528,12 +538,31 @@ signal_reference_2 = np.loadtxt(
     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic2_reference_final.csv",
     delimiter=',')
 
+# plt.plot(signal_reference_2[0], signal_reference_2[1])
+# plt.show()
+
+# signal_recorded_2 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_test_1_2.csv",
+#     delimiter=',')
+
 signal_recorded_2 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_1_2.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_236x122_test_1_2.csv",
     delimiter=',')
 
+plt.plot(signal_recorded_2[0], signal_recorded_2[1])
+plt.show()
+isolation(signal_recorded_2, signal_reference_1)
 
-tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2)
+
+channel = ch3(signal_reference_2[1], signal_recorded_1[1], 0.02)
+plt.plot(channel)
+plt.show()
+
+peak_index, = sp.argrelmax(channel, order=2000)
+print(peak_index)
+maximum_4 = peak_index[1]
+
+# tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2)
 
 # multilateration estimate_location (matrix)
 
