@@ -55,7 +55,7 @@ class Robot:
     #robot constants
     wheelBase = 0.335 #in meters
     mass = 5.6 #in kg
-    faMax = 15 # in N #TODO: implement fa for different velocities
+    faMax = 10.5 # in N #TODO: implement fa for different velocities
     fbMax = -17.5 # in N #TODO: tune me!
     b = 9 # Nm/s Viscous friction coefficient
     c = 0.08 # Nm/s Air drag coefficient
@@ -107,7 +107,7 @@ class Robot:
             #("comms")
             #self.localizationSubSystem.update()
             #print(self.distanceLeft)
-            print("location: (" + str(self.xCurrent) + " , " + str(self.yCurrent) + " )")
+            #print("location: (" + str(self.xCurrent) + " , " + str(self.yCurrent) + " )")
 
             # printing the loop time, so we can optimize this via multithreading
 

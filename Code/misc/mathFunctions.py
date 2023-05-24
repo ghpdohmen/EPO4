@@ -1,4 +1,6 @@
 # Container of all kind of random functions needed
+import numpy as np
+
 import robot
 
 
@@ -34,7 +36,7 @@ def steer_to_angle(input: float, type: str) -> float:
         return radian
     elif type == "degree":
         degree = (0.4432*input)-66.168
-        if degree < 0.5:
+        if np.absolute(degree) < 0.5:
             degree = 0 #added for small offset in model
         return degree
     else:
