@@ -147,7 +147,7 @@ def data_saver(device_index, duration_recording):
         return
 
 
-# def bit_string(self, _length):
+# def bit_string(_length):
 #     """
 #     Generates a random bit string with a given length
 #     @param _length: length of the bit string
@@ -159,48 +159,7 @@ def data_saver(device_index, duration_recording):
 #         _bit_string += str(_bit)
 #
 #     return _bit_string
-
-# def gold_code(self, _polynomial_1, _polynomial_2, _length):
-#     """
-#
-#     @param _polynomial_1: First polynomial with random bit string
-#     @param _polynomial_2: Second polynomial with random bit string
-#     @param _length: length of the code
-#     @return: into a string
-#     """
-#     _poly1 = [int(c) for c in _polynomial_1]
-#     _poly2 = [int(c) for c in _polynomial_2]
-#
-#     # convert polynomials to binary strings
-#     _poly1_str = ''.join(str(bit) for bit in _poly1)
-#     _poly2_str = ''.join(str(bit) for bit in _poly2)
-#
-#     # set up LFSR registers
-#     _reg1 = int(_poly1_str, 2)
-#     _reg2 = int(_poly2_str, 2)
-#
-#     _gold = []
-#     for i in range(_length):
-#         # XOR the outputs of the two registers
-#         _output = (_reg1 & 1) ^ (_reg2 & 1)
-#         _gold.append(_output)
-#
-#         # shift the registers to the right by 1 bit
-#         _reg1 >>= 1
-#         _reg2 >>= 1
-#
-#         # apply feedback to the registers
-#         _feedback1 = (_reg1 >> (len(_poly1) - 1)) ^ (_reg1 & 1)
-#         _feedback2 = (_reg2 >> (len(_poly2) - 1)) ^ (_reg2 & 1)
-#         _reg1 ^= _feedback1 << (len(_poly1) - 1)
-#         _reg2 ^= _feedback2 << (len(_poly2) - 1)
-#
-#     # convert the list of bits to a binary string
-#     _gold_str = ''.join(str(_bit) for _bit in _gold)
-#     print(_gold_str)
-#
-#     return _gold_str
-#
+# #
 # def gold_code(polynomial_1, polynomial_2, length):
 #     poly1 = [int(c) for c in polynomial_1]
 #     poly2 = [int(c) for c in polynomial_2]
@@ -233,8 +192,8 @@ def data_saver(device_index, duration_recording):
 #     gold_str = ''.join(str(bit) for bit in gold)
 #
 #     return gold_str
-
-
+#
+#
 # def gold_code_generator(iterations, length_polynomials):
 #     gold_code_array = []
 #     cross_correlation = []
@@ -340,28 +299,6 @@ def data_saver(device_index, duration_recording):
 #     plt.show()
 
 
-def ch3(x, y, epsi):
-    Nx = len(x)  # Length of x
-    Ny = len(y)  # Length of y
-    L = Ny - Nx + 1  # Length of h
-
-    # len(x) == len(y)
-    x = np.concatenate((x, np.zeros(L - 1)))
-
-    # Deconvolution in frequency domain
-    Y = fft(y)
-    X = fft(x, Ny)
-    H = Y / (X + 10e-15)
-    # Threshold to avoid blow ups of noise during inversion
-    ii = np.absolute(X) < epsi * max(abs(X))
-    H[ii] = 0
-
-    h = np.real(ifft(H))  # ensure the result is real
-    # h = h[0:34300]        # optional: truncate to length Lhat (L is not reliable?)
-
-    return h
-
-
 def filtering(signal):
     Fpass_lower = 4000
     Fpass_higher = 8000
@@ -427,54 +364,193 @@ def peak(signal_reference, signal_recorded):
 #     return distance
 
 
-def isolation(recorded_signal, reference_signal):
-    filtered_signal = filtering(recorded_signal)
-    correlation = sp.correlate(filtered_signal[1], reference_signal[1], mode='same')
-    plt.plot(correlation)
-    plt.title("correlation")
-    plt.show()
+def ch3(y, epsi):
+    signal_reference = reference_array()
+    Nx = len(signal_reference[1])  # Length of x
+    Ny = len(y)  # Length of y
+    L = Ny - Nx + 1  # Length of h
+
+    # len(x) == len(y)
+    x = np.concatenate((signal_reference[1], np.zeros(L - 1)))
+
+    # Deconvolution in frequency domain
+    Y = fft(y)
+    X = fft(x, Ny)
+    H = Y / (X + 10e-15)
+    # Threshold to avoid blow ups of noise during inversion
+    ii = np.absolute(X) < epsi * max(abs(X))
+    H[ii] = 0
+
+    h = np.real(ifft(H))  # ensure the result is real
+    # h = h[0:34300]        # optional: truncate to length Lhat (L is not reliable?)
+
+    return h
 
 
-    peak_index, = sp.argrelmax(correlation, order=800)
+def reference_array():
+    reference_mic = np.loadtxt(
+        r"E:\TU Delft\Github\EPO4\Code\References\mic1_reference_final.csv",
+        delimiter=',')
+    return reference_mic
+
+
+def isolation(recorded_signal):
+    reference_signal = reference_array()
+    correlation = sp.correlate(recorded_signal[1], reference_signal[1], mode='same')
+    # plt.plot(correlation)
+    # plt.title("correlation")
+    # plt.show()
+
+    peak_index, = sp.argrelmax(correlation, order=1000)
     # print("peak index = ", peak_index)
-    if peak_index[0] < 1000:
-        index = 1
+    if peak_index[0] < 500:
+        peak_index = np.delete(peak_index, [0], None)
+    # print("peak index = ", peak_index)
+    if len(peak_index) == 2:
+        pulse_delay = peak_index[0] - (len(reference_signal[1]) // 2)
     else:
-        index = 0
-    pulse_delay = peak_index[index] - (len(reference_signal[1]) // 2)
+        pulse_delay = peak_index[1] - (len(reference_signal[1]) // 2)
 
     isolated_pulse = np.zeros((2, len(reference_signal[0])))
     isolated_pulse[0] = recorded_signal[0][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
     isolated_pulse[1] = recorded_signal[1][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
-
     return isolated_pulse
 
 
-def tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2):
-    signal_filtered_1 = filtering(signal_recorded_1)
-    isolated_pulse_1 = isolation(signal_filtered_1, signal_reference_1)
-    zeros = np.zeros(int(isolated_pulse_1[0][0]))
-    channel_signal = np.zeros((2, math.ceil(max(isolated_pulse_1[0]))))
-    channel_signal[0] = np.concatenate((zeros, isolated_pulse_1[0]))
-    channel_signal[1] = np.concatenate((zeros, isolated_pulse_1[1]))
+def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
+    # isolated_pulse_1 = isolation(signal_recorded_1)
+    # zeros = np.zeros(int(isolated_pulse_1[0][0]))
+    # channel_signal = np.zeros((2, math.ceil(max(isolated_pulse_1[0]))))
+    # channel_signal[0] = np.concatenate((zeros, isolated_pulse_1[0]))
+    # channel_signal[1] = np.concatenate((zeros, isolated_pulse_1[1]))
 
-    signal_filtered_2 = filtering(signal_recorded_2)
-    isolated_pulse_2 = isolation(signal_filtered_2, signal_reference_2)
-    zeros = np.zeros(int(isolated_pulse_2[0][0]))
-    channel_signal_2 = np.zeros((2, math.ceil(max(isolated_pulse_2[0]))))
-    channel_signal_2[0] = np.concatenate((zeros, isolated_pulse_2[0]))
-    channel_signal_2[1] = np.concatenate((zeros, isolated_pulse_2[1]))
-
-    channel_1 = ch3(signal_reference_1[1], channel_signal[1], 0.01)
-    channel_2 = ch3(signal_reference_2[1], channel_signal_2[1], 0.01)
-
+    isolated_pulse_mic_1 = isolation(signal_recorded_1)
+    zeros_1 = np.zeros(int(isolated_pulse_mic_1[0][0]))
+    channel_signal_1 = np.zeros((2, math.ceil(isolated_pulse_mic_1[0][-1])))
+    channel_signal_1[0] = np.concatenate((zeros_1, isolated_pulse_mic_1[0]))
+    channel_signal_1[1] = np.concatenate((zeros_1, isolated_pulse_mic_1[1]))
+    channel_1 = ch3(channel_signal_1[1], 0.02)
     maximum_1, = np.where(abs(channel_1) == max(abs(channel_1)))
+
+    isolated_pulse_mic_2 = isolation(signal_recorded_2)
+    zeros_2 = np.zeros(int(isolated_pulse_mic_2[0][0]))
+    channel_signal_2 = np.zeros((2, math.ceil(isolated_pulse_mic_2[0][-1])))
+    channel_signal_2[0] = np.concatenate((zeros_2, isolated_pulse_mic_2[0]))
+    channel_signal_2[1] = np.concatenate((zeros_2, isolated_pulse_mic_2[1]))
+    channel_2 = ch3(channel_signal_2[1], 0.02)
     maximum_2, = np.where(abs(channel_2) == max(abs(channel_2)))
-    distance_mics = abs(maximum_1 - maximum_2)
-    time = distance_mics / Fs
-    distance = time * 34300
-    print(distance)
-    return distance
+
+    isolated_pulse_mic_3 = isolation(signal_recorded_3)
+    zeros_3 = np.zeros(int(isolated_pulse_mic_3[0][0]))
+    channel_signal_3 = np.zeros((2, math.ceil(isolated_pulse_mic_3[0][-1])))
+    channel_signal_3[0] = np.concatenate((zeros_3, isolated_pulse_mic_3[0]))
+    channel_signal_3[1] = np.concatenate((zeros_3, isolated_pulse_mic_3[1]))
+    channel_3 = ch3(channel_signal_3[1], 0.02)
+    maximum_3, = np.where(abs(channel_3) == max(abs(channel_3)))
+
+    isolated_pulse_mic_4 = isolation(signal_recorded_4)
+    zeros_4 = np.zeros(int(isolated_pulse_mic_4[0][0]))
+    channel_signal_4 = np.zeros((2, math.ceil(isolated_pulse_mic_4[0][-1])))
+    channel_signal_4[0] = np.concatenate((zeros_4, isolated_pulse_mic_4[0]))
+    channel_signal_4[1] = np.concatenate((zeros_4, isolated_pulse_mic_4[1]))
+    channel_4 = ch3(channel_signal_4[1], 0.02)
+    maximum_4, = np.where(abs(channel_4) == max(abs(channel_4)))
+
+    isolated_pulse_mic_5 = isolation(signal_recorded_5)
+    zeros_5 = np.zeros(int(isolated_pulse_mic_5[0][0]))
+    channel_signal_5 = np.zeros((2, math.ceil(isolated_pulse_mic_5[0][-1])))
+    channel_signal_5[0] = np.concatenate((zeros_5, isolated_pulse_mic_5[0]))
+    channel_signal_5[1] = np.concatenate((zeros_5, isolated_pulse_mic_5[1]))
+    channel_5 = ch3(channel_signal_5[1], 0.02)
+    maximum_5, = np.where(abs(channel_5) == max(abs(channel_5)))
+
+    # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+    distance = np.zeros(10)
+    distance[0] = abs(maximum_1 - maximum_2)
+    distance[1] = abs(maximum_1 - maximum_3)
+    distance[2] = abs(maximum_1 - maximum_4)
+    distance[3] = abs(maximum_1 - maximum_5)
+    distance[4] = abs(maximum_2 - maximum_3)
+    distance[5] = abs(maximum_2 - maximum_4)
+    distance[6] = abs(maximum_2 - maximum_5)
+    distance[7] = abs(maximum_3 - maximum_4)
+    distance[8] = abs(maximum_3 - maximum_5)
+    distance[9] = abs(maximum_4 - maximum_5)
+
+    time = np.zeros(10)
+    distance_cm = np.zeros(10)
+    for i in range(10):
+        time[i] = distance[i] / Fs
+        distance_cm[i] = time[i] * 34300
+    # print(distance)
+    print(distance_cm)
+    return distance_cm
+
+
+def estimate_location(rij):
+    microphone_locations = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
+    num_mics = microphone_locations.shape[0]  # number of microphones
+
+    # Construct the matrix A
+    A = np.zeros((num_mics * (num_mics - 1) // 2, num_mics + 1))  # create zero matrix with the correct shape
+    row = 0
+
+    # loop over microphone pairs
+    for i in range(num_mics):
+        for j in range(i + 1, num_mics):
+            x_diff = 2 * (microphone_locations[j] - microphone_locations[i]).T
+
+            A[row, 0] = x_diff[0]  # x-value
+            A[row, 1] = x_diff[1]  # y-value
+            A[row, j] = -2 * rij[row]  # range difference between microphones
+
+            # Assign zero to every column except 0 and j
+            for k in range(num_mics):
+                if k != 0 and k != 1 and k != j:
+                    A[row, k] = 0
+
+            row += 1
+
+    # Construct the matrix b
+    b = np.zeros((num_mics * (num_mics - 1) // 2, 1))  # has form of 10 x 1
+    row = 0
+
+    # loop over microphone pairs
+    for i in range(num_mics):
+        for j in range(i + 1, num_mics):
+            xi_norm_squared = np.linalg.norm(microphone_locations[i]) ** 2  # Extract and normalize
+            xj_norm_squared = np.linalg.norm(microphone_locations[j]) ** 2
+
+            b[row] = rij[row] ** 2 - xi_norm_squared + xj_norm_squared
+
+            row += 1
+
+    # Solve for x and d
+    A_inv = pinv(A)  # pseudo-inverse
+    x_d = A_inv @ b
+    x = x_d[:2]  # select the first two elements from the array (x, y)
+    d = x_d[2:]  # select from the third element to the end
+    print(x)
+    return x, d
+
+
+    # isolated_pulse_2 = isolation(signal_recorded_2)
+    # zeros = np.zeros(int(isolated_pulse_2[0][0]))
+    # channel_signal_2 = np.zeros((2, math.ceil(max(isolated_pulse_2[0]))))
+    # channel_signal_2[0] = np.concatenate((zeros, isolated_pulse_2[0]))
+    # channel_signal_2[1] = np.concatenate((zeros, isolated_pulse_2[1]))
+    #
+    # channel_1 = ch3(channel_signal[1], 0.02)
+    # channel_2 = ch3(channel_signal_2[1], 0.02)
+    #
+    # maximum_1, = np.where(abs(channel_1) == max(abs(channel_1)))
+    # maximum_2, = np.where(abs(channel_2) == max(abs(channel_2)))
+    # distance_mics = abs(maximum_1 - maximum_2)
+    # time = distance_mics / Fs
+    # distance = time * 34300
+    # print(distance)
+    # return distance
+
 
 # first recording
 # 1-2 4.67
@@ -512,55 +588,72 @@ def tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recor
 # 3-5 92.5
 # 4-5 637.8
 
-signal_reference_1 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic1_reference_final.csv",
-    delimiter=',')
-
-# print(signal_reference_1.shape)
-
-# signal_recorded_1 = np.loadtxt(
-#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_test_1_1.csv",
+# signal_reference_1 = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\References\mic1_reference_final.csv",
 #     delimiter=',')
+#
+# # print(signal_reference_1.shape)
+#
 signal_recorded_1 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_236x122_test_1_1.csv",
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_236x122_test_1_1.csv",
     delimiter=',')
-
-plt.plot(signal_recorded_1[0], signal_recorded_1[1])
-plt.show()
-
-isolation(signal_recorded_1, signal_reference_1)
-
-# plt.plot(signal_recorded_1[0], signal_recorded_1[1])
-# plt.title("Recorded signal 1")
-# plt.show()
-
-signal_reference_2 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic2_reference_final.csv",
-    delimiter=',')
-
-# plt.plot(signal_reference_2[0], signal_reference_2[1])
-# plt.show()
-
-# signal_recorded_2 = np.loadtxt(
-#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_middle_test_1_2.csv",
-#     delimiter=',')
 
 signal_recorded_2 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_236x122_test_1_2.csv",
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_236x122_test_1_2.csv",
     delimiter=',')
 
-plt.plot(signal_recorded_2[0], signal_recorded_2[1])
-plt.show()
-isolation(signal_recorded_2, signal_reference_1)
+signal_recorded_3 = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_236x122_test_1_3.csv",
+    delimiter=',')
+signal_recorded_4 = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_236x122_test_1_4.csv",
+    delimiter=',')
+signal_recorded_5 = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_236x122_test_1_5.csv",
+    delimiter=',')
+
+estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
+# signal_recorded_1 = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_236x122_test_1_1.csv",
+#     delimiter=',')
+#
+# plt.plot(signal_recorded_1[0], signal_recorded_1[1])
+# plt.show()
+#
+# isolated_pulse_5 = isolation(signal_recorded_1)
+#
+#
+# plt.plot(isolated_pulse_5[0], isolated_pulse_5[1])
+# plt.show()
+
+# signal_1_filtered = filtering(signal_recorded_1)
+# plt.plot(signal_1_filtered[0], signal_1_filtered[1])
+# plt.show()
+
+# isolation(signal_1_filtered)
+#
+# plt.plot(signal_recorded_2[0], signal_recorded_2[1])
+# plt.show()
+#
+# isolated_pulse_6 = isolation(signal_recorded_2)
+#
+# plt.plot(isolated_pulse_6[0], isolated_pulse_6[1])
+# plt.show()
+# #
+# tdoa(signal_recorded_1, signal_recorded_2)
+# isolation(signal_2_filtered)
 
 
-channel = ch3(signal_reference_2[1], signal_recorded_1[1], 0.02)
-plt.plot(channel)
-plt.show()
+# isolation(signal_recorded_2, signal_reference_1)
 
-peak_index, = sp.argrelmax(channel, order=2000)
-print(peak_index)
-maximum_4 = peak_index[1]
+
+# channel = ch3(signal_reference_2[1], signal_recorded_1[1], 0.02)
+# plt.plot(channel)
+# plt.show()
+#
+# peak_index, = sp.argrelmax(channel, order=2000)
+# print(peak_index)
+# maximum_4 = peak_index[1]
 
 # tdoa(signal_reference_1, signal_recorded_1, signal_reference_2, signal_recorded_2)
 
@@ -579,9 +672,9 @@ def estimate_location(rij):
         for j in range(i + 1, num_mics):
             x_diff = 2 * (microphone_locations[j] - microphone_locations[i]).T
 
-            A[row, 0] = x_diff[0]     #x-value
-            A[row, 1] = x_diff[1]     #y-value
-            A[row, j] = -2 * rij[row]    # range difference between microphones
+            A[row, 0] = x_diff[0]  # x-value
+            A[row, 1] = x_diff[1]  # y-value
+            A[row, j] = -2 * rij[row]  # range difference between microphones
 
             # Assign zero to every column except 0 and j
             for k in range(num_mics):
@@ -610,12 +703,12 @@ def estimate_location(rij):
     x = x_d[:2]  # select the first two elements from the array (x, y)
     d = x_d[2:]  # select from the third element to the end
 
-    return x, d
+    return #print(x) #,d
 
 # Microphone locations
 # microphone_locations = np.array([[0,480],[480,480],[480,0],[0,0],[0,240]])
 
-#Measured range differences (TDOA * speed of sound(343))
+# Measured range differences (TDOA * speed of sound(343))
 # rij = np.array([r12, r13, r14, r15, r23, r24, r25, r34, r35, r45])    # This part needs to change
 # rij = np.array([0.01*343, 0.02*343, 0.04*343, 0.05*343, 0.02*343, 0.03*343, 0.08*343, 0.02*343, 0.02*343, 0.1*343]) #random test values
 
