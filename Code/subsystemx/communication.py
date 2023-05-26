@@ -122,8 +122,8 @@ class communicationSubSystem(subSystem):
             # distance sensors
             _sensors = _incomingDataSplit[12]
             _distance = _sensors.split(' ')
-            robot.Robot.distanceLeft = int(_distance[3])
-            robot.Robot.distanceRight = int(_distance[5])
+            robot.Robot.distanceLeftRaw = int(_distance[3])
+            robot.Robot.distanceRightRaw = int(_distance[5])
 
             # voltage sensor
             _voltage = _incomingDataSplit[13]

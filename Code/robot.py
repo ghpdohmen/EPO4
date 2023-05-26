@@ -3,6 +3,7 @@ from misc.robotModeEnum import robotMode
 from misc.robotStatusEnum import robotStatus
 from subsystemx.communication import communicationSubSystem
 from subsystemx.csvLoggingSubSystem import csvLoggingSubsystem
+from subsystemx.distanceSensorSubSystem import distanceSensorSubSystem
 from subsystemx.inputSubSystem import inputSubSystem
 from subsystemx.localizationsubsystem import LocalizationSubSystem
 from subsystemx.modelSubSystem import modelSubSystem
@@ -33,12 +34,15 @@ class Robot:
     inputState = subSystemState.Stopped
     localizationState = subSystemState.Stopped
     loggingState = subSystemState.Stopped
+    distanceSensorState = subSystemState.Stopped
     modelState = subSystemState.Stopped
 
 
     # sensor values
-    distanceLeft = 0
-    distanceRight = 0
+    distanceLeft = 0 #averaged over the last 5 cycles by distanceSensorSubSystem
+    distanceLeftRaw = 0
+    distanceRight = 0 #averaged over the last 5 cycles by distanceSensorSubSystem
+    distanceRightRaw = 0
     batteryVoltage = 0
 
     # output values
@@ -55,10 +59,9 @@ class Robot:
     #robot constants
     wheelBase = 0.335 #in meters
     mass = 5.6 #in kg
-    faMax = 10.5 # in N #TODO: implement fa for different velocities
-    fbMax = -21
-    # in N #TODO: tune me!
-    b = 9 # Nm/s Viscous friction coefficient
+    faMax = 21 # in N #TODO: implement fa for different velocities
+    fbMax = -21 # in N #TODO: tune me!
+    b = 15 # Nm/s Viscous friction coefficient
     c = 0.08 # Nm/s Air drag coefficient
 
 
@@ -71,6 +74,7 @@ class Robot:
         self.loggingSubSystem = csvLoggingSubsystem()
         self.localizationSubSystem = LocalizationSubSystem()
         self.modelSubSystem = modelSubSystem()
+        self.distanceSensorSubSystem = distanceSensorSubSystem()
 
     # start all subsystemx
     def start(self, _operatingMode):
@@ -86,7 +90,7 @@ class Robot:
         self.timeSubSystem.start()
         self.inputSubSystem.start()
         self.loggingSubSystem.start()
-
+        self.distanceSensorSubSystem.start()
 
         # printing the loop time, so we can optimize this via multithreading
         #print(self.loopTime)
@@ -107,6 +111,7 @@ class Robot:
             self.communicationSubSystem.update()
             #("comms")
             #self.localizationSubSystem.update()
+            self.distanceSensorSubSystem.update()
             #print(self.distanceLeft)
             #print("location: (" + str(self.xCurrent) + " , " + str(self.yCurrent) + " )")
 
@@ -119,7 +124,7 @@ class Robot:
                 self.index += 1
                 self.averageLoop = self.averageLoop + (self.loopTime / 1000000000 - self.averageLoop) / self.index
                 #print("average loop time:" + str(self.averageLoop) + " s")
-                #print("update frequency" + str(1/self.averageLoop) + " Hz ")
+                print("update frequency" + str(1/self.averageLoop) + " Hz ")
 
     def stop(self):
         self.communicationSubSystem.stop()
@@ -127,3 +132,4 @@ class Robot:
         self.inputSubSystem.stop()
         self.loggingSubSystem.stop()
         self.modelSubSystem.stop()
+        self.distanceSensorSubSystem.stop()
