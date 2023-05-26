@@ -467,21 +467,21 @@ def estimate_location(rij):
 
 #
 signal_recorded_1 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_1.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_137x162_test_3_1.csv",
     delimiter=',')
 
 signal_recorded_2 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_2.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_137x162_test_3_2.csv",
     delimiter=',')
 
 signal_recorded_3 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_3.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_137x162_test_3_3.csv",
     delimiter=',')
 signal_recorded_4 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_4.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_137x162_test_3_4.csv",
     delimiter=',')
 signal_recorded_5 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_137x162_test_3_5.csv",
     delimiter=',')
 
 

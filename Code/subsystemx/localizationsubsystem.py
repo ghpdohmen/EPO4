@@ -46,15 +46,19 @@ class LocalizationSubSystem(subSystem):
         # robot.Robot.carrierFrequency = 6000
         # robot.Robot.bitFrequency = 2000
         # robot.Robot.repetitionCount = 64
+
         _mic_1, _mic_2, _mic_3, _mic_4, _mic_5 = self.microphone_array(self.deviceIndex, self.durationRecording)
-        # mics = self.microphone_array(self.deviceIndex, self.durationRecording)
-        self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5)
-        # self.estimate_location(self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
-        # for j in range(1, 6):
-        #     #     np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
-        #     np.savetxt(
-        #         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_236x122_test_4_" + str(j) + ".csv",
-        #         mics[j - 1], delimiter=",")
+        mics = self.microphone_array(self.deviceIndex, self.durationRecording)
+
+        # self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5)
+        xy = self.localize(self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
+
+        if (xy[0] > 120):
+            for j in range(1, 6):
+                #     np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
+                np.savetxt(
+                    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_137x162_test_3_" + str(j) + ".csv",
+                    mics[j - 1], delimiter=",")
 
     def stop(self):
         self.state = subSystemState.Stopped
@@ -147,8 +151,11 @@ class LocalizationSubSystem(subSystem):
         correlation = sp.correlate(recorded_signal[1], reference_signal[1], mode='same')
 
         peak_index, = sp.argrelmax(correlation, order=1000)
-        if peak_index[0] < 500:
+        # print(peak_index)
+        if (peak_index[0] < 500):
             peak_index = np.delete(peak_index, [0], None)
+
+        # print(peak_index)
         if len(peak_index) == 2:
             pulse_delay = peak_index[0] - (len(reference_signal[1]) // 2)
         else:
@@ -158,6 +165,7 @@ class LocalizationSubSystem(subSystem):
         isolated_pulse[0] = recorded_signal[0][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
         isolated_pulse[1] = recorded_signal[1][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
         return isolated_pulse
+
 
     def tdoa(self, signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
         isolated_pulse_mic_1 = self.isolation(signal_recorded_1)
@@ -201,6 +209,18 @@ class LocalizationSubSystem(subSystem):
         maximum_5, = np.where(abs(channel_5) == max(abs(channel_5)))
 
         # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+        distance = np.zeros(10)
+        distance[0] = abs(maximum_1 - maximum_2)
+        distance[1] = abs(maximum_1 - maximum_3)
+        distance[2] = abs(maximum_1 - maximum_4)
+        distance[3] = abs(maximum_1 - maximum_5)
+        distance[4] = abs(maximum_2 - maximum_3)
+        distance[5] = abs(maximum_2 - maximum_4)
+        distance[6] = abs(maximum_2 - maximum_5)
+        distance[7] = abs(maximum_3 - maximum_4)
+        distance[8] = abs(maximum_3 - maximum_5)
+        distance[9] = abs(maximum_4 - maximum_5)
+
         maximum = np.zeros(5)
         maximum[0] = maximum_1
         maximum[1] = maximum_2
@@ -208,6 +228,12 @@ class LocalizationSubSystem(subSystem):
         maximum[3] = maximum_4
         maximum[4] = maximum_5
 
+        time = np.zeros(10)
+        distance_cm = np.zeros(10)
+        for i in range(10):
+            time[i] = distance[i] / self.Fs
+            distance_cm[i] = time[i] * 34300
+        print(distance_cm)
         return maximum
 
     def localize(self, maximum):

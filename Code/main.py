@@ -129,7 +129,7 @@ def comport_updater():
     print(robot.Robot.COMport)
 
 comport_text = Text(root, width=2, height=1)
-comport_text.insert('1.0', '?')
+comport_text.insert('1.0', '6')
 
 
 
