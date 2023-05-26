@@ -1,30 +1,14 @@
 import pyaudio as audio
 import numpy as np
 import matplotlib.pyplot as plt
-import robot
 import math
 import itertools
 
 import scipy.signal as sp
 from scipy.linalg import pinv
 
-# pip install --upgrade --no-cache-dir gdown
-# gdown 1xGUeeM-oY0pyXA0OO8_uKwT-vLAsiyZB  # refsignal.py
-# gdown 1xTibH8tNbpwdSWmkziFGS24WXEYhtMRl  # wavaudioread.py
-# gdown 10f3-zLIpu81jjQtr-Mr7BCtFz6u3o4N1 # recording_tool.py
-
-# from scipy.io import wavfile
 from scipy.fft import fft, ifft
 from scipy.signal import butter, buttord, lfilter
-from scipy.signal import convolve, unit_impulse
-# from IPython.display import Audio
-
-from subsystemx.subsystem import subSystem
-
-#
-# from Code.robot import robot
-
-# Global Variables
 Fs = 44100
 
 
@@ -112,167 +96,80 @@ def reference_plotter():
 
 def data_saver(device_index, duration_recording):
     """
-    @param device_index:
-    @param duration_recording:
-    @return:
+    Generates a random bit string with a given length
+    @param _length: length of the bit string
+    @return: random bit string
     """
-    mics = microphone_array(device_index, duration_recording)
-    for i in range(5):
-        np.savetxt("Recording_handclap_" + str(i) + ".csv", mics[i], delimiter=",")
-        return
+    _bit_string = ""
+    for i in range(_length):
+        _bit = random.randint(0, 1)
+        _bit_string += str(_bit)
+
+    return _bit_string
+#
+def gold_code(polynomial_1, polynomial_2, length):
+    poly1 = [int(c) for c in polynomial_1]
+    poly2 = [int(c) for c in polynomial_2]
+
+    # convert polynomials to binary strings
+    poly1_str = ''.join(str(bit) for bit in poly1)
+    poly2_str = ''.join(str(bit) for bit in poly2)
+
+    # set up LFSR registers
+    reg1 = int(poly1_str, 2)
+    reg2 = int(poly2_str, 2)
+
+    gold = []
+    for i in range(length):
+        # XOR the outputs of the two registers
+        output = (reg1 & 1) ^ (reg2 & 1)
+        gold.append(output)
+
+        # shift the registers to the right by 1 bit
+        reg1 >>= 1
+        reg2 >>= 1
+
+        # apply feedback to the registers
+        feedback1 = (reg1 >> (len(poly1) - 1)) ^ (reg1 & 1)
+        feedback2 = (reg2 >> (len(poly2) - 1)) ^ (reg2 & 1)
+        reg1 ^= feedback1 << (len(poly1) - 1)
+        reg2 ^= feedback2 << (len(poly2) - 1)
+
+    # convert the list of bits to a binary string
+    gold_str = ''.join(str(bit) for bit in gold)
+
+    return gold_str
 
 
-# def bit_string(_length):
-#     """
-#     Generates a random bit string with a given length
-#     @param _length: length of the bit string
-#     @return: random bit string
-#     """
-#     _bit_string = ""
-#     for i in range(_length):
-#         _bit = random.randint(0, 1)
-#         _bit_string += str(_bit)
-#
-#     return _bit_string
-# #
-# def gold_code(polynomial_1, polynomial_2, length):
-#     poly1 = [int(c) for c in polynomial_1]
-#     poly2 = [int(c) for c in polynomial_2]
-#
-#     # convert polynomials to binary strings
-#     poly1_str = ''.join(str(bit) for bit in poly1)
-#     poly2_str = ''.join(str(bit) for bit in poly2)
-#
-#     # set up LFSR registers
-#     reg1 = int(poly1_str, 2)
-#     reg2 = int(poly2_str, 2)
-#
-#     gold = []
-#     for i in range(length):
-#         # XOR the outputs of the two registers
-#         output = (reg1 & 1) ^ (reg2 & 1)
-#         gold.append(output)
-#
-#         # shift the registers to the right by 1 bit
-#         reg1 >>= 1
-#         reg2 >>= 1
-#
-#         # apply feedback to the registers
-#         feedback1 = (reg1 >> (len(poly1) - 1)) ^ (reg1 & 1)
-#         feedback2 = (reg2 >> (len(poly2) - 1)) ^ (reg2 & 1)
-#         reg1 ^= feedback1 << (len(poly1) - 1)
-#         reg2 ^= feedback2 << (len(poly2) - 1)
-#
-#     # convert the list of bits to a binary string
-#     gold_str = ''.join(str(bit) for bit in gold)
-#
-#     return gold_str
-#
-#
-# def gold_code_generator(iterations, length_polynomials):
-#     gold_code_array = []
-#     cross_correlation = []
-#     for i in range(iterations):
-#         poly1 = bit_string(length_polynomials)
-#         poly2 = bit_string(length_polynomials)
-#         gold = gold_code(poly1, poly2, 32)
-#         gold_code_array.append(gold)
-#
-#         gold_array = []
-#         for j in range(len(gold)):
-#             gold_array.append(gold[j])
-#         # print(gold_array)
-#
-#         gold_array_integer = [int(k) for k in gold_array]
-#         # print(gold_array_integer)
-#
-#         r = np.convolve(gold_array_integer, np.flip(gold_array_integer))
-#         second_peak = max(r[32::])
-#         difference = r[31] - second_peak
-#         cross_correlation.append(difference)
-#
-#     maximum_difference = max(cross_correlation)
-#     for i in range(len(gold_code_array)):
-#         if maximum_difference == cross_correlation[i]:
-#             gold_code_used = gold_code_array[i]
-#             index = i
-#
-#     return gold_code_used, r, maximum_difference
+def gold_code_generator(iterations, length_polynomials):
+    gold_code_array = []
+    cross_correlation = []
+    for i in range(iterations):
+        poly1 = bit_string(length_polynomials)
+        poly2 = bit_string(length_polynomials)
+        gold = gold_code(poly1, poly2, 32)
+        gold_code_array.append(gold)
 
-# 11101011001110101001100101001111
-# gold_code_used, r, maximum_difference = gold_code_generator(10000000, 200)
-# print(gold_code_used, maximum_difference)
-# n = list(range(-32 + 1, 32))
-# plt.plot(n, r);
-# plt.xlabel('n')
-# plt.ylabel('r_xy[n]');
-# plt.savefig("autocorrelation.png")
-# plt.savefig("autocorrelation.pdf")
-# plt.show()
+        gold_array = []
+        for j in range(len(gold)):
+            gold_array.append(gold[j])
+        # print(gold_array)
 
+        gold_array_integer = [int(k) for k in gold_array]
+        # print(gold_array_integer)
 
-# for i in range(5):
-#     data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Recording_reference_1_" + str(i) + ".csv", delimiter=",")
-# for i in range(1, 5):
-#     data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\Recording_reference_mic1_" + str(i) + ".csv", delimiter=",")
-#     plt.plot(data[0], data[1])
-#     # plt.title("Microphone " + str(i+1))
-#     plt.title("microphone 1, recording " + str(i))
-#     # plt.xlim(50, 500)
-#     plt.show()
+        r = np.convolve(gold_array_integer, np.flip(gold_array_integer))
+        second_peak = max(r[32::])
+        difference = r[31] - second_peak
+        cross_correlation.append(difference)
 
-#
+    maximum_difference = max(cross_correlation)
+    for i in range(len(gold_code_array)):
+        if maximum_difference == cross_correlation[i]:
+            gold_code_used = gold_code_array[i]
+            index = i
 
-#
-# plt.plot(data[0], data[1])
-# plt.title("microphone 5, recording 3")
-# plt.xlim(3019, 3730)
-# plt.show()
-
-# def truncater(start, stop):
-#     data = np.loadtxt(
-#         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\Recording_reference_mic5_3.csv",
-#         delimiter=",")
-#     data_truncated = data[0][start:stop], data[1][start:stop]
-#     np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_3.csv", data_truncated,
-#                delimiter=",")
-#     return
-#
-
-#
-# truncater(3019, 3730)
-# data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_3.csv",
-#                   delimiter=",")
-# plt.plot(data[0], data[1])
-# plt.title("microphone5, reference 3")
-# plt.xlim(3019, 3730)
-# plt.show()
-# print(data.shape)
-
-# reference = np.zeros((2, 711))
-# for i in range(1, 3):
-#     data = np.loadtxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_" + str(i) + ".csv", delimiter=",")
-#     reference[0] = np.linspace(0, 711, 711)
-#     reference[1] = np.add(reference[1], data[1])
-#     # print(reference[1])
-#
-# reference[1] = reference[1]/3
-# reference[1] = reference[1]/np.max(reference[1])
-# # print(np.max(reference[1]))
-# plt.plot(reference[0], reference[1])
-# plt.xlim(0, 711)
-# plt.show()
-# # # #
-# np.savetxt(r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic5_reference_final.csv", reference,
-#                delimiter=",")
-
-
-# for i in range(5):
-#     data = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_middle_1_" + str(i) + ".csv", delimiter=",")
-#     plt.plot(data[0], data[1])
-#     plt.title("480x480, Microphone " + str(i) + " reference")
-#     plt.show()
-
+    return gold_code_used, r, maximum_difference
 
 def filtering(signal):
     Fpass_lower = 4000
@@ -299,7 +196,6 @@ def ch3(y):
     Ny = len(y)  # Length of y
     L = Ny - Nx + 1  # Length of h
 
-    # len(x) == len(y)
     x = np.concatenate((signal_reference[1], np.zeros(L - 1)))
 
     # Deconvolution in frequency domain
@@ -327,7 +223,10 @@ def isolation(recorded_signal):
     reference_signal = reference_array()
     correlation = sp.correlate(recorded_signal[1], reference_signal[1], mode='same')
     # plt.plot(correlation)
-    # plt.title("correlation")
+    # plt.title("Correlation of Reference and Recorded Signals")
+    # plt.xlabel("Samples")
+    # plt.ylabel("Amplitude")
+    # plt.savefig("Correlation.png")
     # plt.show()
 
     peak_index, = sp.argrelmax(correlation, order=1000)
@@ -343,6 +242,12 @@ def isolation(recorded_signal):
     isolated_pulse = np.zeros((2, len(reference_signal[0])))
     isolated_pulse[0] = recorded_signal[0][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
     isolated_pulse[1] = recorded_signal[1][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
+    # plt.plot(isolated_pulse[0], isolated_pulse[1])
+    # plt.title("Isolated Second Pulse")
+    # plt.xlabel("Samples")
+    # plt.ylabel("Amplitude")
+    # plt.savefig("isolated_pulse.png")
+    # plt.show()
     return isolated_pulse
 
 
@@ -412,7 +317,6 @@ def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorde
     for i in range(10):
         time[i] = distance[i] / Fs
         distance_cm[i] = time[i] * 34300
-    # print(distance)
     print(distance_cm)
     # return distance_cm
     return maximum
