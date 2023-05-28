@@ -39,7 +39,7 @@ class communicationSubSystem(subSystem):
         _bitFrequency = (2000).to_bytes(2, byteorder='big')
         self.serial_port.write(b'B' + _bitFrequency + b'\n')
 
-        _repetition = (96).to_bytes(2, byteorder='big')
+        _repetition = (400).to_bytes(2, byteorder='big')
         # _repetition = (31.25).to_bytes(2, byteorder='big')
         self.serial_port.write(b'R' + _repetition + b'\n')
 

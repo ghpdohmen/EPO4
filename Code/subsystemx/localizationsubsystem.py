@@ -17,7 +17,8 @@ class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
     deviceIndex = 1
-    durationRecording = 0.144
+    # durationRecording = 0.144
+    durationRecording = 0.2
     i = 0
 
     def __init__(self):
@@ -50,15 +51,14 @@ class LocalizationSubSystem(subSystem):
         _mic_1, _mic_2, _mic_3, _mic_4, _mic_5 = self.microphone_array(self.deviceIndex, self.durationRecording)
         mics = self.microphone_array(self.deviceIndex, self.durationRecording)
 
-        # self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5)
-        xy = self.localize(self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
+        self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5)
+        # xy = self.localize(self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
 
-        if (xy[0] > 120):
-            for j in range(1, 6):
-                #     np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
-                np.savetxt(
-                    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_137x162_test_3_" + str(j) + ".csv",
-                    mics[j - 1], delimiter=",")
+        # for j in range(1, 6):
+        #     #     np.savetxt("Recording_reference_" + str(self.i) + "_" + str(j) + ".csv", mics[j], delimiter=",")
+        #     np.savetxt(
+        #         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_137x162_test_3_" + str(j) + ".csv",
+        #         mics[j - 1], delimiter=",")
 
     def stop(self):
         self.state = subSystemState.Stopped
@@ -150,17 +150,19 @@ class LocalizationSubSystem(subSystem):
         reference_signal = self.reference_array()
         correlation = sp.correlate(recorded_signal[1], reference_signal[1], mode='same')
 
-        peak_index, = sp.argrelmax(correlation, order=1000)
-        # print(peak_index)
-        if (peak_index[0] < 500):
-            peak_index = np.delete(peak_index, [0], None)
+        # peak_index, = sp.argrelmax(correlation, order=1000)
+        # # print(peak_index)
+        # if (peak_index[0] < 500):
+        #     peak_index = np.delete(peak_index, [0], None)
+        #
+        # # print(peak_index)
+        # if len(peak_index) == 2:
+        #     pulse_delay = peak_index[0] - (len(reference_signal[1]) // 2)
+        # else:
+        #     pulse_delay = peak_index[1] - (len(reference_signal[1]) // 2)
 
-        # print(peak_index)
-        if len(peak_index) == 2:
-            pulse_delay = peak_index[0] - (len(reference_signal[1]) // 2)
-        else:
-            pulse_delay = peak_index[1] - (len(reference_signal[1]) // 2)
-
+        peak_index, = np.where(correlation == max(correlation))
+        pulse_delay = int(peak_index - (len(reference_signal[1]) // 2))
         isolated_pulse = np.zeros((2, len(reference_signal[0])))
         isolated_pulse[0] = recorded_signal[0][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
         isolated_pulse[1] = recorded_signal[1][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
