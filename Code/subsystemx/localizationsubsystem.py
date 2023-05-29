@@ -163,6 +163,7 @@ class LocalizationSubSystem(subSystem):
 
         peak_index, = np.where(correlation == max(correlation))
         pulse_delay = int(peak_index - (len(reference_signal[1]) // 2))
+
         isolated_pulse = np.zeros((2, len(reference_signal[0])))
         isolated_pulse[0] = recorded_signal[0][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
         isolated_pulse[1] = recorded_signal[1][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
@@ -212,64 +213,55 @@ class LocalizationSubSystem(subSystem):
 
         # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
         distance = np.zeros(10)
-        distance[0] = abs(maximum_1 - maximum_2)
-        distance[1] = abs(maximum_1 - maximum_3)
-        distance[2] = abs(maximum_1 - maximum_4)
-        distance[3] = abs(maximum_1 - maximum_5)
-        distance[4] = abs(maximum_2 - maximum_3)
-        distance[5] = abs(maximum_2 - maximum_4)
-        distance[6] = abs(maximum_2 - maximum_5)
-        distance[7] = abs(maximum_3 - maximum_4)
-        distance[8] = abs(maximum_3 - maximum_5)
-        distance[9] = abs(maximum_4 - maximum_5)
+        distance[0] = maximum_1 - maximum_2
+        distance[1] = maximum_1 - maximum_3
+        distance[2] = maximum_1 - maximum_4
+        distance[3] = maximum_1 - maximum_5
+        distance[4] = maximum_2 - maximum_3
+        distance[5] = maximum_2 - maximum_4
+        distance[6] = maximum_2 - maximum_5
+        distance[7] = maximum_3 - maximum_4
+        distance[8] = maximum_3 - maximum_5
+        distance[9] = maximum_4 - maximum_5
 
-        maximum = np.zeros(5)
-        maximum[0] = maximum_1
-        maximum[1] = maximum_2
-        maximum[2] = maximum_3
-        maximum[3] = maximum_4
-        maximum[4] = maximum_5
+        # maximum = np.zeros(5)
+        # maximum[0] = maximum_1
+        # maximum[1] = maximum_2
+        # maximum[2] = maximum_3
+        # maximum[3] = maximum_4
+        # maximum[4] = maximum_5
 
-        time = np.zeros(10)
-        distance_cm = np.zeros(10)
-        for i in range(10):
-            time[i] = distance[i] / self.Fs
-            distance_cm[i] = time[i] * 34300
-        print(distance_cm)
-        return maximum
+        # time = np.zeros(10)
+        # distance_cm = np.zeros(10)
+        # for i in range(10):
+        #     time[i] = distance[i] / self.Fs
+        #     distance_cm[i] = time[i] * 34300
+        # print(distance_cm)
+        return distance
 
-    def localize(self, maximum):
+    def estimate_location(self, distance):
         coordinates_mics = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
         # Create indexes for all microphone pairs
         pairs = list(
-            itertools.combinations([0, 1, 2, 3, 4], 2))  # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+            itertools.combinations([1, 2, 3, 4, 5], 2))  # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
 
-        # Create the empty matrices, +1 for the vector
-        A = np.zeros([len(pairs), len(coordinates_mics) + 1])
-        B = np.zeros([len(pairs), 1])
+        A = np.zeros((10, 6))
+        B = np.zeros((10, 1))
 
-        # Fill matrix
+        first_column = np.zeros((10, 2))
         for row, [i, j] in enumerate(pairs):
-            # Calculate differences between peaks
-            r_ij = maximum[i] - maximum[j]
+            first_column[row] = (2 * (coordinates_mics[j - 1] - coordinates_mics[i - 1]))
+            A[row, 0:2] = first_column[row]
 
-            # Matrix A, column 1
-            A[row, :2] = np.array(2 * (coordinates_mics[j] - coordinates_mics[i]))
+            A[row, j] = -2 * distance[row]
 
-            # Rest of matrix A
-            A[row, j + 1] = -2 * r_ij
+            B[row] = pow(distance[row], 2) - pow(np.linalg.norm(coordinates_mics[i - 1]), 2) + pow(
+                np.linalg.norm(coordinates_mics[j - 1]), 2)
 
-            # B matrix
-            B[row] = r_ij ** 2 - np.linalg.norm(coordinates_mics[i]) ** 2 + np.linalg.norm(
-                coordinates_mics[j]) ** 2,
-
-        # Ay = B
-        # Pseudo-inverse of A
         A_pinv = np.linalg.pinv(A)
 
         y = np.dot(A_pinv, B)
-        x = y[:2].squeeze()  # Remove a dimension and use only the first two values (which is the vector)
 
-        xy = x  # in [x,y]
+        xy = np.squeeze(y[0:2])
         print(xy)
-        return xy
+        return (xy)
