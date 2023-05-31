@@ -1,60 +1,62 @@
-# ooga booga hoe
-
-# inputs:
-#    location
-#    path
-
-# variables:
-#   LookAheadDistance
-#   TargetPoint
-
-# outputs:
-
 import numpy as np
 from shapely.geometry import LineString
 from shapely.geometry import Point
 import robot
-
-# speed = robot.Robot.velocity
-wheelbase = robot.Robot.wheelBase
-x_location = 5
-y_location = 5
-start_point = [10, 0]
-end_point = [0, 10]
-# min_lad =
-# max_lad =
-# K_constant =
-lookAheadDistance = 3
+from misc import mathFunctions
+from misc.robotModeEnum import robotMode
+from subsystemx.subsystem import subSystem
+from subsystemx.subsystemStateEnum import subSystemState
 
 
-# np.clip(K_constant * speed, min_lad, max_lad)
+class purePursuit(subSystem):
 
-def targetPoint(location_x, location_y, x1, y1, x2, y2):
-    _point = Point(location_x, location_y)
-    _circle = _point.buffer(lookAheadDistance)
-    _path = LineString([(x1, y1), (x2, y2)])
-    _intersection = _circle.intersection(_path)
+    def __init__(self):
+        self.intersec_1 = 0
+        self.intersec_2 = 0
+        self.targetPoint = 0
 
-    return np.array([(_intersection.coords[0]), (_intersection.coords[1])])
+        self.wheelbase = robot.Robot.wheelBase
+        self.x_location = 240
+        self.y_location = 0
+        self.start_point = [240, 0]
+        self.end_point = [160, 320]
+        self.lookAheadDistance = 100  # in cm
 
+    def start(self):
+        if(robot.Robot.operatingMode == robotMode.Manual | robotMode.EStop):
+            self.state = subSystemState.Stopped
+        else:
+            self.state = subSystemState.Started
 
-def steeringAngle(x_tp, y_tp):
-    _alpha = np.arctan2(y_tp, x_tp)
-    print(np.degrees(_alpha))
-    _angle = np.arctan((2 * wheelbase * np.sin(_alpha)) / lookAheadDistance)
-    print(_angle)
+        robot.Robot.purePursuitState = self.state
 
-    return np.degrees(_angle)
+    def intersections(self, _location_x, _location_y, _x1, _y1, _x2, _y2):
+        _point = Point(_location_x, _location_y)
+        _circle = _point.buffer(self.lookAheadDistance)
+        _path = LineString([(_x1, _y1), (_x2, _y2)])
+        _intersection = _circle.intersection(_path)
 
+        return np.array([(_intersection.coords[0]), (_intersection.coords[1])])
 
-# have to decide which one needs to be prioritised
-intersec_1 = targetPoint(x_location, y_location, start_point[0], start_point[1], end_point[0], end_point[1])[0]
-intersec_2 = targetPoint(x_location, y_location, start_point[0], start_point[1], end_point[0], end_point[1])[1]
+    def steeringAngle(self, _x_tp, _y_tp):
+        _alpha = np.arctan2((_x_tp - self.x_location), (_y_tp - self.y_location))
+        print(np.degrees(_alpha))
+        _angle = np.arctan((2 * self.wheelbase * np.sin(_alpha)) / self.lookAheadDistance)
+        print(_angle)
 
-print(intersec_1)  # first intersection
-print(intersec_2)  # second intersection
-print(steeringAngle(intersec_2[0], intersec_2[1]))
+        return np.degrees(_angle)
 
-# errors:
-# seems to work when going to the right, however it does not work when going to the left
-# probably an issue with the radian to degree conversion and in general the use of radian for angles.
+    def update(self):
+        if self.state == subSystemState.Running | subSystemState.Started:
+            self.state = subSystemState.Running
+            self.intersec_1 = self.intersections(self.x_location, self.y_location, self.start_point[0], self.start_point[1], self.end_point[0], self.end_point[1])[0]
+            self.intersec_2 = self.intersections(self.x_location, self.y_location, self.start_point[0], self.start_point[1], self.end_point[0], self.end_point[1])[1]
+
+            self.targetPoint = mathFunctions.which_one_is_closer(self.intersec_1, self.intersec_2, self.end_point)
+
+            print(self.targetPoint)  # chosen intersection
+            print(self.steeringAngle(self.targetPoint[0], self.targetPoint[1]))
+        robot.Robot.purePursuitState = self.state
+    def stop(self):
+        self.state = subSystemState.Stopped
+        robot.Robot.modelState = self.state

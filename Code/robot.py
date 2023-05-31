@@ -7,6 +7,7 @@ from subsystemx.distanceSensorSubSystem import distanceSensorSubSystem
 from subsystemx.inputSubSystem import inputSubSystem
 from subsystemx.localizationsubsystem import LocalizationSubSystem
 from subsystemx.modelSubSystem import modelSubSystem
+from subsystemx.purePursuit import purePursuit
 from subsystemx.subsystemStateEnum import subSystemState
 from subsystemx.timing import timeSubSystem
 
@@ -36,6 +37,7 @@ class Robot:
     loggingState = subSystemState.Stopped
     distanceSensorState = subSystemState.Stopped
     modelState = subSystemState.Stopped
+    purePursuitState = subSystemState.Stopped
 
 
     # sensor values
@@ -75,6 +77,7 @@ class Robot:
         self.localizationSubSystem = LocalizationSubSystem()
         self.modelSubSystem = modelSubSystem()
         self.distanceSensorSubSystem = distanceSensorSubSystem()
+        self.purePursuitSubSystem = purePursuit()
 
     # start all subsystemx
     def start(self, _operatingMode):
@@ -91,7 +94,7 @@ class Robot:
         self.inputSubSystem.start()
         self.loggingSubSystem.start()
         self.distanceSensorSubSystem.start()
-
+        self.purePursuitSubSystem.start()
         # printing the loop time, so we can optimize this via multithreading
         #print(self.loopTime)
         self.status = robotStatus.Running
@@ -112,6 +115,7 @@ class Robot:
             #("comms")
             #self.localizationSubSystem.update()
             self.distanceSensorSubSystem.update()
+            self.purePursuitSubSystem.update()
             #print(self.distanceLeft)
             #print("location: (" + str(self.xCurrent) + " , " + str(self.yCurrent) + " )")
 
@@ -133,3 +137,4 @@ class Robot:
         self.loggingSubSystem.stop()
         self.modelSubSystem.stop()
         self.distanceSensorSubSystem.stop()
+        self.purePursuitSubSystem.stop()
