@@ -196,12 +196,12 @@ def ch3(y):
     Ny = len(y)  # Length of y
     L = Ny - Nx + 1  # Length of h
 
-    x = np.concatenate((signal_reference[1], np.zeros(L - 1)))
-
+    #x = np.concatenate((signal_reference[1], np.zeros(L - 1)))
+    x = signal_reference[1]
     # Deconvolution in frequency domain
     Y = fft(y)
     X = fft(x, Ny)
-    H = Y / (X + 10e-15)
+    H = Y / X   #(X + 10e-15)
 
     # Threshold to avoid blow ups of noise during inversion
     ii = np.absolute(X) < epsi * max(abs(X))
@@ -214,7 +214,7 @@ def ch3(y):
 
 def reference_array():
     reference_mic = np.loadtxt(
-        r"E:\TU Delft\Github\EPO4\Code\References\mic1_reference_final.csv",
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic1_reference_final.csv",
         delimiter=',')
     return reference_mic
 
@@ -226,18 +226,19 @@ def isolation(recorded_signal):
     # plt.title("Correlation of Reference and Recorded Signals")
     # plt.xlabel("Samples")
     # plt.ylabel("Amplitude")
+    # plt.xlim(0, 2500)
     # # plt.savefig("Correlation.png")
     # plt.show()
 
-    peak_index, = sp.argrelmax(correlation, order=1000)
-    # print(peak_index)
-    if (peak_index[0] < 500):
-        peak_index = np.delete(peak_index, [0], None)
-    # print(peak_index[0])
-    if len(peak_index) == 2:
-        pulse_delay = peak_index[0] - (len(reference_signal[1]) // 2)
-    else:
-        pulse_delay = peak_index[1] - (len(reference_signal[1]) // 2)
+    # peak_index, = sp.argrelmax(correlation, order=1000)
+    # # print(peak_index)
+    # if (peak_index[0] < 500):
+    #     peak_index = np.delete(peak_index, [0], None)
+    # # print(peak_index[0])
+    # if len(peak_index) == 2:
+    #     pulse_delay = peak_index[0] - (len(reference_signal[1]) // 2)
+    # else:
+    #     pulse_delay = peak_index[1] - (len(reference_signal[1]) // 2)
 
     # pulse_delay = peak_index[0] - (len(reference_signal[1]) // 2)
 
@@ -246,8 +247,9 @@ def isolation(recorded_signal):
     # peak_index = sp.find_peaks(correlation, threshold, distance=1400)
     # pulse_delay = peak_index[0] - (len(reference_signal[1]) // 2)
 
-    # peak_index, = np.where(correlation == max(correlation))
-    # pulse_delay = int(peak_index - (len(reference_signal[1]) // 2))
+    peak_index, = np.where(correlation == min(correlation))
+    print(peak_index)
+    pulse_delay = int(peak_index - (len(reference_signal[1]) // 2))
 
     isolated_pulse = np.zeros((2, len(reference_signal[0])))
     isolated_pulse[0] = recorded_signal[0][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
@@ -337,45 +339,50 @@ def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorde
     for i in range(10):
         time[i] = distance[i] / Fs
         distance_cm[i] = time[i] * 34300
-    # print(distance)
+    print(distance_cm)
     # print(maximum)
-    return distance
+    return distance_cm
     # return maximum
 
 
 signal_recorded_1 = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_73x80.5_test_1_1.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_1.csv",
     delimiter=',')
 
 # plt.plot(signal_recorded_1[0], signal_recorded_1[1])
+# # plt.xlim(0, 2500)
 # plt.show()
 
 signal_recorded_2 = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_73x80.5_test_1_2.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_2.csv",
     delimiter=',')
 
 # plt.plot(signal_recorded_2[0], signal_recorded_2[1])
+# # plt.xlim(0, 2500)
 # plt.show()
 
 signal_recorded_3 = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_73x80.5_test_1_3.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_3.csv",
     delimiter=',')
 
 # plt.plot(signal_recorded_3[0], signal_recorded_3[1])
+# # plt.xlim(0, 2500)
 # plt.show()
 
 signal_recorded_4 = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_73x80.5_test_1_4.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_4.csv",
     delimiter=',')
 
 # plt.plot(signal_recorded_4[0], signal_recorded_4[1])
+# # plt.xlim(0, 2500)
 # plt.show()
 
 signal_recorded_5 = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
     delimiter=',')
 
 # plt.plot(signal_recorded_5[0], signal_recorded_5[1])
+# # plt.xlim(0, 2500)
 # plt.show()
 
 
@@ -416,8 +423,140 @@ def estimate_location(distance):
     y = np.dot(A_pinv, B)
 
     xy = np.squeeze(y[0:2])
-    print(xy)
+    # print(xy)
     return(xy)
 
+def tdoa_2(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
+    # isolated_pulse_mic_1 = isolation(signal_recorded_1)
+    # zeros_1 = np.zeros(int(isolated_pulse_mic_1[0, 0]))
+    # channel_signal_1 = np.zeros((2, math.ceil(isolated_pulse_mic_1[0, -1])))
+    # channel_signal_1[0] = np.concatenate((zeros_1, isolated_pulse_mic_1[0]))
+    # channel_signal_1[1] = np.concatenate((zeros_1, isolated_pulse_mic_1[1]))
+    channel_1 = ch3(signal_recorded_1[1])
+    # plt.stem(abs(channel_1))
+    # plt.show()
+    maximum_1, = np.where(abs(channel_1) > 0.8*max(abs(channel_1)))
+
+    # isolated_pulse_mic_2 = isolation(signal_recorded_2)
+    # zeros_2 = np.zeros(int(isolated_pulse_mic_2[0, 0]))
+    # channel_signal_2 = np.zeros((2, math.ceil(isolated_pulse_mic_2[0, -1])))
+    # channel_signal_2[0] = np.concatenate((zeros_2, isolated_pulse_mic_2[0]))
+    # channel_signal_2[1] = np.concatenate((zeros_2, isolated_pulse_mic_2[1]))
+    channel_2 = ch3(signal_recorded_2[1])
+    # plt.stem(abs(channel_2))
+    # plt.show()
+    maximum_2, = np.where(abs(channel_2) > 0.8*max(abs(channel_2)))
+
+    # isolated_pulse_mic_3 = isolation(signal_recorded_3)
+    # zeros_3 = np.zeros(int(isolated_pulse_mic_3[0, 0]))
+    # channel_signal_3 = np.zeros((2, math.ceil(isolated_pulse_mic_3[0, -1])))
+    # channel_signal_3[0] = np.concatenate((zeros_3, isolated_pulse_mic_3[0]))
+    # channel_signal_3[1] = np.concatenate((zeros_3, isolated_pulse_mic_3[1]))
+    channel_3 = ch3(signal_recorded_3[1])
+    # plt.stem(abs(channel_3))
+    # plt.show()
+    maximum_3, = np.where(abs(channel_3) > 0.8*max(abs(channel_3)))
+
+    # isolated_pulse_mic_4 = isolation(signal_recorded_4)
+    # zeros_4 = np.zeros(int(isolated_pulse_mic_4[0, 0]))
+    # channel_signal_4 = np.zeros((2, math.ceil(isolated_pulse_mic_4[0, -1])))
+    # channel_signal_4[0] = np.concatenate((zeros_4, isolated_pulse_mic_4[0]))
+    # channel_signal_4[1] = np.concatenate((zeros_4, isolated_pulse_mic_4[1]))
+    channel_4 = ch3(signal_recorded_4[1])
+    # plt.stem(abs(channel_4))
+    # plt.show()
+    maximum_4, = np.where(abs(channel_4) > 0.8*max(abs(channel_4)))
+
+    # isolated_pulse_mic_5 = isolation(signal_recorded_5)
+    # zeros_5 = np.zeros(int(isolated_pulse_mic_5[0, 0]))
+    # channel_signal_5 = np.zeros((2, math.ceil(isolated_pulse_mic_5[0, -1])))
+    # channel_signal_5[0] = np.concatenate((zeros_5, isolated_pulse_mic_5[0]))
+    # channel_signal_5[1] = np.concatenate((zeros_5, isolated_pulse_mic_5[1]))
+    channel_5 = ch3(signal_recorded_5[1])
+    # plt.stem(abs(channel_5))
+    # plt.show()
+    maximum_5, = np.where(abs(channel_5) > 0.8 * max(abs(channel_5)))
+
+    # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+    distance = np.zeros(10)
+    distance[0] = maximum_1[0] - maximum_2[0]
+    distance[1] = maximum_1[0] - maximum_3[0]
+    distance[2] = maximum_1[0] - maximum_4[0]
+    distance[3] = maximum_1[0] - maximum_5[0]
+    distance[4] = maximum_2[0] - maximum_3[0]
+    distance[5] = maximum_2[0] - maximum_4[0]
+    distance[6] = maximum_2[0] - maximum_5[0]
+    distance[7] = maximum_3[0] - maximum_4[0]
+    distance[8] = maximum_3[0] - maximum_5[0]
+    distance[9] = maximum_4[0] - maximum_5[0]
+
+    # maximum = np.zeros(5)
+    # maximum[0] = maximum_1
+    # maximum[1] = maximum_2
+    # maximum[2] = maximum_3
+    # maximum[3] = maximum_4
+    # maximum[4] = maximum_5
+
+    time = np.zeros(10)
+    distance_cm = np.zeros(10)
+    for i in range(10):
+        time[i] = distance[i] / Fs
+        distance_cm[i] = time[i] * 34300
+    # print(distance_cm)
+    return distance_cm
+
 # estimate_location(distance)
-estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
+# estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
+xy = estimate_location(tdoa_2(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
+
+
+# array = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array.csv",
+#     delimiter=',')
+#
+# array_plot = np.zeros((2, len(array)-1))
+# array_plot[0] = array[1::, 0]
+# array_plot[1] = array[1::, 1]
+# plt.plot(array_plot[0], array_plot[1])
+# plt.show()
+#
+# print(array.shape)
+# print(array_plot.shape)
+
+import datetime as dt
+import matplotlib.animation as animation
+
+# Create figure for plotting
+fig = plt.figure()
+ax = fig.add_subplot(1, 1, 1)
+xs = []
+ys = []
+
+
+# This function is called periodically from FuncAnimation
+def animate(i, xs, ys):
+
+    # Read temperature (Celsius) from TMP102
+    temp_c = round(tmp102.read_temp(), 2)
+
+    # Add x and y to lists
+    xs.append(dt.datetime.now().strftime('%H:%M:%S.%f'))
+    ys.append(temp_c)
+
+    # Limit x and y lists to 20 items
+    xs = xs[-20:]
+    ys = ys[-20:]
+
+    # Draw x and y lists
+    ax.clear()
+    ax.plot(xs, ys)
+
+    # Format plot
+    plt.xticks(rotation=45, ha='right')
+    plt.subplots_adjust(bottom=0.30)
+    plt.title('TMP102 Temperature over Time')
+    plt.ylabel('Temperature (deg C)')
+
+# Set up plot to call animate() function periodically
+ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
+plt.show()
