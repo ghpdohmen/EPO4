@@ -48,9 +48,9 @@ class Robot:
     batteryVoltage = 0
 
     # output values
-    input_motor = 150;
-    input_servo = 150;
-    COMport = 'COM5'  # TODO: enable in GUI
+    input_motor = 150
+    input_servo = 150
+    COMport = 'COM5'
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
@@ -68,8 +68,8 @@ class Robot:
 
 
     def __init__(self, _xCurrent, _yCurrent):
-        self.yCurrent = _yCurrent;
-        self.xCurrent = _xCurrent;
+        self.yCurrent = _yCurrent
+        self.xCurrent = _xCurrent
         self.communicationSubSystem = communicationSubSystem()
         self.timeSubSystem = timeSubSystem()
         self.inputSubSystem = inputSubSystem()
