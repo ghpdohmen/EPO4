@@ -47,7 +47,7 @@ class modelSubSystem (subSystem):
         #print(str(self.vX) + " , " + str(self.vY))
         #print(self.vX * dt)
         if self.steeringAngle != 0:
-            self.r = robot.Robot.velocity / math.tan(math.radians(self.steeringAngle))  # goed
+            self.r = robot.Robot.wheelBase / math.tan(math.radians(self.steeringAngle))  # goed
         #print(self.r)
         #print(self.steeringAngle)
         if (robot.Robot.velocity != 0) & (self.r != 0):
