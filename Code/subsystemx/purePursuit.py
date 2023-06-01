@@ -20,7 +20,7 @@ class purePursuit(subSystem):
         self.y_location = 0
         self.start_point = [240, 0]
         self.end_point = [160, 320]
-        self.lookAheadDistance = 100  # in cm
+        self.lookAheadDistance = 100  # in cm #FIXME: Albert ik ben er vrij zeker van dat dit veel te hoog is.
 
     def start(self):
         if(robot.Robot.operatingMode == robotMode.Manual | robotMode.EStop):
@@ -38,7 +38,7 @@ class purePursuit(subSystem):
 
         return np.array([(_intersection.coords[0]), (_intersection.coords[1])])
 
-    def steeringAngle(self, _x_tp, _y_tp):
+    def steeringAngle(self, _x_tp, _y_tp): #TODO: bound toevoegen voor max steering angle
         _alpha = np.arctan2((_x_tp - self.x_location), (_y_tp - self.y_location))
         print(np.degrees(_alpha))
         _angle = np.arctan((2 * self.wheelbase * np.sin(_alpha)) / self.lookAheadDistance)
