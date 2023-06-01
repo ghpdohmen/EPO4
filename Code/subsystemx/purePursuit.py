@@ -18,9 +18,9 @@ class purePursuit(subSystem):
         self.wheelbase = robot.Robot.wheelBase
         self.x_location = 240
         self.y_location = 0
-        self.start_point = [240, 0]
-        self.end_point = [160, 320]
-        self.lookAheadDistance = 100  # in cm #FIXME: Albert ik ben er vrij zeker van dat dit veel te hoog is.
+        self.start_point = robot.Robot.startPos
+        self.end_point = [320,320]
+        self.lookAheadDistance = 100  # in cm #FIXME: Albert ik ben er vrij zeker van dat dit veel te hoog is. oke maar was om te testen of t werkte
 
     def start(self):
         if(robot.Robot.operatingMode == robotMode.Manual | robotMode.EStop):
