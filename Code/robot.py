@@ -22,6 +22,12 @@ class Robot:
     velocity = 0
     speakerOn = False
 
+    # challenge locations
+    startPos = []
+    aEnd = []
+    bMid = []
+    bEnd = []
+    
     # audio stuff
     # code = "EB3A994F"  # String, hexadecimal
     speakerOn = False

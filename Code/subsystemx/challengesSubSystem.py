@@ -13,7 +13,7 @@ match mode:
     case "ChallengeA":
         print("activating A")
         robot.Robot.operatingMode = robotMode.ChallengeA
-        drive
+        # use location to drive there with pp
         if mathFunctions.ish() and mathFunctions.ish():
             stop
     case "ChallengeB":
