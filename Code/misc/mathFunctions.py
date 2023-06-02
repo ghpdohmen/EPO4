@@ -51,7 +51,16 @@ def angle_to_steer(input: float) -> int:
     :return: steering input for KITT
     """
     steering_input = (input + 66.168)/0.4432
-    return round(steering_input)
+    if steering_input > 200:  # makes sure the returned input is within boundaries
+        steering_input = 200
+        return steering_input
+
+    elif steering_input < 100:
+        steering_input = 100
+        return steering_input
+
+    else:
+        return round(steering_input)
 
 
 def motor_to_force(input: float) -> float:
