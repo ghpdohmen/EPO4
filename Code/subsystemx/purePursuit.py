@@ -49,7 +49,7 @@ class purePursuit(subSystem):
         return mathFunctions.angle_to_steer(np.degrees(_angle)[0])
 
     def update(self):
-        if self.state == subSystemState.Running | subSystemState.Started:
+        if self.state == subSystemState.Running or subSystemState.Started:
             self.state = subSystemState.Running
 
             self.start_point = robot.Robot.startPos
@@ -66,6 +66,9 @@ class purePursuit(subSystem):
 
             print(self.targetPoint)  # chosen intersection
             print(self.steeringAngle(self.targetPoint[0], self.targetPoint[1]))
+
+            robot.Robot.input_servo = self.steeringAngle(self.targetPoint[0], self.targetPoint[1])
+
         robot.Robot.purePursuitState = self.state
 
     def stop(self):
