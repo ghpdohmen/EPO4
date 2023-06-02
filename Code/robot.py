@@ -44,6 +44,7 @@ class Robot:
     distanceSensorState = subSystemState.Stopped
     modelState = subSystemState.Stopped
     purePursuitState = subSystemState.Stopped
+    kalmanState = subSystemState.Stopped
 
 
     # sensor values
@@ -52,6 +53,8 @@ class Robot:
     distanceRight = 0 #averaged over the last 5 cycles by distanceSensorSubSystem
     distanceRightRaw = 0
     batteryVoltage = 0
+    posXLocalization = 0 # in meters
+    posYLocalization = 0 # in meters
 
     # output values
     input_motor = 150

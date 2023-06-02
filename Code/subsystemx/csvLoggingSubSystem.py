@@ -5,7 +5,6 @@ import robot
 from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
 
-
 # TODO: comments toevoegen
 class csvLoggingSubsystem(subSystem):
 

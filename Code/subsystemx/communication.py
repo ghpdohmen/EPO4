@@ -55,7 +55,6 @@ class communicationSubSystem(subSystem):
         if self.state == subSystemState.ReadyForUpdate:
             self.state = subSystemState.Running
 
-            #TODO: test difference between single write line and concatted write line: saves about 70 ms
             #writes all audio commands
             # try writing everything at once
             if robot.Robot.speakerOn:
