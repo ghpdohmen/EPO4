@@ -19,21 +19,22 @@ class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
     deviceIndex = 1
-    # durationRecording = 0.144
     durationRecording = 0.2
     i = 0
-    array = []
 
     def __init__(self):
+        self.array = []
+        # while True:
+        #     self.position_array(xy)
+        self.position_array = np.zeros(4)
+        self.position_array[0], self.position_array[1] = 0, 0
+
         return
 
     def start(self):
         self.state = subSystemState.Started
         robot.Robot.localizationState = self.state
         # self.pyaudioHandle = self.audio_devices(print_list=True)
-
-        # set audio stuff on robot
-        # robot.Robot.code = self.goldCode
 
     def update(self):
         if (self.state == subSystemState.Started) | (self.state == subSystemState.Running):
@@ -42,9 +43,6 @@ class LocalizationSubSystem(subSystem):
 
         if not robot.Robot.speakerOn:
             robot.Robot.speakerOn = True
-        # else:
-        #     self.i += 1
-        #     robot.Robot.speakerOn = False
 
         # robot.code = "EB3A994F"
         # robot.Robot.carrierFrequency = 6000
@@ -52,16 +50,40 @@ class LocalizationSubSystem(subSystem):
         # robot.Robot.repetitionCount = 64
 
         _mic_1, _mic_2, _mic_3, _mic_4, _mic_5 = self.microphone_array(self.deviceIndex, self.durationRecording)
-        # mics = self.microphone_array(self.deviceIndex, self.durationRecording)
-
-        # self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5)
         xy = self.estimate_location(self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
         print(xy)
+        # xy = self.estimate_location(self.tdoa_2(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
+        # print(xy)
+
+        self.array.append(xy)
+        np.savetxt(
+                r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_low.csv",
+                self.array, delimiter=",")
+
+        # self.position_array[2], self.position_array[3] = xy
+        # print(self.position_array)
+        #
+        # self.position_array[0], self.position_array[1] = self.position_array[2], self.position_array[3]
+        # print(self.position_array)
+
+        # mics = self.microphone_array(self.deviceIndex, self.durationRecording)
+
+        # self.array.append(xy)
+        # print(self.array)
+        # array_plot = np.zeros((2, len(self.array) - 1))
+        # print(array_plot)
+        # # array_plot[0] = self.array[1::, 0]
+        # # array_plot[1] = self.array[1::, 1]
+        # # plt.plot(array_plot[0], array_plot[1])
+        # # plt.show()
+
 
         # plt.plot(self.array[0, 0::2], self.array[0, 1::2])
         # np.savetxt(
         #         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array.csv",
         #         self.array, delimiter=",")
+
+
         # for j in range(1, 6):
         #     np.savetxt(
         #         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_236x122_test_1_" + str(j) + ".csv",
@@ -125,20 +147,18 @@ class LocalizationSubSystem(subSystem):
         return _mic_1, _mic_2, _mic_3, _mic_4, _mic_5
 
     def ch3(self, y):
+        # Set threshold parameter to 2%
         epsi = 0.02
-        signal_reference = self.reference_array()
-        # Nx = len(signal_reference[1])  # Length of x
-        Ny = len(y)  # Length of y
-        # L = Ny - Nx + 1  # Length of h
 
-        # len(x) == len(y)
-        # x = np.concatenate((signal_reference[1], np.zeros(L - 1)))
-        x = signal_reference[1]
+        signal_reference = self.reference_array()  # Initialize known send signal x
+        Ny = len(y)  # Length of y
+
+        x = signal_reference[1]  # Initialize x to be the amplitude part of the known send signal
 
         # Deconvolution in frequency domain
         Y = fft(y)
         X = fft(x, Ny)
-        H = Y / (X) #+ 10e-15)
+        H = Y / X
 
         # Threshold to avoid blow ups of noise during inversion
         ii = np.absolute(X) < epsi * max(abs(X))
@@ -154,21 +174,6 @@ class LocalizationSubSystem(subSystem):
             delimiter=',')
         return reference_mic
 
-    # def isolation(self, recorded_signal):
-    #     reference_signal = self.reference_array()
-    #     correlation = sp.correlate(recorded_signal[1], reference_signal[1], mode='same')
-    #
-    #     peak_index, = np.where(correlation == max(correlation))
-    #     pulse_delay = int(peak_index - (len(reference_signal[1]) // 2))
-    #
-    #     isolated_pulse = np.zeros((2, len(reference_signal[0])))
-    #     if len(recorded_signal[0][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]) < 721:
-    #         isolated_pulse[0] = recorded_signal[0][0:721]
-    #         isolated_pulse[1] = recorded_signal[1][0:721]
-    #     else:
-    #         isolated_pulse[0] = recorded_signal[0][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
-    #         isolated_pulse[1] = recorded_signal[1][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
-    #     return isolated_pulse
 
     def estimate_location(self, distance):
         coordinates_mics = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
@@ -226,7 +231,6 @@ class LocalizationSubSystem(subSystem):
         distance[8] = maximum_3 - maximum_5
         distance[9] = maximum_4 - maximum_5
 
-
         time = np.zeros(10)
         distance_cm = np.zeros(10)
         for i in range(10):
@@ -234,11 +238,24 @@ class LocalizationSubSystem(subSystem):
             distance_cm[i] = time[i] * 34300
         return distance_cm
 
+
+    def position_array(self, xy):
+        position_array = np.zeros(4)
+        position_array[0], position_array[1] = 0, 0
+
+        if self.update() == True:
+            self.position_array[2], self.position_array[3] = xy
+            # stuur deze hele array naar kalmann filter
+
+
+        self.position_array[0], self.position_array[1] = self.position_array[2], self.position_array[3]
+        return
+
+
     def plotter(self, xy):
-        array = []
         self.array.append(xy)
-        array_plot = np.zeros((2, len(array) - 1))
-        array_plot[0] = array[1::, 0]
-        array_plot[1] = array[1::, 1]
+        array_plot = np.zeros((2, len(self.array) - 1))
+        array_plot[0] = self.array[1::, 0]
+        array_plot[1] = self.array[1::, 1]
         plt.plot(array_plot[0], array_plot[1])
         plt.show()
