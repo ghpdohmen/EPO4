@@ -8,6 +8,7 @@ from subsystemx.inputSubSystem import inputSubSystem
 from subsystemx.localizationsubsystem import LocalizationSubSystem
 from subsystemx.modelSubSystem import modelSubSystem
 from subsystemx.purePursuit import purePursuit
+from subsystemx.challengesSubSystem import challengesSubSystem
 from subsystemx.subsystemStateEnum import subSystemState
 from subsystemx.timing import timeSubSystem
 
@@ -24,6 +25,7 @@ class Robot:
 
     # challenge locations
     startPos = []
+    endPos = []
     aEnd = []
     bMid = []
     bEnd = []
@@ -45,6 +47,7 @@ class Robot:
     modelState = subSystemState.Stopped
     purePursuitState = subSystemState.Stopped
     kalmanState = subSystemState.Stopped
+    challengesState = subSystemState.Stopped
 
 
     # sensor values
@@ -87,6 +90,7 @@ class Robot:
         self.modelSubSystem = modelSubSystem()
         self.distanceSensorSubSystem = distanceSensorSubSystem()
         self.purePursuitSubSystem = purePursuit()
+        self.challengesSubSystem = challengesSubSystem()
 
     # start all subsystemx
     def start(self, _operatingMode):
@@ -97,6 +101,7 @@ class Robot:
             print("no operating mode chosen")
             return
 
+
         #self.localizationSubSystem.start()
         self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
@@ -104,6 +109,7 @@ class Robot:
         self.loggingSubSystem.start()
         self.distanceSensorSubSystem.start()
         self.purePursuitSubSystem.start()
+        self.challengesSubSystem.start()
         # printing the loop time, so we can optimize this via multithreading
         #print(self.loopTime)
         self.status = robotStatus.Running
@@ -125,6 +131,7 @@ class Robot:
             #self.localizationSubSystem.update()
             self.distanceSensorSubSystem.update()
             self.purePursuitSubSystem.update()
+            self.challengesSubSystem.update()
             #print(self.distanceLeft)
             #print("location: (" + str(self.xCurrent) + " , " + str(self.yCurrent) + " )")
 
@@ -147,3 +154,4 @@ class Robot:
         self.modelSubSystem.stop()
         self.distanceSensorSubSystem.stop()
         self.purePursuitSubSystem.stop()
+        self.challengesSubSystem.stop()
