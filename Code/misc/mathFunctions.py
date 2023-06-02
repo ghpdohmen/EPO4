@@ -44,6 +44,16 @@ def steer_to_angle(input: float, type: str) -> float:
         return print("give valid type - radian or degree")
 
 
+def angle_to_steer(input: float) -> int:
+    """
+    takes an angle and returns the steering input for the KITT robot (int)
+    :param input: angle in degrees
+    :return: steering input for KITT
+    """
+    steering_input = (input + 66.168)/0.4432
+    return round(steering_input)
+
+
 def motor_to_force(input: float) -> float:
     """
     Transforms the motor input to a force (equal to Fa - Fb)
@@ -87,3 +97,4 @@ def which_one_is_closer(point_1, point_2, destination):
         return point_1
     else:
         return point_2
+
