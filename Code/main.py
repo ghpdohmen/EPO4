@@ -8,6 +8,9 @@ from tkinter import ttk
 import robot
 from misc.robotModeEnum import robotMode
 
+#This is the main program file for the EPO-4 project. This code handles the GUI and instatiates the robot, from which the entire program functions.
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # functions and initialisation                                          
 

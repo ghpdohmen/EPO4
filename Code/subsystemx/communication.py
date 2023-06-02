@@ -6,14 +6,11 @@ from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
 
 
-
-
-
 # communication subsystem. Handles all communication with KITT
 class communicationSubSystem(subSystem):
     # variable declaration
     serial_port = 0
-    baud_rate = 115200 #TODO: experiment with increasing the baud rate to possibly speed up communication UNLIKELY TO WORK, BUT WORTH TESTING
+    baud_rate = 115200
     comport = None
 
     def __int__(self):
@@ -58,47 +55,19 @@ class communicationSubSystem(subSystem):
         if self.state == subSystemState.ReadyForUpdate:
             self.state = subSystemState.Running
 
-            # writing the current pwm signal for both the motor and steering
-            #self.serial_port.write(b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n')
-            #self.serial_port.write(b'D' + bytes(str(robot.Robot.input_servo), 'ascii') + b'\n')
-            #writes motor and servo commands
-            #self.serial_port.write(b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n'+b'D' + bytes(str(robot.Robot.input_servo), 'ascii') + b'\n')
-
-            # writing the current audio settings
-
-            # enable/disable speaker
-            #if robot.Robot.speakerOn:
-            #    self.serial_port.write(b'A1\n')
-            #else:
-            #    self.serial_port.write(b'A0\n')
-
-            # setting code word and different frequencies/counts
-            # _carrier = robot.Robot.carrierFrequency.to_bytes(2, byteorder='big')
-            #self.serial_port.write((b'F' + _carrier + b'\n'))
-            # _bitFrequency = robot.Robot.bitFrequency.to_bytes(2, byteorder='big')
-            #self.serial_port.write(b'B' + _bitFrequency + b'\n')
-            # _repetition = robot.Robot.repetitionCount.to_bytes(2, byteorder='big')
-            #self.serial_port.write(b'R' + _repetition + b'\n')
-            #self.serial_port.write(b'C' + bytes(robot.Robot.code, 'ascii') + b'\n')
-
             #TODO: test difference between single write line and concatted write line: saves about 70 ms
             #writes all audio commands
-            #self.serial_port.write(b'F' + _carrier + b'\n'+b'B' + _bitFrequency + b'\n'+b'R' + _repetition + b'\n'+b'C' + bytes(robot.Robot.code, 'ascii') + b'\n')
             # try writing everything at once
             if robot.Robot.speakerOn:
                 #print("writing speaker on")
                 self.serial_port.write(
                     b'A1\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
                         str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n') #+
-                    # b'F' + _carrier + b'\n' + b'B' + _bitFrequency + b'\n' + b'R' + _repetition + b'\n' + b'C' + bytes(
-                    #     robot.Robot.code, 'ascii') + b'\n' + b'S\n')
             else:
                 #print("writing speaker off")
                 self.serial_port.write(
                     b'A0\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
-                        str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n') #+
-                    # b'F' + _carrier + b'\n' + b'B' + _bitFrequency + b'\n' + b'R' + _repetition + b'\n' + b'C' + bytes(
-                    #     robot.Robot.code, 'ascii') + b'\n' + b'S\n')
+                        str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n')
 
 
             # start sending the data and set our state to WaitingForData, which we will stay in until the packet is
