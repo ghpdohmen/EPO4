@@ -32,13 +32,13 @@ class modelSubSystem (subSystem):
         self.fa = mathFunctions.motor_to_force(robot.Robot.input_motor)
 
 
-        fd = np.sign(robot.Robot.velocity) * (robot.Robot.b * np.abs(robot.Robot.velocity) + robot.Robot.c * np.power(robot.Robot.velocity, 2))
-        fres = self.fa - self.fb - fd
-        a = fres / robot.Robot.mass
-        robot.Robot.velocity += a * dt
+        self.fd = np.sign(robot.Robot.velocity) * (robot.Robot.b * np.abs(robot.Robot.velocity) + robot.Robot.c * np.power(robot.Robot.velocity, 2))
+        self.fres = self.fa - self.fb - self.fd
+        self.a = self.fres / robot.Robot.mass
+        robot.Robot.velocity += self.a * dt
         if(np.abs(robot.Robot.velocity) < 0.005):
             robot.Robot.velocity = 0
-        robot.Robot.robotAngle += math.degrees(self.w) * dt
+        robot.Robot.robotAngle += 2*math.degrees(self.w) * dt
         self.posx = self.posx + self.vX * dt
         self.posy = self.posy + self.vY * dt
         self.vX = robot.Robot.velocity * math.cos(math.radians( robot.Robot.robotAngle))
@@ -47,7 +47,7 @@ class modelSubSystem (subSystem):
         #print(str(self.vX) + " , " + str(self.vY))
         #print(self.vX * dt)
         if self.steeringAngle != 0:
-            self.r = robot.Robot.velocity / math.tan(math.radians(self.steeringAngle))  # goed
+            self.r = robot.Robot.wheelBase / math.tan(math.radians(self.steeringAngle))  # goed
         #print(self.r)
         #print(self.steeringAngle)
         if (robot.Robot.velocity != 0) & (self.r != 0):
@@ -55,11 +55,15 @@ class modelSubSystem (subSystem):
         else:
             self.w = 0
         robot.Robot.modelState = self.state
-        print("location: (" + str(self.posx) + " , " + str(self.posy) + " )")
-        print("velocity: " + str(robot.Robot.velocity))
+        #print("steeringAngle: " + str(self.steeringAngle))
+        print("robotAngle: " + str(robot.Robot.robotAngle))
+        print("vY: " + str(self.vY))
+        print("locationMSS: (" + str(self.posx) + " , " + str(self.posy) + " )")
+        #print("velocity: " + str(robot.Robot.velocity))
+        #print("Fa: " + str(self.fa))
         robot.xCurrent = self.posx
         robot.yCurrent = self.posy #FIXME: this is somehow not updating on the robot?
-        print("Fa:" + str(self.fa))
+        #print("Fb:" + str(self.fa))
 
     def stop(self):
         self.state = subSystemState.Stopped

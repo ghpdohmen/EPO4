@@ -9,14 +9,14 @@ from matplotlib import pyplot
 
 #constants
 m =  5.6 #kg
-b = 5 # Nm/s Viscous friction coefficient
+b = 3.2 # Nm/s Viscous friction coefficient
 c = 0.09 # Nm/s Air drag coefficient
 faMax = 3 # N
 fbMax = 4 # N
 
 #variables
-vStart = 0 # velocity in m/s
-fa = 5.5
+vStart = 1.09 # velocity in m/s
+fa = 0
 fb = 0
 z = 0
 
@@ -33,7 +33,7 @@ for t in range(0,8500,dt):
     v += a*(dt/1000)
     z += v*(dt/1000)
     velocitypos[t] = v
-    print(v)
+    print(z)
     timepos[t] = z
 
 pyplot.figure(1)

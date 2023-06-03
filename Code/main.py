@@ -8,6 +8,9 @@ from tkinter import ttk
 import robot
 from misc.robotModeEnum import robotMode
 
+#This is the main program file for the EPO-4 project. This code handles the GUI and instatiates the robot, from which the entire program functions.
+
+
 # ----------------------------------------------------------------------------------------------------------------------
 # functions and initialisation                                          
 
@@ -74,6 +77,9 @@ ssWindow["borderwidth"] = 4
 ssWindow["relief"] = "ridge"
 
 
+challengeWindow = ttk.Frame(root, width=400, height=200)
+challengeWindow["borderwidth"] = 4
+challengeWindow["relief"] = "ridge"
 
 # ----------------------------------------------------------------------------------------------------------------------
 # graphing
@@ -129,8 +135,45 @@ def comport_updater():
     print(robot.Robot.COMport)
 
 comport_text = Text(root, width=2, height=1)
-comport_text.insert('1.0', '6')
+comport_text.insert('1.0', '4')
 
+# ----------------------------------------------------------------------------------------------------------------------
+# updating challenge locations
+
+# challenge locations:
+def location_updater():
+    _start = ([int(start_x.get('1.0', 'end').split('\n')[0]), int(start_y.get('1.0', 'end').split('\n')[0])])
+    _end_a = ([int(end_a_x.get('1.0', 'end').split('\n')[0]), int(end_a_y.get('1.0', 'end').split('\n')[0])])
+    _mid_b = ([int(mid_b_x.get('1.0', 'end').split('\n')[0]), int(mid_b_y.get('1.0', 'end').split('\n')[0])])
+    _end_b = ([int(end_b_x.get('1.0', 'end').split('\n')[0]), int(end_b_y.get('1.0', 'end').split('\n')[0])])
+    
+    robot.Robot.startPos = _start
+    robot.Robot.aEnd = _end_a
+    robot.Robot.bMid = _mid_b
+    robot.Robot.bEnd = _end_b
+    
+    print(robot.Robot.startPos, _end_a, _mid_b, _end_b)
+    
+
+start_x = Text(challengeWindow, width=3, height=1)
+start_x.insert('1.0', '0')
+start_y = Text(challengeWindow, width=3, height=1)
+start_y.insert('1.0', '0')  
+
+end_a_x = Text(challengeWindow, width=3, height=1)
+end_a_x.insert('1.0', '0')
+end_a_y = Text(challengeWindow, width=3, height=1)
+end_a_y.insert('1.0', '0')
+
+mid_b_x = Text(challengeWindow, width=3, height=1)
+mid_b_x.insert('1.0', '0')
+mid_b_y = Text(challengeWindow, width=3, height=1)
+mid_b_y.insert('1.0', '0')
+
+end_b_x = Text(challengeWindow, width=3, height=1)
+end_b_x.insert('1.0', '0')
+end_b_y = Text(challengeWindow, width=3, height=1)
+end_b_y.insert('1.0', '0')
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -201,6 +244,12 @@ localizationStatusText = StringVar()
 label_localizationStatus["textvariable"] = localizationStatusText
 localizationStatusText.set(str(robot.Robot.localizationState).split('.')[1])
 
+# For challenge box
+robot_start = ttk.Label(challengeWindow, text="Start:")
+a_end = ttk.Label(challengeWindow, text="End A:")
+b_mid = ttk.Label(challengeWindow, text="Mid B:")
+b_end = ttk.Label(challengeWindow, text="End B:")
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -217,6 +266,9 @@ button_estop = ttk.Button(root, text="STOP MOTORS", command=a.estop)
 
 #comport button
 comport_button = ttk.Button(root, text="SET COMPORT", command=comport_updater)
+
+# location accept
+location_button = ttk.Button(challengeWindow, text="ACCEPT", command=location_updater)
 
 # bindings
 root.bind("<.>", lambda event: a.estop())
@@ -235,6 +287,7 @@ root.bind("<d>", lambda event: a.m_right())
 #grid for everything
 window.grid(column=0, row=4)
 ssWindow.grid(column=4, row=0, rowspan=2)
+challengeWindow.grid(column=4, row=2, rowspan=2)
 
 # subsystem status window
 label_SSStatuswindow.grid(column=0, row=0, columnspan=2)
@@ -261,6 +314,21 @@ label_d.grid(column=1, row=3)
 label_4.grid(column=0, row=4)
 label_f.grid(column=1, row=4)
 
+# challenge location window
+robot_start.grid(column=0, row=0)
+a_end.grid(column=0, row=1)
+b_mid.grid(column=0, row=2)
+b_end.grid(column=0, row=3)
+start_x.grid(column=1, row=0)
+start_y.grid(column=2, row=0)
+end_a_x.grid(column=1, row=1)
+end_a_y.grid(column=2, row=1)
+mid_b_x.grid(column=1, row=2)
+mid_b_y.grid(column=2, row=2)
+end_b_x.grid(column=1, row=3)
+end_b_y.grid(column=2, row=3)
+location_button.grid(column=0, row=4, columnspan=3)
+
 #graph
 canvas.get_tk_widget().grid(column=0, row=0, columnspan=3, rowspan=3)
 plot_button.grid(column=1, row=4)
@@ -271,11 +339,12 @@ button_stop.grid(column=3, row=1)
 button_estop.grid(column=3, row=2)
 comport_button.grid(column=4, row=4)
 
+
 #selection
 lb_programs.grid(column=3, row=4)
 
 #comport text
-comport_text.grid(column=4, row=3)
+comport_text.grid(column=5, row=4)
 
 # end grid
 
