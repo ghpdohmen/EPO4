@@ -3,6 +3,9 @@ from enum import Enum
 
 
 class robotMode(Enum):
+    """
+    Used to represent the current mode (challenge) of the robot
+    """
     Manual = 0
     ChallengeA = 1
     ChallengeB = 2

@@ -8,6 +8,8 @@ from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
 
 
+
+#TODO: check dat dit volledig is geintegreerd in kalman en dan verwijderen.
 class modelSubSystem (subSystem):
 
     def __init__(self):

@@ -3,6 +3,9 @@ from subsystemx.subsystemStateEnum import subSystemState
 
 
 class subSystem:
+    """
+    The subsystem class is the prototype class used for all subsystems. This gives a clear and cohesive system for the robot code
+    """
     state = subSystemState.Stopped
 
     # used for initializing the subsystem

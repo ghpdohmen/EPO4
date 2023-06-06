@@ -8,6 +8,10 @@ from subsystemx.subsystemStateEnum import subSystemState
 # handles manual control mode
 
 class inputSubSystem(subSystem):
+    """
+    This subsystem handles all keyboar commands and controls the Manual operatingMode
+    """
+
     enabled = False  # used internally
     powerSensitivity = 10  # tune this for a quicker or slower response to W/S inputs. Should always be a INT
     turningSensitivity = 5  # tune this for a quicker or slower response to A/D inputs. Should always be a INT
