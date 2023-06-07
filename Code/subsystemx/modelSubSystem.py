@@ -8,6 +8,7 @@ from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
 
 
+#This is a deprecated subsystem, should be deleted soon^(tm)
 
 #TODO: check dat dit volledig is geintegreerd in kalman en dan verwijderen.
 class modelSubSystem (subSystem):
@@ -29,7 +30,7 @@ class modelSubSystem (subSystem):
     def update(self):
         self.state = subSystemState.Running
         #gathering values from robot
-        dt = robot.Robot.loopTime/np.power(10,9)
+        dt = robot.Robot.loopTime/np.power(10, 9)
         self.steeringAngle = mathFunctions.steer_to_angle(robot.Robot.input_servo, "degree")
         self.fa = mathFunctions.motor_to_force(robot.Robot.input_motor)
 

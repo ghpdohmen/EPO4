@@ -5,6 +5,7 @@ from subsystemx.communication import communicationSubSystem
 from subsystemx.csvLoggingSubSystem import csvLoggingSubsystem
 from subsystemx.distanceSensorSubSystem import distanceSensorSubSystem
 from subsystemx.inputSubSystem import inputSubSystem
+from subsystemx.kalman import kalman
 from subsystemx.localizationsubsystem import LocalizationSubSystem
 from subsystemx.modelSubSystem import modelSubSystem
 from subsystemx.purePursuit import purePursuit
@@ -17,10 +18,12 @@ class Robot:
     # current robot state
     operatingMode = robotMode.Manual
     status = robotStatus.Paused
-    xCurrent = 0 #in meters
-    yCurrent = 0  #in meters
+    xCurrent = 0 #in meters, updated from kalman filter
+    yCurrent = 0 #in meters, updated from kalman filter
+    uncertaintyX = 0 # in meters, updated from kalman filter
+    uncertaintyY = 0 # in meters, updated from kalman filter
     robotAngle = 0 # in degrees
-    velocity = 0
+    velocity = 0 #TODO: delete this when modelsubsystem is deleted.
     speakerOn = False
 
     # challenge locations
@@ -29,13 +32,7 @@ class Robot:
     aEnd = []
     bMid = []
     bEnd = []
-    
-    # audio stuff
-    # code = "EB3A994F"  # String, hexadecimal
-    speakerOn = False
-    # carrierFrequency = 6000  # in Hz
-    # bitFrequency = 2000  # in Hz
-    # repetitionCount = 64  # in number of bits
+
 
     # subsystem states
     communicationState = subSystemState.Stopped
@@ -87,10 +84,11 @@ class Robot:
         self.inputSubSystem = inputSubSystem()
         self.loggingSubSystem = csvLoggingSubsystem()
         self.localizationSubSystem = LocalizationSubSystem()
-        self.modelSubSystem = modelSubSystem()
+        #self.modelSubSystem = modelSubSystem()
         self.distanceSensorSubSystem = distanceSensorSubSystem()
         self.purePursuitSubSystem = purePursuit()
         self.challengesSubSystem = challengesSubSystem()
+        self.kalmanSubSystem = kalman()
 
     # start all subsystemx
     def start(self, _operatingMode):
@@ -110,6 +108,7 @@ class Robot:
         self.distanceSensorSubSystem.start()
         self.purePursuitSubSystem.start()
         self.challengesSubSystem.start()
+        self.kalmanSubSystem.start()
         # printing the loop time, so we can optimize this via multithreading
         #print(self.loopTime)
         self.status = robotStatus.Running
@@ -120,20 +119,16 @@ class Robot:
                 self.status == robotStatus.Planning):
             #print("update")
             self.timeSubSystem.update()
-            #print("time")
             self.inputSubSystem.update()
-            #print("input")
-            self.loggingSubSystem.update()
-            #print("logging")
-            self.modelSubSystem.update()
-            self.communicationSubSystem.update()
-            #("comms")
-            #self.localizationSubSystem.update()
-            self.distanceSensorSubSystem.update()
-            self.purePursuitSubSystem.update()
+            #self.modelSubSystem.update()
+
+            self.localizationSubSystem.update()
+            #self.distanceSensorSubSystem.update()
+            self.kalmanSubSystem.update()
             self.challengesSubSystem.update()
-            #print(self.distanceLeft)
-            #print("location: (" + str(self.xCurrent) + " , " + str(self.yCurrent) + " )")
+            self.purePursuitSubSystem.update()
+            self.communicationSubSystem.update()
+            self.loggingSubSystem.update()
 
             # printing the loop time, so we can optimize this via multithreading
 
@@ -151,7 +146,8 @@ class Robot:
         self.timeSubSystem.stop()
         self.inputSubSystem.stop()
         self.loggingSubSystem.stop()
-        self.modelSubSystem.stop()
+        #self.modelSubSystem.stop()
         self.distanceSensorSubSystem.stop()
         self.purePursuitSubSystem.stop()
         self.challengesSubSystem.stop()
+        self.kalmanSubSystem.stop()

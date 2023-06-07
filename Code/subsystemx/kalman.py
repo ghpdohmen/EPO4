@@ -3,6 +3,7 @@ import math
 import filterpy.kalman
 import numpy as np
 import filterpy as fp
+from filterpy.common import Q_discrete_white_noise
 
 import robot
 from misc import mathFunctions
@@ -28,20 +29,35 @@ class kalman(subSystem):
     x = [[0], [0], [0], [0], [0]]
     """state matrix (x, y, xdot, ydot, angle)"""
 
-    dt = 0.2 # in seconds, will be set automatically during runtime
+    dt = 0.2  # in seconds, will be set automatically during runtime
 
     def __init__(self):
         self.points = filterpy.kalman.MerweScaledSigmaPoints(n=5, alpha=0.001, beta=2, kappa=0)
-        self.UKF = filterpy.kalman.UnscentedKalmanFilter(dim_x=5, dim_z=2, fx=self.updateModel(), dt=self.dt, points=self.points, x_mean_fn=self.state_mean()) #TODO: figure out how Hx() works
+        self.UKF = filterpy.kalman.UnscentedKalmanFilter(dim_x=5, dim_z=2, fx=self.updateModel(), dt=self.dt,
+                                                         points=self.points,
+                                                         x_mean_fn=self.state_mean())  # TODO: figure out how Hx() works
 
     def start(self):
         self.state = subSystemState.Started
         robot.Robot.kalmanState = self.state
+        self.UKF.x = self.x
+        self.UKF.x[0] = robot.Robot.startPos[0]
+        self.UKF.x[1] = robot.Robot.startPos[1]
+        self.UKF.P = np.diag([0.05, 0.05, 0, 0, 1])
+        self.UKF.R = np.diag([0.117, 0.153])  # in meters
+        self.UKF.Q = Q_discrete_white_noise(dim=5, dt=self.dt, var=0.1**2, block_size=2)
 
     def update(self):
         self.state = subSystemState.Running
         robot.Robot.kalmanState = self.state
         self.dt = robot.Robot.loopTime
+        self.measurement = np.array(robot.Robot.posXLocalization, robot.Robot.posYLocalization)
+        self.UKF.predict(dt=self.dt)
+        self.UKF.update(dt=self.dt, z=self.measurement)
+        robot.Robot.xCurrent = self.UKF.x[0]
+        robot.Robot.yCurrent = self.UKF.x[1]
+        robot.Robot.uncertaintyX = self.UKF.P[0][0]
+        robot.Robot.uncertaintyY = self.UKF.P[1][1]
 
     def stop(self):
         self.state = subSystemState.Stopped
@@ -97,22 +113,22 @@ class kalman(subSystem):
         _xNew[4] = _angle
         return _xNew
 
-    def state_mean(sigmas, Wm):
+    def state_mean(_sigmas, _Wm):
         """
         Used in kalman filter to calculate the state mean. Needed because angles can't be added properly
-        @param Wm:
+        @param _Wm:
         @return:
         """
         x = np.zeros(3)
         sum_sin, sum_cos = 0., 0.
 
-        for i in range(len(sigmas)):
-            s = sigmas[i]
-            x[0] += s[0] * Wm[i]
-            x[1] += s[1] * Wm[i]
-            x[2] += s[2] * Wm[i]
-            x[3] += s[3] * Wm[i]
-            sum_sin += math.sin(s[2]) * Wm[i]
-            sum_cos += math.cos(s[2]) * Wm[i]
+        for i in range(len(_sigmas)):
+            s = _sigmas[i]
+            x[0] += s[0] * _Wm[i]
+            x[1] += s[1] * _Wm[i]
+            x[2] += s[2] * _Wm[i]
+            x[3] += s[3] * _Wm[i]
+            sum_sin += math.sin(math.radians(s[2])) * _Wm[i]
+            sum_cos += math.cos(math.radians(s[2])) * _Wm[i]
         x[4] = math.atan2(sum_sin, sum_cos)
         return x
