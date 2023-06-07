@@ -70,6 +70,8 @@ class kalman(subSystem):
         @param dt: time delta
         @return: state matrix at t=t+dt
         """
+
+        _x = x
         # get angle for internal use
         _angle = state[4]
 

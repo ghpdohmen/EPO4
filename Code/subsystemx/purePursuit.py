@@ -24,7 +24,7 @@ class purePursuit(subSystem):
         self.lookAheadDistance = 100  # in cm #FIXME: Albert ik ben er vrij zeker van dat dit veel te hoog is. oke maar was om te testen of t werkte
 
     def start(self):
-        if robot.Robot.operatingMode == robotMode.Manual | robotMode.EStop:
+        if (robot.Robot.operatingMode == robotMode.Manual) | (robot.Robot.operatingMode == robotMode.EStop):
             self.state = subSystemState.Stopped
         else:
             self.state = subSystemState.Started
@@ -49,9 +49,11 @@ class purePursuit(subSystem):
         return mathFunctions.angle_to_steer(np.degrees(_angle)[0])
 
     def update(self):
-        if self.state == subSystemState.Running or subSystemState.Started:
-            self.state = subSystemState.Running
 
+        # print(str(self.state))
+        if (self.state == subSystemState.Running) | (self.state == subSystemState.Started):
+            self.state = subSystemState.Running
+            # print("in update")
             self.start_point = robot.Robot.startPos
             self.end_point = robot.Robot.endPos
 

@@ -1,3 +1,5 @@
+import time
+
 from pyaudio import *
 import numpy as np
 from scipy.fft import fft, ifft
@@ -18,7 +20,7 @@ class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
     deviceIndex = 1
-    durationRecording = 0.2
+    durationRecording = 0.15
     i = 0
 
     def __init__(self):
@@ -32,6 +34,7 @@ class LocalizationSubSystem(subSystem):
     def start(self):
         self.state = subSystemState.Started
         robot.Robot.localizationState = self.state
+        print("startpos:" + str(robot.Robot.startPos))
         self.position_array[0], self.position_array[1] = robot.Robot.startPos[0], robot.Robot.startPos[1]
         # self.pyaudioHandle = self.audio_devices(print_list=True)
 
@@ -52,18 +55,20 @@ class LocalizationSubSystem(subSystem):
         # get the recordings for each microphone
         _mic_1, _mic_2, _mic_3, _mic_4, _mic_5 = self.microphone_array(self.deviceIndex, self.durationRecording)
 
+        previousTime = time.clock_gettime_ns()
         # estimate location
         xy = self.estimate_location(self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
         # print(xy)
+        print(" estimate location delay: " + time.clock_gettime_ns() - previousTime) #todo: even kijken hoe lang dit is
 
         # Check whether the estimated location is within 75cm of the previous known location, if not, reuse the
         # previous value for estimation
-        if (xy[0] >= self.position_array[0] + 75 or xy[0] <= self.position_array[0] - 75 or xy[1] >=
-                self.position_array[1] + 75 or xy[1] <= self.position_array[1]):
+        if ((xy[0] < 0 or xy[1] < 0) or (xy[0] > 480 or xy[1] > 480)):
             self.position_array[2], self.position_array[3] = self.position_array[0], self.position_array[1]
         else:
             self.position_array[2], self.position_array[3] = xy
 
+        print(self.position_array[0], self.position_array[1], '\n')
         # Send the location found in the previous update to the main file
         robot.Robot.posXLocalization = self.position_array[0]/100
         robot.Robot.posYLocalization = self.position_array[1]/100
