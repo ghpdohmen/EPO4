@@ -88,7 +88,7 @@ class Robot:
         self.distanceSensorSubSystem = distanceSensorSubSystem()
         self.purePursuitSubSystem = purePursuit()
         self.challengesSubSystem = challengesSubSystem()
-        self.kalmanSubSystem = kalman()
+        # self.kalmanSubSystem = kalman()
 
     # start all subsystemx
     def start(self, _operatingMode):
@@ -108,7 +108,8 @@ class Robot:
         self.distanceSensorSubSystem.start()
         self.purePursuitSubSystem.start()
         self.challengesSubSystem.start()
-        self.kalmanSubSystem.start()
+        self.localizationSubSystem.start()
+        # self.kalmanSubSystem.start()
         # printing the loop time, so we can optimize this via multithreading
         #print(self.loopTime)
         self.status = robotStatus.Running
@@ -124,7 +125,7 @@ class Robot:
 
             self.localizationSubSystem.update()
             #self.distanceSensorSubSystem.update()
-            self.kalmanSubSystem.update()
+            # self.kalmanSubSystem.update()
             self.challengesSubSystem.update()
             self.purePursuitSubSystem.update()
             self.communicationSubSystem.update()
@@ -137,7 +138,7 @@ class Robot:
                     self.index = 1
                     return
                 self.index += 1
-                self.averageLoop = self.averageLoop + (self.loopTime / 1000000000 - self.averageLoop) / self.index
+                self.averageLoop = self.averageLoop + (self.loopTime - self.averageLoop) / self.index
                 #print("average loop time:" + str(self.averageLoop) + " s")
                 print("update frequency" + str(1/self.averageLoop) + " Hz ")
 
@@ -150,4 +151,4 @@ class Robot:
         self.distanceSensorSubSystem.stop()
         self.purePursuitSubSystem.stop()
         self.challengesSubSystem.stop()
-        self.kalmanSubSystem.stop()
+        # self.kalmanSubSystem.stop()

@@ -33,7 +33,7 @@ class kalman(subSystem):
 
     def __init__(self):
         self.points = filterpy.kalman.MerweScaledSigmaPoints(n=5, alpha=0.001, beta=2, kappa=0)
-        self.UKF = filterpy.kalman.UnscentedKalmanFilter(dim_x=5, dim_z=2, fx=self.updateModel(), dt=self.dt,
+        self.UKF = filterpy.kalman.UnscentedKalmanFilter(dim_x=5, dim_z=2, fx=self.updateModel(self.dt), dt=self.dt,
                                                          points=self.points,
                                                          x_mean_fn=self.state_mean())  # TODO: figure out how Hx() works
 
@@ -63,12 +63,14 @@ class kalman(subSystem):
         self.state = subSystemState.Stopped
         robot.Robot.kalmanState = self.state
 
-    def updateModel(_x, _dt):
+    def updateModel(x, _dt):
         """
         This functions dives an estimate of the model at the next state.
         @param dt: time delta
         @return: state matrix at t=t+dt
         """
+
+        _x = x
         # get angle for internal use
         _angle = _x[4]
 

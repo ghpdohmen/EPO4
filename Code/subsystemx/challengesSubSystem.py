@@ -26,7 +26,7 @@ class challengesSubSystem(subSystem):
         self.stateB = int
 
     def start(self):
-        if robot.Robot.operatingMode == robotMode.Manual or robotMode.EStop:  # check to make sure program only runs when needed
+        if (robot.Robot.operatingMode == robotMode.Manual) | (robot.Robot.operatingMode ==  robotMode.EStop):  # check to make sure program only runs when needed
             self.state = subSystemState.Stopped
         else:
             self.state = subSystemState.Started
