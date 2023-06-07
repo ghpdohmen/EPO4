@@ -5,7 +5,6 @@ import scipy.signal as sp
 import itertools
 import matplotlib.pyplot as plt
 
-
 import robot
 
 import pyaudio as audio
@@ -27,13 +26,13 @@ class LocalizationSubSystem(subSystem):
         # while True:
         #     self.position_array(xy)
         self.position_array = np.zeros(4)
-        self.position_array[0], self.position_array[1] = 0, 0
 
         return
 
     def start(self):
         self.state = subSystemState.Started
         robot.Robot.localizationState = self.state
+        self.position_array[0], self.position_array[1] = robot.Robot.startPos[0], robot.Robot.startPos[1]
         # self.pyaudioHandle = self.audio_devices(print_list=True)
 
     def update(self):
@@ -41,6 +40,7 @@ class LocalizationSubSystem(subSystem):
             self.state = subSystemState.Running
             robot.Robot.localizationState = self.state
 
+        #Check if the robot is allowed to transmit pulses and allow it if it isn't
         if not robot.Robot.speakerOn:
             robot.Robot.speakerOn = True
 
@@ -49,40 +49,43 @@ class LocalizationSubSystem(subSystem):
         # robot.Robot.bitFrequency = 2000
         # robot.Robot.repetitionCount = 64
 
+        # get the recordings for each microphone
         _mic_1, _mic_2, _mic_3, _mic_4, _mic_5 = self.microphone_array(self.deviceIndex, self.durationRecording)
+
+        # estimate location
         xy = self.estimate_location(self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
-        print(xy)
-        # xy = self.estimate_location(self.tdoa_2(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
         # print(xy)
 
-        self.array.append(xy)
-        np.savetxt(
-                r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_low.csv",
-                self.array, delimiter=",")
+        # Check whether the estimated location is within 75cm of the previous known location, if not, reuse the
+        # previous value for estimation
+        if (xy[0] >= self.position_array[0] + 75 or xy[0] <= self.position_array[0] - 75 or xy[1] >=
+                self.position_array[1] + 75 or xy[1] <= self.position_array[1]):
+            self.position_array[2], self.position_array[3] = self.position_array[0], self.position_array[1]
+        else:
+            self.position_array[2], self.position_array[3] = xy
 
-        # self.position_array[2], self.position_array[3] = xy
-        # print(self.position_array)
-        #
-        # self.position_array[0], self.position_array[1] = self.position_array[2], self.position_array[3]
+        # Send the location found in the previous update to the main file
+        robot.Robot.posXLocalization = self.position_array[0]/100
+        robot.Robot.posYLocalization = self.position_array[1]/100
+
+        # Rewrite the location to be used in the next update to the values found in this update
+        self.position_array[0], self.position_array[1] = self.position_array[2], self.position_array[3]
+        self.position_array[2], self.position_array[3] = 0, 0
+
+        # self.array.append(xy)
+        # np.savetxt(
+        #         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_low.csv",
+        #         self.array, delimiter=",")
+
+
         # print(self.position_array)
 
         # mics = self.microphone_array(self.deviceIndex, self.durationRecording)
-
-        # self.array.append(xy)
-        # print(self.array)
-        # array_plot = np.zeros((2, len(self.array) - 1))
-        # print(array_plot)
-        # # array_plot[0] = self.array[1::, 0]
-        # # array_plot[1] = self.array[1::, 1]
-        # # plt.plot(array_plot[0], array_plot[1])
-        # # plt.show()
-
 
         # plt.plot(self.array[0, 0::2], self.array[0, 1::2])
         # np.savetxt(
         #         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array.csv",
         #         self.array, delimiter=",")
-
 
         # for j in range(1, 6):
         #     np.savetxt(
@@ -147,6 +150,10 @@ class LocalizationSubSystem(subSystem):
         return _mic_1, _mic_2, _mic_3, _mic_4, _mic_5
 
     def ch3(self, y):
+        """
+        @param y: Recorded signal of 1 of the 5 microphones
+        @return: returns the channel estimate as a 2-D array
+        """
         # Set threshold parameter to 2%
         epsi = 0.02
 
@@ -169,13 +176,19 @@ class LocalizationSubSystem(subSystem):
         return h
 
     def reference_array(self):
+        """
+        @return: Returns the reference recording as a 2-D array
+        """
         reference_mic = np.loadtxt(
             r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic1_reference_final.csv",
             delimiter=',')
         return reference_mic
 
-
     def estimate_location(self, distance):
+        """
+        @param distance: The distance of r12, r13, r14, r15, r23, r24, r25, r34, r35, and r45 as an 1-D array
+        @return: Estimated x & y location of the robot as a 1-D array
+        """
         coordinates_mics = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
         # Create indexes for all microphone pairs
         pairs = list(
@@ -203,6 +216,15 @@ class LocalizationSubSystem(subSystem):
         return (xy)
 
     def tdoa(self, signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
+        """
+        @param signal_recorded_1: The recording of microphone 1
+        @param signal_recorded_2: The recording of microphone 2
+        @param signal_recorded_3: The recording of microphone 3
+        @param signal_recorded_4: The recording of microphone 4
+        @param signal_recorded_5: The recording of microphone 5
+        @return: The distance difference between r12, r13, r14, r15, r23, r24, r25, r34, r35, and r45 in cm as a 1-D array
+        """
+
         channel_1 = self.ch3(signal_recorded_1[1])
         maximum_1, = np.where(abs(channel_1) == max(abs(channel_1)))
 
@@ -238,19 +260,16 @@ class LocalizationSubSystem(subSystem):
             distance_cm[i] = time[i] * 34300
         return distance_cm
 
-
-    def position_array(self, xy):
-        position_array = np.zeros(4)
-        position_array[0], position_array[1] = 0, 0
-
-        if self.update() == True:
-            self.position_array[2], self.position_array[3] = xy
-            # stuur deze hele array naar kalmann filter
-
-
-        self.position_array[0], self.position_array[1] = self.position_array[2], self.position_array[3]
-        return
-
+    # def position_array(self, xy):
+    #     position_array = np.zeros(4)
+    #     position_array[0], position_array[1] = 0, 0
+    #
+    #     if self.update() == True:
+    #         self.position_array[2], self.position_array[3] = xy
+    #         # stuur deze hele array naar kalmann filter
+    #
+    #     self.position_array[0], self.position_array[1] = self.position_array[2], self.position_array[3]
+    #     return
 
     def plotter(self, xy):
         self.array.append(xy)

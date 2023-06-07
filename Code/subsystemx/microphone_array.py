@@ -350,39 +350,39 @@ def reference_array():
 #     # return maximum
 
 
-signal_recorded_1 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_1.csv",
-    delimiter=',')
-
-signal_recorded_2 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_2.csv",
-    delimiter=',')
-
-signal_recorded_3 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_3.csv",
-    delimiter=',')
-
-signal_recorded_4 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_4.csv",
-    delimiter=',')
-
-signal_recorded_5 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
-    delimiter=',')
-
-
-reference_signal = reference_array()
-sp.correlate(signal_recorded_1[1], reference_signal[1], mode='same')
-
-sp.correlate(signal_recorded_2[1], reference_signal[1], mode='same')
-
-sp.correlate(signal_recorded_3[1], reference_signal[1], mode='same')
+# signal_recorded_1 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_1.csv",
+#     delimiter=',')
+#
+# signal_recorded_2 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_2.csv",
+#     delimiter=',')
+#
+# signal_recorded_3 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_3.csv",
+#     delimiter=',')
+#
+# signal_recorded_4 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_4.csv",
+#     delimiter=',')
+#
+# signal_recorded_5 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
+#     delimiter=',')
 
 
-sp.correlate(signal_recorded_4[1], reference_signal[1], mode='same')
-
-
-sp.correlate(signal_recorded_5[1], reference_signal[1], mode='same')
+# reference_signal = reference_array()
+# sp.correlate(signal_recorded_1[1], reference_signal[1], mode='same')
+#
+# sp.correlate(signal_recorded_2[1], reference_signal[1], mode='same')
+#
+# sp.correlate(signal_recorded_3[1], reference_signal[1], mode='same')
+#
+#
+# sp.correlate(signal_recorded_4[1], reference_signal[1], mode='same')
+#
+#
+# sp.correlate(signal_recorded_5[1], reference_signal[1], mode='same')
 
 # distance = [-306.21, -461.64, -297.44, -66.74, -155.43, 8.77, 239.47, 164.2, 394.9, 230.7]
 def estimate_location(distance):
@@ -453,42 +453,87 @@ def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorde
         distance_cm[i] = time[i] * 34300
     return distance_cm
 
-xy = estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
+# xy = estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
 # print(xy)
 
 
-array = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_right_high.csv",
+# array = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low.csv",
+#     delimiter=',')
+#
+# # print(array)
+#
+# x = []
+# for i in range(len(array)):
+#     if (array[i, 0] < 0 or array[i, 0] > 500 or array[i, 1] > 500 or array [i, 1] < 0):
+#         x.append(i)
+#
+# new_array = np.delete(array, x, 0)
+# print(new_array)
+#
+# np.savetxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
+#                 new_array, delimiter=",")
+#
+# array = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
+#     delimiter=',')
+# #
+# # print(array[:, 1])
+# plt.plot(array[:, 0], array[:, 1])
+# # plt.xlim(0, 480)
+# # plt.ylim(0, 480)
+# plt.show()
+
+left_low = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
     delimiter=',')
 
-print(array.shape)
-# print(array[:, 0])
+left_high = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_high_truncated.csv",
+    delimiter=',')
 
-# if (array[:, 0] < 400 or array[:, 0] > 500):
-x = []
-for i in range(len(array)):
-    if array[i, 0] < 400:
-        x.append(i)
-        # new_array = np.delete(array, np.where(array[i, 0] < 400), 0)
-print(x)
+left_middle = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_middle_truncated.csv",
+    delimiter=',')
 
-new_array = np.delete(array, x, 0)
-print(new_array)
-# print(new_array)
+right_low = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_low_truncated.csv",
+    delimiter=',')
 
-    # new_array = np.delete(array[i], np.where(array[i, 0] < 400 or array[i, 0] > 500))
-# print(new_array)
+right_high = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_high_truncated.csv",
+    delimiter=',')
 
-# array_plot = np.zeros((2, len(array)-1))
-# array_plot[0] = array[1::, 0]
-# array_plot[1] = array[1::, 1]
-# plt.plot(array_plot[0], array_plot[1])
-# plt.xlim(0, 480)
-# plt.ylim(0, 480)
-# plt.show()
-#
-# print(array.shape)
-# print(array_plot.shape)
+right_middle = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_middle_truncated.csv",
+    delimiter=',')
+
+middle_low = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_low_truncated.csv",
+    delimiter=',')
+
+middle_high = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_high_truncated.csv",
+    delimiter=',')
+
+middle_middle = np.loadtxt(
+    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_middle_truncated.csv",
+    delimiter=',')
+
+std_ll = np.std(left_low, 0)
+std_lh = np.std(left_high, 0)
+std_lm = np.std(left_middle, 0)
+std_rl = np.std(right_low, 0)
+std_rh = np.std(right_high, 0)
+std_rm = np.std(right_middle, 0)
+std_ml = np.std(middle_low, 0)
+std_mh = np.std(middle_high, 0)
+std_mm = np.std(middle_middle, 0)
+
+std = np.mean((std_ll, std_lh, std_lm, std_rl, std_rh, std_rm, std_ml, std_mh, std_mm), 0)
+print(std)
+
+
 
 # import datetime as dt
 # import matplotlib.animation as animation
