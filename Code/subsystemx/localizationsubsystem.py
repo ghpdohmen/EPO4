@@ -262,3 +262,86 @@ class LocalizationSubSystem(subSystem):
             time[i] = distance[i] / self.Fs
             distance_cm[i] = time[i] * 34300
         return distance_cm
+
+    def tdoa_2(self, signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
+        """
+        @param signal_recorded_1: The recording of microphone 1
+        @param signal_recorded_2: The recording of microphone 2
+        @param signal_recorded_3: The recording of microphone 3
+        @param signal_recorded_4: The recording of microphone 4
+        @param signal_recorded_5: The recording of microphone 5
+        @return: The distance difference between r12, r13, r14, r15, r23, r24, r25, r34, r35, and r45 in cm as a 1-D array
+        """
+
+        isolated_pulse_mic_1 = isolation(signal_recorded_1)
+        zeros_1 = np.zeros(int(isolated_pulse_mic_1[0, 0]))
+        channel_signal_1 = np.zeros((2, math.ceil(isolated_pulse_mic_1[0, -1])))
+        channel_signal_1[0] = np.concatenate((zeros_1, isolated_pulse_mic_1[0]))
+        channel_signal_1[1] = np.concatenate((zeros_1, isolated_pulse_mic_1[1]))
+        channel_1 = ch3(channel_signal_1[1])
+        maximum_1, = np.where(abs(channel_1) == max(abs(channel_1)))
+
+        isolated_pulse_mic_2 = isolation(signal_recorded_2)
+        zeros_2 = np.zeros(int(isolated_pulse_mic_2[0, 0]))
+        channel_signal_2 = np.zeros((2, math.ceil(isolated_pulse_mic_2[0, -1])))
+        channel_signal_2[0] = np.concatenate((zeros_2, isolated_pulse_mic_2[0]))
+        channel_signal_2[1] = np.concatenate((zeros_2, isolated_pulse_mic_2[1]))
+        channel_2 = ch3(channel_signal_2[1])
+        maximum_2, = np.where(abs(channel_2) == max(abs(channel_2)))
+
+        isolated_pulse_mic_3 = isolation(signal_recorded_3)
+        zeros_3 = np.zeros(int(isolated_pulse_mic_3[0, 0]))
+        channel_signal_3 = np.zeros((2, math.ceil(isolated_pulse_mic_3[0, -1])))
+        channel_signal_3[0] = np.concatenate((zeros_3, isolated_pulse_mic_3[0]))
+        channel_signal_3[1] = np.concatenate((zeros_3, isolated_pulse_mic_3[1]))
+        channel_3 = ch3(channel_signal_3[1])
+        maximum_3, = np.where(abs(channel_3) == max(abs(channel_3)))
+
+        isolated_pulse_mic_4 = isolation(signal_recorded_4)
+        zeros_4 = np.zeros(int(isolated_pulse_mic_4[0, 0]))
+        channel_signal_4 = np.zeros((2, math.ceil(isolated_pulse_mic_4[0, -1])))
+        channel_signal_4[0] = np.concatenate((zeros_4, isolated_pulse_mic_4[0]))
+        channel_signal_4[1] = np.concatenate((zeros_4, isolated_pulse_mic_4[1]))
+        channel_4 = ch3(channel_signal_4[1])
+        maximum_4, = np.where(abs(channel_4) == max(abs(channel_4)))
+
+        isolated_pulse_mic_5 = isolation(signal_recorded_5)
+        zeros_5 = np.zeros(int(isolated_pulse_mic_5[0, 0]))
+        channel_signal_5 = np.zeros((2, math.ceil(isolated_pulse_mic_5[0, -1])))
+        channel_signal_5[0] = np.concatenate((zeros_5, isolated_pulse_mic_5[0]))
+        channel_signal_5[1] = np.concatenate((zeros_5, isolated_pulse_mic_5[1]))
+        channel_5 = ch3(channel_signal_5[1])
+        maximum_5, = np.where(abs(channel_5) == max(abs(channel_5)))
+
+        # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+        distance = np.zeros(10)
+        distance[0] = maximum_1 - maximum_2
+        distance[1] = maximum_1 - maximum_3
+        distance[2] = maximum_1 - maximum_4
+        distance[3] = maximum_1 - maximum_5
+        distance[4] = maximum_2 - maximum_3
+        distance[5] = maximum_2 - maximum_4
+        distance[6] = maximum_2 - maximum_5
+        distance[7] = maximum_3 - maximum_4
+        distance[8] = maximum_3 - maximum_5
+        distance[9] = maximum_4 - maximum_5
+
+        time = np.zeros(10)
+        distance_cm = np.zeros(10)
+        for i in range(10):
+            time[i] = distance[i] / Fs
+            distance_cm[i] = time[i] * 34300
+        return distance_cm
+
+
+    def isolation(self, recorded_signal):
+        reference_signal = self.reference_array()
+        correlation = sp.correlate(recorded_signal[1], reference_signal[1], mode='same')
+
+        peak_index, = np.where(correlation == max(correlation))
+        pulse_delay = int(peak_index - (len(reference_signal[1]) // 2))
+
+        isolated_pulse = np.zeros((2, len(reference_signal[0])))
+        isolated_pulse[0] = recorded_signal[0][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
+        isolated_pulse[1] = recorded_signal[1][pulse_delay:pulse_delay + len(reference_signal[0] * 2)]
+        return isolated_pulse

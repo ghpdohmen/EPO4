@@ -484,91 +484,63 @@ def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorde
 # # plt.ylim(0, 480)
 # plt.show()
 
-left_low = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
-    delimiter=',')
-
-left_high = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_high_truncated.csv",
-    delimiter=',')
-
-left_middle = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_middle_truncated.csv",
-    delimiter=',')
-
-right_low = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_right_low_truncated.csv",
-    delimiter=',')
-
-right_high = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_right_high_truncated.csv",
-    delimiter=',')
-
-right_middle = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_right_middle_truncated.csv",
-    delimiter=',')
-
-middle_low = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_middle_low_truncated.csv",
-    delimiter=',')
-
-middle_high = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_middle_high_truncated.csv",
-    delimiter=',')
-
-middle_middle = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_middle_middle_truncated.csv",
-    delimiter=',')
-
-std_ll = np.var(left_low, 0)
-std_lh = np.var(left_high, 0)
-std_lm = np.var(left_middle, 0)
-std_rl = np.var(right_low, 0)
-std_rh = np.var(right_high, 0)
-std_rm = np.var(right_middle, 0)
-std_ml = np.var(middle_low, 0)
-std_mh = np.var(middle_high, 0)
-std_mm = np.var(middle_middle, 0)
-
-var = np.mean((std_ll, std_lh, std_lm, std_rl, std_rh, std_rm, std_ml, std_mh, std_mm), 0)
-print(var)
-
-
-
-# import datetime as dt
-# import matplotlib.animation as animation
+# left_low = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
+#     delimiter=',')
 #
-# # Create figure for plotting
-# fig = plt.figure()
-# ax = fig.add_subplot(1, 1, 1)
-# xs = []
-# ys = []
+# left_high = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_high_truncated.csv",
+#     delimiter=',')
 #
+# left_middle = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_middle_truncated.csv",
+#     delimiter=',')
 #
-# # This function is called periodically from FuncAnimation
-# def animate(i, xs, ys):
+# right_low = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_right_low_truncated.csv",
+#     delimiter=',')
 #
-#     # Read temperature (Celsius) from TMP102
-#     temp_c = round(tmp102.read_temp(), 2)
+# right_high = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_right_high_truncated.csv",
+#     delimiter=',')
 #
-#     # Add x and y to lists
-#     xs.append(dt.datetime.now().strftime('%H:%M:%S.%f'))
-#     ys.append(temp_c)
+# right_middle = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_right_middle_truncated.csv",
+#     delimiter=',')
 #
-#     # Limit x and y lists to 20 items
-#     xs = xs[-20:]
-#     ys = ys[-20:]
+# middle_low = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_middle_low_truncated.csv",
+#     delimiter=',')
 #
-#     # Draw x and y lists
-#     ax.clear()
-#     ax.plot(xs, ys)
+# middle_high = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_middle_high_truncated.csv",
+#     delimiter=',')
 #
-#     # Format plot
-#     plt.xticks(rotation=45, ha='right')
-#     plt.subplots_adjust(bottom=0.30)
-#     plt.title('TMP102 Temperature over Time')
-#     plt.ylabel('Temperature (deg C)')
+# middle_middle = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_middle_middle_truncated.csv",
+#     delimiter=',')
 #
-# # Set up plot to call animate() function periodically
-# ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
-# plt.show()
+# std_ll = np.var(left_low, 0)
+# std_lh = np.var(left_high, 0)
+# std_lm = np.var(left_middle, 0)
+# std_rl = np.var(right_low, 0)
+# std_rh = np.var(right_high, 0)
+# std_rm = np.var(right_middle, 0)
+# std_ml = np.var(middle_low, 0)
+# std_mh = np.var(middle_high, 0)
+# std_mm = np.var(middle_middle, 0)
+#
+# var = np.mean((std_ll, std_lh, std_lm, std_rl, std_rh, std_rm, std_ml, std_mh, std_mm), 0)
+# print(var)
+
+
+reference_signal = reference_array()
+correlation = sp.correlate(reference_signal[1], reference_signal[1])
+# time = np.linspace((-len(correlation)-1)/Fs, len(correlation)/Fs, len(correlation))
+time = np.linspace(-len(correlation)-1, len(correlation), len(correlation))
+
+time_new = np.linspace(-len(correlation)-1, len(correlation), 2*len(correlation))
+correlation_new = np.interp(time_new, time, correlation)
+plt.plot(time_new, correlation_new)
+plt.xlim(-40, 40)
+plt.show()
