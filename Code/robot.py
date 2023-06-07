@@ -83,7 +83,7 @@ class Robot:
         self.timeSubSystem = timeSubSystem()
         self.inputSubSystem = inputSubSystem()
         self.loggingSubSystem = csvLoggingSubsystem()
-        self.localizationSubSystem = LocalizationSubSystem()
+       # self.localizationSubSystem = LocalizationSubSystem()
         #self.modelSubSystem = modelSubSystem()
         self.distanceSensorSubSystem = distanceSensorSubSystem()
         self.purePursuitSubSystem = purePursuit()
@@ -122,7 +122,7 @@ class Robot:
             self.inputSubSystem.update()
             #self.modelSubSystem.update()
 
-            self.localizationSubSystem.update()
+            #self.localizationSubSystem.update()
             #self.distanceSensorSubSystem.update()
             self.kalmanSubSystem.update()
             self.challengesSubSystem.update()

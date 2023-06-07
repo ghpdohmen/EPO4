@@ -30,12 +30,13 @@ class kalman(subSystem):
     """state matrix (x, y, xdot, ydot, angle)"""
 
     dt = 0.2  # in seconds, will be set automatically during runtime
+    UKF = None
 
     def __init__(self):
         self.points = filterpy.kalman.MerweScaledSigmaPoints(n=5, alpha=0.001, beta=2, kappa=0)
-        self.UKF = filterpy.kalman.UnscentedKalmanFilter(dim_x=5, dim_z=2, fx=self.updateModel(), dt=self.dt,
+        self.UKF = filterpy.kalman.UnscentedKalmanFilter(dim_x=5, dim_z=2, fx=self.updateModel, dt=self.dt,
                                                          points=self.points,
-                                                         x_mean_fn=self.state_mean())  # TODO: figure out how Hx() works
+                                                         x_mean_fn=self.state_mean, hx=self.hx)  # TODO: figure out how Hx() works
 
     def start(self):
         self.state = subSystemState.Started
@@ -63,17 +64,17 @@ class kalman(subSystem):
         self.state = subSystemState.Stopped
         robot.Robot.kalmanState = self.state
 
-    def updateModel(_x, _dt):
+    def updateModel(self,state, _dt):
         """
         This functions dives an estimate of the model at the next state.
         @param dt: time delta
         @return: state matrix at t=t+dt
         """
         # get angle for internal use
-        _angle = _x[4]
+        _angle = state[4]
 
         # calculate velocity, used in several calculations
-        _velocity = math.sqrt(math.pow(_x[2], 2) + math.pow(_x[3], 2))
+        _velocity = math.sqrt(math.pow(state[2], 2) + math.pow(state[3], 2))
 
         # calculate the forces on the robot and add them together
         _fa = mathFunctions.motor_to_force(robot.Robot.input_motor)  # TODO: implement braking/reverse?
@@ -104,14 +105,15 @@ class kalman(subSystem):
         # update to new state
         _xNew = [[0], [0], [0], [0], [0]]
         # positions
-        _xNew[0] = _x[0] + _vX * _dt
-        _xNew[1] = _x[1] + _vY * _dt
+        _xNew[0] = state[0] + _vX * _dt
+        _xNew[1] = state[1] + _vY * _dt
         # velocity
         _xNew[2] = _vX
         _xNew[3] = _vY
         # angle
         _xNew[4] = _angle
         return _xNew
+
 
     def state_mean(_sigmas, _Wm):
         """
@@ -132,3 +134,6 @@ class kalman(subSystem):
             sum_cos += math.cos(math.radians(s[2])) * _Wm[i]
         x[4] = math.atan2(sum_sin, sum_cos)
         return x
+
+    def hx (self,x):
+        return np.array([x[0],x[1]])
