@@ -25,5 +25,6 @@ class timeSubSystem(subSystem):
 
             robot.Robot.runTime = (_currTime - self.startTime) / 1000000000  # dividing by 10^9, since
             # runTime is in seconds
-            robot.Robot.loopTime = (_currTime - self.previousTime)/1000000000  # delta t, dividing by 10^9 to transform to seconds
+            robot.Robot.loopTime = (_currTime - self.previousTime)/1000000000  # delta t, dividing by 10^9 to
+            # transform to seconds
             self.previousTime = _currTime  # set previous time to current time, so we can calculate looptime again

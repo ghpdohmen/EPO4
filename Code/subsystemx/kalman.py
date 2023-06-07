@@ -28,11 +28,11 @@ class kalman(subSystem):
     x = [[0], [0], [0], [0], [0]]
     """state matrix (x, y, xdot, ydot, angle)"""
 
-    dt = 0.2 # in seconds
+    dt = 0.2 # in seconds, will be set automatically during runtime
 
     def __init__(self):
         self.points = filterpy.kalman.MerweScaledSigmaPoints(n=5, alpha=0.001, beta=2, kappa=0)
-        self.UKF = filterpy.kalman.UnscentedKalmanFilter(dim_x=5, dim_z=2, fx=self.updateModel(), dt=self.dt, points=self.points) #TODO: figure out how Hx() works
+        self.UKF = filterpy.kalman.UnscentedKalmanFilter(dim_x=5, dim_z=2, fx=self.updateModel(), dt=self.dt, points=self.points, x_mean_fn=self.state_mean()) #TODO: figure out how Hx() works
 
     def start(self):
         self.state = subSystemState.Started
@@ -96,3 +96,23 @@ class kalman(subSystem):
         # angle
         _xNew[4] = _angle
         return _xNew
+
+    def state_mean(sigmas, Wm):
+        """
+        Used in kalman filter to calculate the state mean. Needed because angles can't be added properly
+        @param Wm:
+        @return:
+        """
+        x = np.zeros(3)
+        sum_sin, sum_cos = 0., 0.
+
+        for i in range(len(sigmas)):
+            s = sigmas[i]
+            x[0] += s[0] * Wm[i]
+            x[1] += s[1] * Wm[i]
+            x[2] += s[2] * Wm[i]
+            x[3] += s[3] * Wm[i]
+            sum_sin += math.sin(s[2]) * Wm[i]
+            sum_cos += math.cos(s[2]) * Wm[i]
+        x[4] = math.atan2(sum_sin, sum_cos)
+        return x
