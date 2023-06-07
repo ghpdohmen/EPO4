@@ -485,53 +485,53 @@ def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorde
 # plt.show()
 
 left_low = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
     delimiter=',')
 
 left_high = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_high_truncated.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_high_truncated.csv",
     delimiter=',')
 
 left_middle = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_middle_truncated.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_left_middle_truncated.csv",
     delimiter=',')
 
 right_low = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_low_truncated.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_right_low_truncated.csv",
     delimiter=',')
 
 right_high = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_high_truncated.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_right_high_truncated.csv",
     delimiter=',')
 
 right_middle = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_middle_truncated.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_right_middle_truncated.csv",
     delimiter=',')
 
 middle_low = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_low_truncated.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_middle_low_truncated.csv",
     delimiter=',')
 
 middle_high = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_high_truncated.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_middle_high_truncated.csv",
     delimiter=',')
 
 middle_middle = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_middle_truncated.csv",
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_array_middle_middle_truncated.csv",
     delimiter=',')
 
-std_ll = np.std(left_low, 0)
-std_lh = np.std(left_high, 0)
-std_lm = np.std(left_middle, 0)
-std_rl = np.std(right_low, 0)
-std_rh = np.std(right_high, 0)
-std_rm = np.std(right_middle, 0)
-std_ml = np.std(middle_low, 0)
-std_mh = np.std(middle_high, 0)
-std_mm = np.std(middle_middle, 0)
+std_ll = np.var(left_low, 0)
+std_lh = np.var(left_high, 0)
+std_lm = np.var(left_middle, 0)
+std_rl = np.var(right_low, 0)
+std_rh = np.var(right_high, 0)
+std_rm = np.var(right_middle, 0)
+std_ml = np.var(middle_low, 0)
+std_mh = np.var(middle_high, 0)
+std_mm = np.var(middle_middle, 0)
 
-std = np.mean((std_ll, std_lh, std_lm, std_rl, std_rh, std_rm, std_ml, std_mh, std_mm), 0)
-print(std)
+var = np.mean((std_ll, std_lh, std_lm, std_rl, std_rh, std_rm, std_ml, std_mh, std_mm), 0)
+print(var)
 
 
 

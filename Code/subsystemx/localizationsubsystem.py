@@ -64,6 +64,9 @@ class LocalizationSubSystem(subSystem):
         else:
             self.position_array[2], self.position_array[3] = xy
 
+        #Print current location
+        print(self.position_array[0], self.position_array[1])
+
         # Send the location found in the previous update to the main file
         robot.Robot.posXLocalization = self.position_array[0]/100
         robot.Robot.posYLocalization = self.position_array[1]/100
@@ -259,22 +262,3 @@ class LocalizationSubSystem(subSystem):
             time[i] = distance[i] / self.Fs
             distance_cm[i] = time[i] * 34300
         return distance_cm
-
-    # def position_array(self, xy):
-    #     position_array = np.zeros(4)
-    #     position_array[0], position_array[1] = 0, 0
-    #
-    #     if self.update() == True:
-    #         self.position_array[2], self.position_array[3] = xy
-    #         # stuur deze hele array naar kalmann filter
-    #
-    #     self.position_array[0], self.position_array[1] = self.position_array[2], self.position_array[3]
-    #     return
-
-    def plotter(self, xy):
-        self.array.append(xy)
-        array_plot = np.zeros((2, len(self.array) - 1))
-        array_plot[0] = self.array[1::, 0]
-        array_plot[1] = self.array[1::, 1]
-        plt.plot(array_plot[0], array_plot[1])
-        plt.show()
