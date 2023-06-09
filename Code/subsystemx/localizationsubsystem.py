@@ -1,11 +1,11 @@
 import time
-from pyaudio import *
+from pyaudio import PyAudio, paInt16
 import numpy as np
 from scipy.fft import fft, ifft
 import itertools
 # import matplotlib.pyplot as plt
 import robot
-import pyaudio as audio
+# import pyaudio as audio
 from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
 import math
@@ -115,42 +115,42 @@ class LocalizationSubSystem(subSystem):
 
         return pyaudio_handle
 
-    def microphone_array(self, _device_index, _duration_recording):
-        """
-        Records audio and splits it in 5 samples
-        @param _device_index: Device index of the microphone controller. Depends on
-        @param _duration_recording: length of the recording
-        @return: returns samples of each of the 5 microphones
-        """
-        _number_of_samples = int(_duration_recording * self.Fs)  # np.round gebruiken
-
-        _pyaudio_handle = self.audio_devices(print_list=False)
-        _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=audio.paInt16, rate=self.Fs,
-                                       input=True)
-
-        _samples = _stream.read(_number_of_samples)
-        _data = np.frombuffer(_samples, dtype='int16')
-
-        _data_length = len(_data[::5])
-        _data_mic_1 = _data[0::5]
-        _data_mic_2 = _data[1::5]
-        _data_mic_3 = _data[2::5]
-        _data_mic_4 = _data[3::5]
-        _data_mic_5 = _data[4::5]
-
-        _sample_axis_mic_1 = np.linspace(0, _data_length, _data_length)
-        _sample_axis_mic_2 = np.linspace(0, _data_length, _data_length)
-        _sample_axis_mic_3 = np.linspace(0, _data_length, _data_length)
-        _sample_axis_mic_4 = np.linspace(0, _data_length, _data_length)
-        _sample_axis_mic_5 = np.linspace(0, _data_length, _data_length)
-
-        _mic_1 = _sample_axis_mic_1, _data_mic_1
-        _mic_2 = _sample_axis_mic_2, _data_mic_2
-        _mic_3 = _sample_axis_mic_3, _data_mic_3
-        _mic_4 = _sample_axis_mic_4, _data_mic_4
-        _mic_5 = _sample_axis_mic_5, _data_mic_5
-
-        return _mic_1, _mic_2, _mic_3, _mic_4, _mic_5
+    # def microphone_array(self, _device_index, _duration_recording):
+    #     """
+    #     Records audio and splits it in 5 samples
+    #     @param _device_index: Device index of the microphone controller. Depends on
+    #     @param _duration_recording: length of the recording
+    #     @return: returns samples of each of the 5 microphones
+    #     """
+    #     _number_of_samples = int(_duration_recording * self.Fs)  # np.round gebruiken
+    #
+    #     _pyaudio_handle = self.audio_devices(print_list=False)
+    #     _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=audio.paInt16, rate=self.Fs,
+    #                                    input=True)
+    #
+    #     _samples = _stream.read(_number_of_samples)
+    #     _data = np.frombuffer(_samples, dtype='int16')
+    #
+    #     _data_length = len(_data[::5])
+    #     _data_mic_1 = _data[0::5]
+    #     _data_mic_2 = _data[1::5]
+    #     _data_mic_3 = _data[2::5]
+    #     _data_mic_4 = _data[3::5]
+    #     _data_mic_5 = _data[4::5]
+    #
+    #     _sample_axis_mic_1 = np.linspace(0, _data_length, _data_length)
+    #     _sample_axis_mic_2 = np.linspace(0, _data_length, _data_length)
+    #     _sample_axis_mic_3 = np.linspace(0, _data_length, _data_length)
+    #     _sample_axis_mic_4 = np.linspace(0, _data_length, _data_length)
+    #     _sample_axis_mic_5 = np.linspace(0, _data_length, _data_length)
+    #
+    #     _mic_1 = _sample_axis_mic_1, _data_mic_1
+    #     _mic_2 = _sample_axis_mic_2, _data_mic_2
+    #     _mic_3 = _sample_axis_mic_3, _data_mic_3
+    #     _mic_4 = _sample_axis_mic_4, _data_mic_4
+    #     _mic_5 = _sample_axis_mic_5, _data_mic_5
+    #
+    #     return _mic_1, _mic_2, _mic_3, _mic_4, _mic_5
 
     def microphone_array_test(self, _device_index, _duration_recording):
         """
@@ -162,7 +162,7 @@ class LocalizationSubSystem(subSystem):
         _number_of_samples = int(_duration_recording * self.Fs)  # np.round gebruiken
 
         _pyaudio_handle = self.audio_devices(print_list=False)
-        _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=audio.paInt16, rate=self.Fs,
+        _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=paInt16, rate=self.Fs,
                                        input=True)
 
         _samples = _stream.read(_number_of_samples)
