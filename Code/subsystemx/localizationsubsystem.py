@@ -1,16 +1,11 @@
 import time
-
 from pyaudio import *
 import numpy as np
 from scipy.fft import fft, ifft
-# import scipy.signal as sp
 import itertools
 # import matplotlib.pyplot as plt
-
 import robot
-
 import pyaudio as audio
-
 from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
 import math
@@ -32,7 +27,8 @@ class LocalizationSubSystem(subSystem):
         self.state = subSystemState.Started
         robot.Robot.localizationState = self.state
         print("startpos:" + str(robot.Robot.startPos))
-        self.position_array[0], self.position_array[1] = robot.Robot.startPos[0], robot.Robot.startPos[1]
+        # self.position_array[0], self.position_array[1] = robot.Robot.startPos[0], robot.Robot.startPos[1]
+        self.position_array[0:2] = robot.Robot.startPos[0:2]
         # self.pyaudioHandle = self.audio_devices(print_list=True)
 
     def update(self):
@@ -66,7 +62,7 @@ class LocalizationSubSystem(subSystem):
         #     self.position_array[2], self.position_array[3] = xy
 
         if not (0 >= xy[0] <= 480) or not (0 >= xy[1] <= 480):
-            xy = self.position_array[0], self.position_array[1]
+            xy = self.position_array[0:2]
 
         self.position_array[2:4] = xy
 
