@@ -43,19 +43,19 @@ def microphone_array(device_index, duration_recording):
     data_mic_4 = data[3::5]
     data_mic_5 = data[4::5]
 
-    # sample_axis_mic_1 = np.linspace(0, data_length, data_length)
-    # sample_axis_mic_2 = np.linspace(0, data_length, data_length)
-    # sample_axis_mic_3 = np.linspace(0, data_length, data_length)
-    # sample_axis_mic_4 = np.linspace(0, data_length, data_length)
-    # sample_axis_mic_5 = np.linspace(0, data_length, data_length)
+    sample_axis_mic_1 = np.linspace(0, data_length, data_length)
+    sample_axis_mic_2 = np.linspace(0, data_length, data_length)
+    sample_axis_mic_3 = np.linspace(0, data_length, data_length)
+    sample_axis_mic_4 = np.linspace(0, data_length, data_length)
+    sample_axis_mic_5 = np.linspace(0, data_length, data_length)
 
-    # mic_1 = sample_axis_mic_1, data_mic_1
-    # mic_2 = sample_axis_mic_2, data_mic_2
-    # mic_3 = sample_axis_mic_3, data_mic_3
-    # mic_4 = sample_axis_mic_4, data_mic_4
-    # mic_5 = sample_axis_mic_5, data_mic_5
+    mic_1 = sample_axis_mic_1, data_mic_1
+    mic_2 = sample_axis_mic_2, data_mic_2
+    mic_3 = sample_axis_mic_3, data_mic_3
+    mic_4 = sample_axis_mic_4, data_mic_4
+    mic_5 = sample_axis_mic_5, data_mic_5
 
-    return data_mic_1, data_mic_2, data_mic_3, data_mic_4, data_mic_5
+    return mic_1, mic_2, mic_3, mic_4, mic_5
 
 
 # def mic_plotter(data: bool, device_index=None, duration_recording=None):
@@ -370,206 +370,135 @@ signal_recorded_5 = np.loadtxt(
     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
     delimiter=',')
 
+# def estimate_location(distance):
+#     coordinates_mics = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
+#     pairs = np.array(list(itertools.combinations([1, 2, 3, 4, 5], 2)))
+#     # print(pairs)
+#     # Create indexes for all microphone pairs
+#
+#     # Initialize matrices A and B
+#     A = np.zeros((10, 6))
+#     B = np.zeros((10, 1))
+#
+#     #Calculate all rows of the first column
+#     first_column = np.zeros((10, 2))
+#     for row, [i, j] in enumerate(pairs):
+#         first_column[row] = (2 * (coordinates_mics[j-1] - coordinates_mics[i-1]))
+#         A[row, 0:2] = first_column[row]
+#
+#         #Calculate the -2r_xy of matrix A
+#         A[row, j] = -2 * distance[row]
+#
+#         #Calculate matrix B
+#         B[row] = pow(distance[row], 2) - pow(np.linalg.norm(coordinates_mics[i-1]), 2) + pow(np.linalg.norm(coordinates_mics[j-1]), 2)
+#
+#     #Calculate the pseudo inverse of matrix A
+#     A_pinv = np.linalg.pinv(A)
+#
+#     #Calculate matrix y by taking the dot product of B with the pseudo inverse of A
+#     y = np.dot(A_pinv, B)
+#
+#     #Take the first 2 rows of matrix Y and make them one-dimensional
+#     xy = np.squeeze(y[0:2])
+#
+#     # print(xy)
+#     return(xy)
 
-# reference_signal = reference_array()
-# sp.correlate(signal_recorded_1[1], reference_signal[1], mode='same')
+# def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
+#     #Initialize channel estimate of mic 1
+#     channel_1 = ch3(signal_recorded_1[1])
 #
-# sp.correlate(signal_recorded_2[1], reference_signal[1], mode='same')
+#     #Find channel maximum and its corresponding sample value
+#     maximum_1, = np.where(abs(channel_1) > 0.8 * max(abs(channel_1)))
 #
-# sp.correlate(signal_recorded_3[1], reference_signal[1], mode='same')
+#     channel_2 = ch3(signal_recorded_2[1])
+#     maximum_2, = np.where(abs(channel_2) > 0.8 * max(abs(channel_2)))
 #
+#     channel_3 = ch3(signal_recorded_3[1])
+#     maximum_3, = np.where(abs(channel_3) > 0.8 * max(abs(channel_3)))
 #
-# sp.correlate(signal_recorded_4[1], reference_signal[1], mode='same')
+#     channel_4 = ch3(signal_recorded_4[1])
+#     maximum_4, = np.where(abs(channel_4) > 0.8 * max(abs(channel_4)))
 #
+#     channel_5 = ch3(signal_recorded_5[1])
+#     maximum_5, = np.where(abs(channel_5) > 0.8 * max(abs(channel_5)))
 #
-# sp.correlate(signal_recorded_5[1], reference_signal[1], mode='same')
+#     #Calculate distances of r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+#     distance = np.zeros(10)
+#     distance[0] = maximum_1[0] - maximum_2[0]
+#     distance[1] = maximum_1[0] - maximum_3[0]
+#     distance[2] = maximum_1[0] - maximum_4[0]
+#     distance[3] = maximum_1[0] - maximum_5[0]
+#     distance[4] = maximum_2[0] - maximum_3[0]
+#     distance[5] = maximum_2[0] - maximum_4[0]
+#     distance[6] = maximum_2[0] - maximum_5[0]
+#     distance[7] = maximum_3[0] - maximum_4[0]
+#     distance[8] = maximum_3[0] - maximum_5[0]
+#     distance[9] = maximum_4[0] - maximum_5[0]
+#
+#     #Calculate the time differences
+#     time = np.zeros(10)
+#     distance_cm = np.zeros(10)
+#     for i in range(10):
+#         time[i] = distance[i] / Fs
+#
+#     #Calculate the corresponding distance in cm
+#         distance_cm[i] = time[i] * 34300
+#     return distance_cm
 
-# distance = [-306.21, -461.64, -297.44, -66.74, -155.43, 8.77, 239.47, 164.2, 394.9, 230.7]
+# xy = estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
+# print(xy)
+
+def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
+    # Initialize channel estimates for all microphones
+    channels = [ch3(signal_recorded_1[1]), ch3(signal_recorded_2[1]), ch3(signal_recorded_3[1]),
+                ch3(signal_recorded_4[1]), ch3(signal_recorded_5[1])]
+
+    # Find channel maximums and their corresponding sample value and take the first sample value
+    maxima = []
+    for channel in channels:
+        maxima.append(np.where(abs(channel) > 0.8 * max(abs(channel)))[0][0])
+
+    # Calculate distances of r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+    distance = np.zeros(10)
+    idx = 0
+    for i in range(4):
+        for j in range(i + 1, 5):
+            distance[idx] = maxima[i] - maxima[j]
+            idx += 1
+
+    # Calculate the time differences and corresponding distances in cm
+    time = distance / Fs
+    distance_cm = time * 34300
+
+    return distance_cm
+
 def estimate_location(distance):
+    """
+    @param distance: The distance of r12, r13, r14, r15, r23, r24, r25, r34, r35, and r45 as a 1-D array
+    @return: Estimated x & y location of the robot as a 1-D array
+    """
     coordinates_mics = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
     pairs = np.array(list(itertools.combinations([1, 2, 3, 4, 5], 2)))
-    # Create indexes for all microphone pairs
-    # pairs = list(
-    #     itertools.combinations([1, 2, 3, 4, 5], 2))  # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
 
+    # Initialize matrices A and B
     A = np.zeros((10, 6))
     B = np.zeros((10, 1))
 
-    first_column = np.zeros((10, 2))
     for row, [i, j] in enumerate(pairs):
-        first_column[row] = (2 * (coordinates_mics[j-1] - coordinates_mics[i-1]))
-        A[row, 0:2] = first_column[row]
+        # Calculate all rows of the first column
+        A[row, 0:2] = 2 * (coordinates_mics[j - 1] - coordinates_mics[i - 1])
 
+        # Fill in the rest of matrix A
         A[row, j] = -2 * distance[row]
 
-        B[row] = pow(distance[row], 2) - pow(np.linalg.norm(coordinates_mics[i-1]), 2) + pow(np.linalg.norm(coordinates_mics[j-1]), 2)
+        #Calculate matrix B
+        B[row] = distance[row]**2 - np.linalg.norm(coordinates_mics[i - 1])**2 + np.linalg.norm(coordinates_mics[j - 1])**2
 
-    A_pinv = np.linalg.pinv(A)
-
-    y = np.dot(A_pinv, B)
-
-    xy = np.squeeze(y[0:2])
-    # print(xy)
-    return(xy)
-
-def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
-    #Initialize channel estimate of mic 1
-    channel_1 = ch3(signal_recorded_1)
-
-    #Find channel maximum and its corresponding sample value
-    maximum_1, = np.where(abs(channel_1) > 0.8 * max(abs(channel_1)))
-
-    channel_2 = ch3(signal_recorded_2)
-    maximum_2, = np.where(abs(channel_2) > 0.8 * max(abs(channel_2)))
-
-    channel_3 = ch3(signal_recorded_3)
-    maximum_3, = np.where(abs(channel_3) > 0.8 * max(abs(channel_3)))
-
-    channel_4 = ch3(signal_recorded_4)
-    maximum_4, = np.where(abs(channel_4) > 0.8 * max(abs(channel_4)))
-
-    channel_5 = ch3(signal_recorded_5)
-    maximum_5, = np.where(abs(channel_5) > 0.8 * max(abs(channel_5)))
-
-    #Calculate distances of r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
-    distance = np.zeros(10)
-    distance[0] = maximum_1[0] - maximum_2[0]
-    distance[1] = maximum_1[0] - maximum_3[0]
-    distance[2] = maximum_1[0] - maximum_4[0]
-    distance[3] = maximum_1[0] - maximum_5[0]
-    distance[4] = maximum_2[0] - maximum_3[0]
-    distance[5] = maximum_2[0] - maximum_4[0]
-    distance[6] = maximum_2[0] - maximum_5[0]
-    distance[7] = maximum_3[0] - maximum_4[0]
-    distance[8] = maximum_3[0] - maximum_5[0]
-    distance[9] = maximum_4[0] - maximum_5[0]
-
-    #Calculate the time differences
-    time = np.zeros(10)
-    distance_cm = np.zeros(10)
-    for i in range(10):
-        time[i] = distance[i] / Fs
-
-    #Calculate the corresponding distance in cm
-        distance_cm[i] = time[i] * 34300
-    return distance_cm
+    # Solve the linear equation system using the least squares method, take the first 2 rows of the first array returned
+    # and flatten them to 1-D
+    xy = np.linalg.lstsq(A, B, rcond=None)[0][:2].flatten()
+    return xy
 
 xy = estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
 print(xy)
-
-
-# array = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low.csv",
-#     delimiter=',')
-#
-# # print(array)
-#
-# x = []
-# for i in range(len(array)):
-#     if (array[i, 0] < 0 or array[i, 0] > 500 or array[i, 1] > 500 or array [i, 1] < 0):
-#         x.append(i)
-#
-# new_array = np.delete(array, x, 0)
-# print(new_array)
-#
-# np.savetxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
-#                 new_array, delimiter=",")
-#
-# array = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
-#     delimiter=',')
-# #
-# # print(array[:, 1])
-# plt.plot(array[:, 0], array[:, 1])
-# # plt.xlim(0, 480)
-# # plt.ylim(0, 480)
-# plt.show()
-
-# left_low = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
-#     delimiter=',')
-#
-# left_high = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_high_truncated.csv",
-#     delimiter=',')
-#
-# left_middle = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_middle_truncated.csv",
-#     delimiter=',')
-#
-# right_low = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_low_truncated.csv",
-#     delimiter=',')
-#
-# right_high = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_high_truncated.csv",
-#     delimiter=',')
-#
-# right_middle = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_middle_truncated.csv",
-#     delimiter=',')
-#
-# middle_low = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_low_truncated.csv",
-#     delimiter=',')
-#
-# middle_high = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_high_truncated.csv",
-#     delimiter=',')
-#
-# middle_middle = np.loadtxt(
-#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_middle_truncated.csv",
-#     delimiter=',')
-#
-# std_ll = np.std(left_low, 0)
-# std_lh = np.std(left_high, 0)
-# std_lm = np.std(left_middle, 0)
-# std_rl = np.std(right_low, 0)
-# std_rh = np.std(right_high, 0)
-# std_rm = np.std(right_middle, 0)
-# std_ml = np.std(middle_low, 0)
-# std_mh = np.std(middle_high, 0)
-# std_mm = np.std(middle_middle, 0)
-#
-# std = np.mean((std_ll, std_lh, std_lm, std_rl, std_rh, std_rm, std_ml, std_mh, std_mm), 0)
-# print(std)
-
-
-
-# import datetime as dt
-# import matplotlib.animation as animation
-#
-# # Create figure for plotting
-# fig = plt.figure()
-# ax = fig.add_subplot(1, 1, 1)
-# xs = []
-# ys = []
-#
-#
-# # This function is called periodically from FuncAnimation
-# def animate(i, xs, ys):
-#
-#     # Read temperature (Celsius) from TMP102
-#     temp_c = round(tmp102.read_temp(), 2)
-#
-#     # Add x and y to lists
-#     xs.append(dt.datetime.now().strftime('%H:%M:%S.%f'))
-#     ys.append(temp_c)
-#
-#     # Limit x and y lists to 20 items
-#     xs = xs[-20:]
-#     ys = ys[-20:]
-#
-#     # Draw x and y lists
-#     ax.clear()
-#     ax.plot(xs, ys)
-#
-#     # Format plot
-#     plt.xticks(rotation=45, ha='right')
-#     plt.subplots_adjust(bottom=0.30)
-#     plt.title('TMP102 Temperature over Time')
-#     plt.ylabel('Temperature (deg C)')
-#
-# # Set up plot to call animate() function periodically
-# ani = animation.FuncAnimation(fig, animate, fargs=(xs, ys), interval=1000)
-# plt.show()
