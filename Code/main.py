@@ -103,10 +103,11 @@ def fig_plot(canvas):
     _x = np.array([0, 1, 2, 3, 4, 5])
     _y = np.array([5, 4, 3, 2, 1, 0])
     fig.plot(_x, _y)
-    fig.plot(_start[0], _start[1], marker='o', markeredgecolour='red')
-    fig.plot(_a_end[0], _a_end[1], marker='o', markeredgecolour='red')
-    fig.plot(_b_mid[0], _b_mid[1], marker='o', markeredgecolour='red')
-    fig.plot(_b_end[0], _b_end[1], marker='o', markeredgecolour='red')
+    fig.plot(_start[0], _start[1], marker='o', markeredgecolor='red', markerfacecolor='white')
+    fig.plot(_a_end[0], _a_end[1], marker='o', markeredgecolor='red', markerfacecolor='white')
+    fig.plot(_b_mid[0], _b_mid[1], marker='o', markeredgecolor='red', markerfacecolor='white')
+    fig.plot(_b_end[0], _b_end[1], marker='o', markeredgecolor='red', markerfacecolor='white')
+    # add sum to limit axes to 0 x 480
     canvas.draw()
 # end graph
 
