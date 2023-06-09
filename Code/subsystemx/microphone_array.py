@@ -43,19 +43,19 @@ def microphone_array(device_index, duration_recording):
     data_mic_4 = data[3::5]
     data_mic_5 = data[4::5]
 
-    sample_axis_mic_1 = np.linspace(0, data_length, data_length)
-    sample_axis_mic_2 = np.linspace(0, data_length, data_length)
-    sample_axis_mic_3 = np.linspace(0, data_length, data_length)
-    sample_axis_mic_4 = np.linspace(0, data_length, data_length)
-    sample_axis_mic_5 = np.linspace(0, data_length, data_length)
+    # sample_axis_mic_1 = np.linspace(0, data_length, data_length)
+    # sample_axis_mic_2 = np.linspace(0, data_length, data_length)
+    # sample_axis_mic_3 = np.linspace(0, data_length, data_length)
+    # sample_axis_mic_4 = np.linspace(0, data_length, data_length)
+    # sample_axis_mic_5 = np.linspace(0, data_length, data_length)
 
-    mic_1 = sample_axis_mic_1, data_mic_1
-    mic_2 = sample_axis_mic_2, data_mic_2
-    mic_3 = sample_axis_mic_3, data_mic_3
-    mic_4 = sample_axis_mic_4, data_mic_4
-    mic_5 = sample_axis_mic_5, data_mic_5
+    # mic_1 = sample_axis_mic_1, data_mic_1
+    # mic_2 = sample_axis_mic_2, data_mic_2
+    # mic_3 = sample_axis_mic_3, data_mic_3
+    # mic_4 = sample_axis_mic_4, data_mic_4
+    # mic_5 = sample_axis_mic_5, data_mic_5
 
-    return mic_1, mic_2, mic_3, mic_4, mic_5
+    return data_mic_1, data_mic_2, data_mic_3, data_mic_4, data_mic_5
 
 
 # def mic_plotter(data: bool, device_index=None, duration_recording=None):
@@ -190,18 +190,17 @@ def microphone_array(device_index, duration_recording):
 
 
 def ch3(y):
-    #Set threshold parameter to 2%
+    """
+    @param y: Recorded signal of 1 of the 5 microphones
+    @return: returns the channel estimate as a 2-D array
+    """
+    # Set threshold parameter to 2%
     epsi = 0.02
 
-    signal_reference = reference_array() #Initialize known send signal x
+    signal_reference = reference_array()  # Initialize known send signal x
     Ny = len(y)  # Length of y
 
-    # Nx = len(signal_reference[1])  # Length of x
-    # L = Ny - Nx + 1  # Length of h
-
-    #x = np.concatenate((signal_reference[1], np.zeros(L - 1)))
-
-    x = signal_reference[1] #Initialize x to be the amplitude part of the known send signal
+    x = signal_reference[1]  # Initialize x to be the amplitude part of the known send signal
 
     # Deconvolution in frequency domain
     Y = fft(y)
@@ -209,8 +208,9 @@ def ch3(y):
     H = Y / X
 
     # Threshold to avoid blow ups of noise during inversion
-    ii = np.absolute(X) < epsi * max(abs(X))
-    H[ii] = 0
+    # ii = np.absolute(X) < epsi * max(abs(X))
+    # H[ii] = 0
+    H[abs(X) < epsi * max(abs(X))] = 0
 
     h = np.real(ifft(H))  # ensure the result is real
 
@@ -350,25 +350,25 @@ def reference_array():
 #     # return maximum
 
 
-# signal_recorded_1 = np.loadtxt(
-#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_1.csv",
-#     delimiter=',')
-#
-# signal_recorded_2 = np.loadtxt(
-#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_2.csv",
-#     delimiter=',')
-#
-# signal_recorded_3 = np.loadtxt(
-#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_3.csv",
-#     delimiter=',')
-#
-# signal_recorded_4 = np.loadtxt(
-#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_4.csv",
-#     delimiter=',')
-#
-# signal_recorded_5 = np.loadtxt(
-#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
-#     delimiter=',')
+signal_recorded_1 = np.loadtxt(
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_1.csv",
+    delimiter=',')
+
+signal_recorded_2 = np.loadtxt(
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_2.csv",
+    delimiter=',')
+
+signal_recorded_3 = np.loadtxt(
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_3.csv",
+    delimiter=',')
+
+signal_recorded_4 = np.loadtxt(
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_4.csv",
+    delimiter=',')
+
+signal_recorded_5 = np.loadtxt(
+    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
+    delimiter=',')
 
 
 # reference_signal = reference_array()
@@ -387,9 +387,10 @@ def reference_array():
 # distance = [-306.21, -461.64, -297.44, -66.74, -155.43, 8.77, 239.47, 164.2, 394.9, 230.7]
 def estimate_location(distance):
     coordinates_mics = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
+    pairs = np.array(list(itertools.combinations([1, 2, 3, 4, 5], 2)))
     # Create indexes for all microphone pairs
-    pairs = list(
-        itertools.combinations([1, 2, 3, 4, 5], 2))  # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+    # pairs = list(
+    #     itertools.combinations([1, 2, 3, 4, 5], 2))  # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
 
     A = np.zeros((10, 6))
     B = np.zeros((10, 1))
@@ -413,21 +414,21 @@ def estimate_location(distance):
 
 def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
     #Initialize channel estimate of mic 1
-    channel_1 = ch3(signal_recorded_1[1])
+    channel_1 = ch3(signal_recorded_1)
 
     #Find channel maximum and its corresponding sample value
     maximum_1, = np.where(abs(channel_1) > 0.8 * max(abs(channel_1)))
 
-    channel_2 = ch3(signal_recorded_2[1])
+    channel_2 = ch3(signal_recorded_2)
     maximum_2, = np.where(abs(channel_2) > 0.8 * max(abs(channel_2)))
 
-    channel_3 = ch3(signal_recorded_3[1])
+    channel_3 = ch3(signal_recorded_3)
     maximum_3, = np.where(abs(channel_3) > 0.8 * max(abs(channel_3)))
 
-    channel_4 = ch3(signal_recorded_4[1])
+    channel_4 = ch3(signal_recorded_4)
     maximum_4, = np.where(abs(channel_4) > 0.8 * max(abs(channel_4)))
 
-    channel_5 = ch3(signal_recorded_5[1])
+    channel_5 = ch3(signal_recorded_5)
     maximum_5, = np.where(abs(channel_5) > 0.8 * max(abs(channel_5)))
 
     #Calculate distances of r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
@@ -453,8 +454,8 @@ def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorde
         distance_cm[i] = time[i] * 34300
     return distance_cm
 
-# xy = estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
-# print(xy)
+xy = estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
+print(xy)
 
 
 # array = np.loadtxt(
@@ -484,54 +485,54 @@ def tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorde
 # # plt.ylim(0, 480)
 # plt.show()
 
-left_low = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
-    delimiter=',')
-
-left_high = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_high_truncated.csv",
-    delimiter=',')
-
-left_middle = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_middle_truncated.csv",
-    delimiter=',')
-
-right_low = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_low_truncated.csv",
-    delimiter=',')
-
-right_high = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_high_truncated.csv",
-    delimiter=',')
-
-right_middle = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_middle_truncated.csv",
-    delimiter=',')
-
-middle_low = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_low_truncated.csv",
-    delimiter=',')
-
-middle_high = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_high_truncated.csv",
-    delimiter=',')
-
-middle_middle = np.loadtxt(
-    r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_middle_truncated.csv",
-    delimiter=',')
-
-std_ll = np.std(left_low, 0)
-std_lh = np.std(left_high, 0)
-std_lm = np.std(left_middle, 0)
-std_rl = np.std(right_low, 0)
-std_rh = np.std(right_high, 0)
-std_rm = np.std(right_middle, 0)
-std_ml = np.std(middle_low, 0)
-std_mh = np.std(middle_high, 0)
-std_mm = np.std(middle_middle, 0)
-
-std = np.mean((std_ll, std_lh, std_lm, std_rl, std_rh, std_rm, std_ml, std_mh, std_mm), 0)
-print(std)
+# left_low = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_low_truncated.csv",
+#     delimiter=',')
+#
+# left_high = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_high_truncated.csv",
+#     delimiter=',')
+#
+# left_middle = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_left_middle_truncated.csv",
+#     delimiter=',')
+#
+# right_low = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_low_truncated.csv",
+#     delimiter=',')
+#
+# right_high = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_high_truncated.csv",
+#     delimiter=',')
+#
+# right_middle = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_right_middle_truncated.csv",
+#     delimiter=',')
+#
+# middle_low = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_low_truncated.csv",
+#     delimiter=',')
+#
+# middle_high = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_high_truncated.csv",
+#     delimiter=',')
+#
+# middle_middle = np.loadtxt(
+#     r"E:\TU Delft\Github\EPO4\Code\Square\Recording_array_middle_middle_truncated.csv",
+#     delimiter=',')
+#
+# std_ll = np.std(left_low, 0)
+# std_lh = np.std(left_high, 0)
+# std_lm = np.std(left_middle, 0)
+# std_rl = np.std(right_low, 0)
+# std_rh = np.std(right_high, 0)
+# std_rm = np.std(right_middle, 0)
+# std_ml = np.std(middle_low, 0)
+# std_mh = np.std(middle_high, 0)
+# std_mm = np.std(middle_middle, 0)
+#
+# std = np.mean((std_ll, std_lh, std_lm, std_rl, std_rh, std_rm, std_ml, std_mh, std_mm), 0)
+# print(std)
 
 
 

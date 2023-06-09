@@ -3,9 +3,9 @@ import time
 from pyaudio import *
 import numpy as np
 from scipy.fft import fft, ifft
-import scipy.signal as sp
+# import scipy.signal as sp
 import itertools
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 import robot
 
@@ -25,11 +25,7 @@ class LocalizationSubSystem(subSystem):
 
     def __init__(self):
         self.array = []
-        # while True:
-        #     self.position_array(xy)
         self.position_array = np.zeros(4)
-        # robot.Robot.posXLocalization, robot.Robot.posYLocalization = 0, 0
-
         return
 
     def start(self):
@@ -45,7 +41,7 @@ class LocalizationSubSystem(subSystem):
             robot.Robot.localizationState = self.state
 
         #Check if the robot is allowed to transmit pulses and allow it if it isn't
-        if not robot.Robot.speakerOn:
+        if robot.Robot.speakerOn is False:
             robot.Robot.speakerOn = True
 
         # robot.code = "EB3A994F"
@@ -58,13 +54,13 @@ class LocalizationSubSystem(subSystem):
         #
         previousTime = time.time_ns()
         #
-        signal_recorded_1 = self.tdoa_1(_mic_1)
-        signal_recorded_2 = self.tdoa_1(_mic_2)
-        signal_recorded_3 = self.tdoa_1(_mic_3)
-        signal_recorded_4 = self.tdoa_1(_mic_4)
-        signal_recorded_5 = self.tdoa_1(_mic_5)
+        # signal_recorded_1 = self.tdoa_1(_mic_1)
+        # signal_recorded_2 = self.tdoa_1(_mic_2)
+        # signal_recorded_3 = self.tdoa_1(_mic_3)
+        # signal_recorded_4 = self.tdoa_1(_mic_4)
+        # signal_recorded_5 = self.tdoa_1(_mic_5)
 
-        print(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5)
+        # print(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5)
         # distance = self.distance_calc(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5)
         # print(distance)
         # distance_cm = self.distance_cm(distance)
@@ -74,7 +70,7 @@ class LocalizationSubSystem(subSystem):
 
         # xy = self.estimate_location(distance_calc(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
         # print(xy)
-        print(" estimate location delay: " + str(time.time_ns() - previousTime)) #todo: even kijken hoe lang dit is
+        print(" estimate location delay: " + str((time.time_ns() - previousTime)/math.pow(10,9))) #todo: even kijken hoe lang dit is
 
         # Check whether the estimated location is within 75cm of the previous known location, if not, reuse the
         # previous value for estimation
@@ -83,7 +79,7 @@ class LocalizationSubSystem(subSystem):
         else:
             self.position_array[2], self.position_array[3] = xy
 
-        print(self.position_array[0], self.position_array[1], '\n')
+        print("TDOA Location is: " + str(self.position_array[0]) + ", " + str( self.position_array[1]), '\n')
         # Send the location found in the previous update to the main file
         robot.Robot.posXLocalization = self.position_array[0]/100
         robot.Robot.posYLocalization = self.position_array[1]/100
@@ -138,7 +134,6 @@ class LocalizationSubSystem(subSystem):
         @param _duration_recording: length of the recording
         @return: returns samples of each of the 5 microphones
         """
-        # Fs = 44100
         _number_of_samples = int(_duration_recording * self.Fs)  # np.round gebruiken
 
         _pyaudio_handle = self.audio_devices(print_list=False)
@@ -188,8 +183,9 @@ class LocalizationSubSystem(subSystem):
         H = Y / X
 
         # Threshold to avoid blow ups of noise during inversion
-        ii = np.absolute(X) < epsi * max(abs(X))
-        H[ii] = 0
+        # ii = np.absolute(X) < epsi * max(abs(X))
+        # H[ii] = 0
+        H[abs(X) < epsi * max(abs(X))] = 0
 
         h = np.real(ifft(H))  # ensure the result is real
 
@@ -210,9 +206,10 @@ class LocalizationSubSystem(subSystem):
         @return: Estimated x & y location of the robot as a 1-D array
         """
         coordinates_mics = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
+        pairs = np.array(list(itertools.combinations([1, 2, 3, 4, 5], 2)))
         # Create indexes for all microphone pairs
-        pairs = list(
-            itertools.combinations([1, 2, 3, 4, 5], 2))  # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+        # pairs = list(
+        #     itertools.combinations([1, 2, 3, 4, 5], 2))  # r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
 
         A = np.zeros((10, 6))
         B = np.zeros((10, 1))

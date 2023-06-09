@@ -33,10 +33,9 @@ class kalman(subSystem):
     UKF = None
 
     def __init__(self):
-        self.points = filterpy.kalman.MerweScaledSigmaPoints(n=5, alpha=0.001, beta=2, kappa=-1)
+        self.points = filterpy.kalman.MerweScaledSigmaPoints(n=5, alpha=0.001, beta=2, kappa=1)
         self.UKF = filterpy.kalman.UnscentedKalmanFilter(dim_x=5, dim_z=2, fx=self.updateModel, dt=self.dt,
-                                                         points=self.points,
-                                                         x_mean_fn=self.state_mean, hx=self.hx)  # TODO: figure out how Hx() works
+                                                         points=self.points, hx=self.hx)
 
     def start(self):
         self.state = subSystemState.Started
@@ -44,8 +43,9 @@ class kalman(subSystem):
         self.UKF.x = self.x
         self.UKF.x[0] = robot.Robot.startPos[0]
         self.UKF.x[1] = robot.Robot.startPos[1]
-        self.UKF.P = np.diag([0.05, 0.05, 0.01, 0.01, 1])
-        print(str(self.UKF.P))
+        #self.UKF.P = np.diag([0.05, 0.05, 0.01, 0.01, 1])
+        self.UKF.P *= 0.05
+        #print(str(self.UKF.x))
         self.UKF.R = np.diag([0.117, 0.153])  # in meters
         self.UKF.Q = np.eye(5)*0.01
 
@@ -60,6 +60,7 @@ class kalman(subSystem):
         self.UKF.update(_measurement)
         robot.Robot.xCurrent = self.UKF.x[0]
         robot.Robot.yCurrent = self.UKF.x[1]
+        print("Location Kalman: ( " + str(self.UKF.x[0]*100) + " , " + str(self.UKF.x[1]*100) + " )" )
         robot.Robot.uncertaintyX = self.UKF.P[0][0]
         robot.Robot.uncertaintyY = self.UKF.P[1][1]
 
@@ -77,6 +78,10 @@ class kalman(subSystem):
         _x = state
         # get angle for internal use
         _angle = state[4]
+
+        #for startup
+        if _dt > 1:
+            _dt = 1
 
         # calculate velocity, used in several calculations
         _velocity = math.sqrt(math.pow(state[2], 2) + math.pow(state[3], 2))

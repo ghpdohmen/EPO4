@@ -142,6 +142,9 @@ class Robot:
                 #print("average loop time:" + str(self.averageLoop) + " s")
                 print("update frequency" + str(1/self.averageLoop) + " Hz ")
 
+            #printing the robot location:
+            print("Location: ( " + str(self.xCurrent) + " , " + str(self.yCurrent) + " )" )
+
     def stop(self):
         self.communicationSubSystem.stop()
         self.timeSubSystem.stop()
