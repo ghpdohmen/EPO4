@@ -26,14 +26,14 @@ class kalman(subSystem):
     uncertainty of the estimation
     """
 
-    x = [[0], [0], [0], [0], [0]]
+    x = np.array([0, 0, 0, 0, 0])
     """state matrix (x, y, xdot, ydot, angle)"""
 
     dt = 0.2  # in seconds, will be set automatically during runtime
     UKF = None
 
     def __init__(self):
-        self.points = filterpy.kalman.MerweScaledSigmaPoints(n=5, alpha=0.001, beta=2, kappa=0)
+        self.points = filterpy.kalman.MerweScaledSigmaPoints(n=5, alpha=0.001, beta=2, kappa=-1)
         self.UKF = filterpy.kalman.UnscentedKalmanFilter(dim_x=5, dim_z=2, fx=self.updateModel, dt=self.dt,
                                                          points=self.points,
                                                          x_mean_fn=self.state_mean, hx=self.hx)  # TODO: figure out how Hx() works
@@ -44,17 +44,20 @@ class kalman(subSystem):
         self.UKF.x = self.x
         self.UKF.x[0] = robot.Robot.startPos[0]
         self.UKF.x[1] = robot.Robot.startPos[1]
-        self.UKF.P = np.diag([0.05, 0.05, 0, 0, 1])
+        self.UKF.P = np.diag([0.05, 0.05, 0.01, 0.01, 1])
+        print(str(self.UKF.P))
         self.UKF.R = np.diag([0.117, 0.153])  # in meters
-        self.UKF.Q = Q_discrete_white_noise(dim=5, dt=self.dt, var=0.1**2, block_size=2)
+        self.UKF.Q = np.eye(5)*0.01
 
     def update(self):
+        self.measurement = np.array([robot.Robot.posXLocalization, robot.Robot.posYLocalization])
+        self.dt = robot.Robot.loopTime
+        _dt = self.dt
+        _measurement = self.measurement
         self.state = subSystemState.Running
         robot.Robot.kalmanState = self.state
-        self.dt = robot.Robot.loopTime
-        self.measurement = np.array(robot.Robot.posXLocalization, robot.Robot.posYLocalization)
-        self.UKF.predict(dt=self.dt)
-        self.UKF.update(dt=self.dt, z=self.measurement)
+        self.UKF.predict(_dt)
+        self.UKF.update(_measurement)
         robot.Robot.xCurrent = self.UKF.x[0]
         robot.Robot.yCurrent = self.UKF.x[1]
         robot.Robot.uncertaintyX = self.UKF.P[0][0]
@@ -71,7 +74,7 @@ class kalman(subSystem):
         @return: state matrix at t=t+dt
         """
 
-        _x = x
+        _x = state
         # get angle for internal use
         _angle = state[4]
 
@@ -91,8 +94,8 @@ class kalman(subSystem):
         _vY = (_velocity + _a * _dt) * math.sin(math.radians(_angle))
 
         # get steering angle
-        _steeringAngle = mathFunctions.steer_to_angle(robot.Robot.input_servo)
-
+        _steeringAngle = mathFunctions.steer_to_angle(robot.Robot.input_servo, "degree")
+        _r = 0
         # calculate the new robot angle, based upon the steering angle
         if _steeringAngle != 0:
             _r = robot.Robot.wheelBase / math.tan(math.radians(_steeringAngle))  # calculate turning radius
@@ -117,13 +120,13 @@ class kalman(subSystem):
         return _xNew
 
 
-    def state_mean(_sigmas, _Wm):
+    def state_mean(self, _sigmas, _Wm):
         """
         Used in kalman filter to calculate the state mean. Needed because angles can't be added properly
         @param _Wm:
         @return:
         """
-        x = np.zeros(3)
+        x = np.zeros(5)
         sum_sin, sum_cos = 0., 0.
 
         for i in range(len(_sigmas)):
@@ -137,5 +140,5 @@ class kalman(subSystem):
         x[4] = math.atan2(sum_sin, sum_cos)
         return x
 
-    def hx (self,x):
+    def hx (self, x):
         return np.array([x[0],x[1]])

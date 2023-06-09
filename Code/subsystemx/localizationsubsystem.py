@@ -28,6 +28,7 @@ class LocalizationSubSystem(subSystem):
         # while True:
         #     self.position_array(xy)
         self.position_array = np.zeros(4)
+        # robot.Robot.posXLocalization, robot.Robot.posYLocalization = 0, 0
 
         return
 
@@ -54,12 +55,26 @@ class LocalizationSubSystem(subSystem):
 
         # get the recordings for each microphone
         _mic_1, _mic_2, _mic_3, _mic_4, _mic_5 = self.microphone_array(self.deviceIndex, self.durationRecording)
+        #
+        previousTime = time.time_ns()
+        #
+        signal_recorded_1 = self.tdoa_1(_mic_1)
+        signal_recorded_2 = self.tdoa_1(_mic_2)
+        signal_recorded_3 = self.tdoa_1(_mic_3)
+        signal_recorded_4 = self.tdoa_1(_mic_4)
+        signal_recorded_5 = self.tdoa_1(_mic_5)
 
-        previousTime = time.clock_gettime_ns()
+        print(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5)
+        # distance = self.distance_calc(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5)
+        # print(distance)
+        # distance_cm = self.distance_cm(distance)
+
         # estimate location
         xy = self.estimate_location(self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
+
+        # xy = self.estimate_location(distance_calc(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
         # print(xy)
-        print(" estimate location delay: " + time.clock_gettime_ns() - previousTime) #todo: even kijken hoe lang dit is
+        print(" estimate location delay: " + str(time.time_ns() - previousTime)) #todo: even kijken hoe lang dit is
 
         # Check whether the estimated location is within 75cm of the previous known location, if not, reuse the
         # previous value for estimation
@@ -276,10 +291,44 @@ class LocalizationSubSystem(subSystem):
     #     self.position_array[0], self.position_array[1] = self.position_array[2], self.position_array[3]
     #     return
 
-    def plotter(self, xy):
-        self.array.append(xy)
-        array_plot = np.zeros((2, len(self.array) - 1))
-        array_plot[0] = self.array[1::, 0]
-        array_plot[1] = self.array[1::, 1]
-        plt.plot(array_plot[0], array_plot[1])
-        plt.show()
+    # def plotter(self, xy):
+    #     self.array.append(xy)
+    #     array_plot = np.zeros((2, len(self.array) - 1))
+    #     array_plot[0] = self.array[1::, 0]
+    #     array_plot[1] = self.array[1::, 1]
+    #     plt.plot(array_plot[0], array_plot[1])
+    #     plt.show()
+
+    def tdoa_1(self, signal_recorded):
+        channel = self.ch3(signal_recorded[1])
+        maximum, = np.where(abs(channel) == max(abs(channel)))
+        return maximum
+
+    def distance_calc(self, recorded_signal_1, recorded_signal_2, recorded_signal_3, recorded_signal_4, recorded_signal_5):
+        distance = np.zeros(10)
+        maximum_1 = self.tdoa_1(recorded_signal_1)
+        maximum_2 = self.tdoa_1(recorded_signal_2)
+        maximum_3 = self.tdoa_1(recorded_signal_3)
+        maximum_4 = self.tdoa_1(recorded_signal_4)
+        maximum_5 = self.tdoa_1(recorded_signal_5)
+
+        distance[0] = maximum_1 - maximum_2
+        distance[1] = maximum_1 - maximum_3
+        distance[2] = maximum_1 - maximum_4
+        distance[3] = maximum_1 - maximum_5
+        distance[4] = maximum_2 - maximum_3
+        distance[5] = maximum_2 - maximum_4
+        distance[6] = maximum_2 - maximum_5
+        distance[7] = maximum_3 - maximum_4
+        distance[8] = maximum_3 - maximum_5
+        distance[9] = maximum_4 - maximum_5
+    
+        return distance
+
+    def distance_cm(self, distance):
+        time = np.zeros(10)
+        distance_cm = np.zeros(10)
+        for i in range(10):
+            time[i] = distance[i] / self.Fs
+            distance_cm[i] = time[i] * 34300
+        return distance_cm

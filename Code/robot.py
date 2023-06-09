@@ -83,12 +83,12 @@ class Robot:
         self.timeSubSystem = timeSubSystem()
         self.inputSubSystem = inputSubSystem()
         self.loggingSubSystem = csvLoggingSubsystem()
-       # self.localizationSubSystem = LocalizationSubSystem()
+        self.localizationSubSystem = LocalizationSubSystem()
         #self.modelSubSystem = modelSubSystem()
         self.distanceSensorSubSystem = distanceSensorSubSystem()
         self.purePursuitSubSystem = purePursuit()
         self.challengesSubSystem = challengesSubSystem()
-        # self.kalmanSubSystem = kalman()
+        self.kalmanSubSystem = kalman()
 
     # start all subsystemx
     def start(self, _operatingMode):
@@ -109,7 +109,7 @@ class Robot:
         self.purePursuitSubSystem.start()
         self.challengesSubSystem.start()
         self.localizationSubSystem.start()
-        # self.kalmanSubSystem.start()
+        self.kalmanSubSystem.start()
         # printing the loop time, so we can optimize this via multithreading
         #print(self.loopTime)
         self.status = robotStatus.Running
@@ -123,9 +123,9 @@ class Robot:
             self.inputSubSystem.update()
             #self.modelSubSystem.update()
 
-            #self.localizationSubSystem.update()
+            self.localizationSubSystem.update()
             #self.distanceSensorSubSystem.update()
-            # self.kalmanSubSystem.update()
+            self.kalmanSubSystem.update()
             self.challengesSubSystem.update()
             self.purePursuitSubSystem.update()
             self.communicationSubSystem.update()
@@ -151,4 +151,4 @@ class Robot:
         self.distanceSensorSubSystem.stop()
         self.purePursuitSubSystem.stop()
         self.challengesSubSystem.stop()
-        # self.kalmanSubSystem.stop()
+        self.kalmanSubSystem.stop()
