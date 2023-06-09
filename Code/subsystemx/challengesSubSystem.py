@@ -62,13 +62,20 @@ class challengesSubSystem(subSystem):
             case 0:
                 robot.Robot.startPos = self.ch_startPos
                 robot.Robot.endPos = self.ch_aEnd
+
+                self.runtimeCheck = robot.Robot.runTime
                 self.stateA = 1
 
             case 1:
-                robot.Robot.input_motor = 160
-                self.stateA = 2
+                print("waiting")
+                if (self.runtimeCheck + 1) <= robot.Robot.runTime:  # stands still for 10 seconds
+                    self.stateA = 2
 
             case 2:
+                robot.Robot.input_motor = 160
+                self.stateA = 3
+
+            case 3:
                 if mathFunctions.ish(self.x_location, self.ch_aEnd[0], self.MOE) == True and mathFunctions.ish(self.y_location, self.ch_aEnd[1], self.MOE) == True:
                     print("arrived at destination, woohoo")
                     robot.Robot.input_motor = 150  # stops once at destination
@@ -94,36 +101,43 @@ class challengesSubSystem(subSystem):
             case 0:
                 robot.Robot.startPos = self.ch_startPos
                 robot.Robot.endPos = self.ch_bMid
+
+                self.runtimeCheck = robot.Robot.runTime
                 self.stateB = 1
 
             case 1:
-                robot.Robot.input_motor = 160
-                self.stateB = 2
+                print("waiting")
+                if (self.runtimeCheck + 1) <= robot.Robot.runTime:  # stands still for 10 seconds
+                    self.stateB = 2
 
             case 2:
+                robot.Robot.input_motor = 160
+                self.stateB = 3
+
+            case 3:
                 if mathFunctions.ish(self.x_location, self.ch_bMid[0], self.MOE) == True and mathFunctions.ish(self.y_location, self.ch_bMid[1], self.MOE) == True:
                     print("arrived at waypoint, woohoo")
                     robot.Robot.input_motor = 150
                     self.runtimeCheck = robot.Robot.runTime
-                    self.stateB = 3
+                    self.stateB = 5
                 else:
                     #  print("cry time")
                     pass
 
-            case 3:
-                if (self.runtimeCheck + 10) <= robot.Robot.runTime:  # stands still for 10 seconds
-                    self.stateB = 4
-
-            case 4:
-                robot.Robot.startPos = self.ch_bMid  # sets new destination positions for second stint
-                robot.Robot.endPos = self.ch_bEnd
-                self.stateB = 5
-
             case 5:
-                robot.Robot.input_motor = 160
-                self.stateB = 6
+                if (self.runtimeCheck + 10) <= robot.Robot.runTime:  # stands still for 10 seconds
+                    self.stateB = 6
 
             case 6:
+                robot.Robot.startPos = self.ch_bMid  # sets new destination positions for second stint
+                robot.Robot.endPos = self.ch_bEnd
+                self.stateB = 7
+
+            case 7:
+                robot.Robot.input_motor = 160
+                self.stateB = 8
+
+            case 8:
                 if mathFunctions.ish(self.x_location, self.ch_bEnd[0], self.MOE) == True and mathFunctions.ish(self.y_location, self.ch_bEnd[1], self.MOE) == True:
                     print("arrived at destination, woohoo")
                     robot.Robot.input_motor = 150  # stops once at destination
