@@ -87,7 +87,7 @@ challengeWindow["relief"] = "ridge"
 # TODO: show robot location, location uncertainty, goal and path? on this plot
 # graph showing path
 figure = plt.Figure(figsize=(3, 3), dpi=100)
-fig = figure.add_subplot(111, autoscale_on=False, xlim=(0, 5), ylim=(0, 5))
+fig = figure.add_subplot(111, autoscale_on=False, xlim=(0, 480), ylim=(0, 480))
 fig.set_aspect('equal')
 fig.grid()
 canvas = FigureCanvasTkAgg(figure)
@@ -96,9 +96,17 @@ plot_button = tk.Button(text="plot", command=lambda: fig_plot(canvas))
 
 def fig_plot(canvas):
     fig.clear()
+    _start = robot.Robot.startPos
+    _a_end = robot.Robot.aEnd
+    _b_mid = robot.Robot.bMid
+    _b_end = robot.Robot.bEnd
     _x = np.array([0, 1, 2, 3, 4, 5])
     _y = np.array([5, 4, 3, 2, 1, 0])
     fig.plot(_x, _y)
+    fig.plot(_start[0], _start[1], marker='o', markeredgecolour='red')
+    fig.plot(_a_end[0], _a_end[1], marker='o', markeredgecolour='red')
+    fig.plot(_b_mid[0], _b_mid[1], marker='o', markeredgecolour='red')
+    fig.plot(_b_end[0], _b_end[1], marker='o', markeredgecolour='red')
     canvas.draw()
 # end graph
 
