@@ -46,20 +46,19 @@ class LocalizationSubSystem(subSystem):
         # robot.Robot.repetitionCount = 64
 
         # get the recordings for each microphone
+        previousTime = time.time_ns()
         _mic_1, _mic_2, _mic_3, _mic_4, _mic_5 = self.microphone_array_test(self.deviceIndex, self.durationRecording)
+        print("recording delay: " + str((time.time_ns() - previousTime) / math.pow(10, 9)))
 
         previousTime = time.time_ns()
+        distance = self.tdoa_test(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5)
+        print(" estimate location delay: " + str((time.time_ns() - previousTime) / math.pow(10, 9)))
 
         # estimate location
-        xy = self.estimate_location(self.tdoa_test(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5))
+        previousTime = time.time_ns()
+        xy = self.estimate_location(distance)
+        print("estimate location delay: " + str((time.time_ns() - previousTime)/math.pow(10, 9))) #todo: even kijken hoe lang dit is
 
-        print(" estimate location delay: " + str((time.time_ns() - previousTime)/math.pow(10,9))) #todo: even kijken hoe lang dit is
-
-
-        # if ((xy[0] < 0 or xy[1] < 0) or (xy[0] > 480 or xy[1] > 480)):
-        #     self.position_array[2], self.position_array[3] = self.position_array[0], self.position_array[1]
-        # else:
-        #     self.position_array[2], self.position_array[3] = xy
 
         if not (0 >= xy[0] <= 480) or not (0 >= xy[1] <= 480):
             xy = self.position_array[0:2]
@@ -186,7 +185,16 @@ class LocalizationSubSystem(subSystem):
         # _mic_4 = _sample_axis_mic_4, _data_mic_4
         # _mic_5 = _sample_axis_mic_5, _data_mic_5
 
+        #zero-pad the recordings to a power of 2 for faster fft implementation
+        padding_length = 2048
+        _mic_1 = np.pad(_data_mic_1, (0, padding_length - len(_data_mic_1)), mode='constant')
+        _mic_2 = np.pad(_data_mic_2, (0, padding_length - len(_data_mic_2)), mode='constant')
+        _mic_3 = np.pad(_data_mic_3, (0, padding_length - len(_data_mic_3)), mode='constant')
+        _mic_4 = np.pad(_data_mic_4, (0, padding_length - len(_data_mic_4)), mode='constant')
+        _mic_5 = np.pad(_data_mic_5, (0, padding_length - len(_data_mic_5)), mode='constant')
+
         return _data_mic_1, _data_mic_2, _data_mic_3, _data_mic_4, _data_mic_5
+        # return _mic_1, _mic_2, _mic_3, _mic_4, _mic_5
 
     def ch3(self, y):
         """

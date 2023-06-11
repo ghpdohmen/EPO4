@@ -350,25 +350,25 @@ def reference_array():
 #     # return maximum
 
 
-signal_recorded_1 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_1.csv",
-    delimiter=',')
-
-signal_recorded_2 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_2.csv",
-    delimiter=',')
-
-signal_recorded_3 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_3.csv",
-    delimiter=',')
-
-signal_recorded_4 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_4.csv",
-    delimiter=',')
-
-signal_recorded_5 = np.loadtxt(
-    r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
-    delimiter=',')
+# signal_recorded_1 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_1.csv",
+#     delimiter=',')
+#
+# signal_recorded_2 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_2.csv",
+#     delimiter=',')
+#
+# signal_recorded_3 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_3.csv",
+#     delimiter=',')
+#
+# signal_recorded_4 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_4.csv",
+#     delimiter=',')
+#
+# signal_recorded_5 = np.loadtxt(
+#     r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
+#     delimiter=',')
 
 # def estimate_location(distance):
 #     coordinates_mics = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
@@ -500,5 +500,7 @@ def estimate_location(distance):
     xy = np.linalg.lstsq(A, B, rcond=None)[0][:2].flatten()
     return xy
 
-xy = estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
-print(xy)
+# xy = estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
+# print(xy)
+
+print(0.15*44100/5)
