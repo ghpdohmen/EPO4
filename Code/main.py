@@ -102,6 +102,8 @@ def fig_plot(canvas):
     _b_end = robot.Robot.bEnd
     _x = np.array([0, 1, 2, 3, 4, 5])
     _y = np.array([5, 4, 3, 2, 1, 0])
+    fig.set_xlim([0, 480])
+    fig.set_ylim({0,480})
     fig.plot(_x, _y)
     fig.plot(_start[0], _start[1], marker='o', markeredgecolor='red', markerfacecolor='white')
     fig.plot(_a_end[0], _a_end[1], marker='o', markeredgecolor='red', markerfacecolor='white')
