@@ -61,7 +61,8 @@ class LocalizationSubSystem(subSystem):
         # print("estimate location delay: " + str((time.time_ns() - previousTime)/math.pow(10, 9))) #todo: even kijken hoe lang dit is
 
         #handles misreads of the data, just keeps the old value then.
-        if (abs(xy[0]) >= 480) | (abs(xy[1]) >= 480) :
+        if (abs(xy[0]) >= 480) | (abs(xy[1]) >= 480):
+            # xy = self.position_array[0:2]
             xy[0] = self.position_array[0]
             xy[1] = self.position_array[1]
 
