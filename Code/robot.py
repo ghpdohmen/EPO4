@@ -18,8 +18,10 @@ class Robot:
     # current robot state
     operatingMode = robotMode.Manual
     status = robotStatus.Paused
-    xCurrent = 0 #in meters, updated from kalman filter
-    yCurrent = 0 #in meters, updated from kalman filter
+    xCurrent = None #in meters, updated from kalman filter
+    yCurrent = None #in meters, updated from kalman filter
+    yKalman = None
+    xKalman = None
     uncertaintyX = 0 # in meters, updated from kalman filter
     uncertaintyY = 0 # in meters, updated from kalman filter
     robotAngle = 0 # in degrees
@@ -126,6 +128,8 @@ class Robot:
             #self.localizationSubSystem.update()
             #self.distanceSensorSubSystem.update()
             self.kalmanSubSystem.update()
+            self.xCurrent = self.xKalman
+            self.yCurrent = self.yKalman
             self.challengesSubSystem.update()
             self.purePursuitSubSystem.update()
             self.communicationSubSystem.update()
@@ -141,6 +145,7 @@ class Robot:
                 self.averageLoop = self.averageLoop + (self.loopTime - self.averageLoop) / self.index
                 #print("average loop time:" + str(self.averageLoop) + " s")
                 print("update frequency" + str(1/self.averageLoop) + " Hz ")
+
 
             #printing the robot location:
             print("Location: ( " + str(self.xCurrent) + " , " + str(self.yCurrent) + " )" )
