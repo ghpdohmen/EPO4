@@ -1,4 +1,5 @@
 # holds all info of the robot and manages all subsystemx
+import robot
 from misc.robotModeEnum import robotMode
 from misc.robotStatusEnum import robotStatus
 from subsystemx.communication import communicationSubSystem
@@ -61,7 +62,7 @@ class Robot:
     # output values
     input_motor = 150
     input_servo = 150
-    COMport = 'COM6'
+    COMport = 'COM5'
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
@@ -87,14 +88,14 @@ class Robot:
         self.loggingSubSystem = csvLoggingSubsystem()
         self.localizationSubSystem = LocalizationSubSystem()
         #self.modelSubSystem = modelSubSystem()
-        self.distanceSensorSubSy m = distanceSensorSubSystem()
+        self.distanceSensorSubSystem = distanceSensorSubSystem()
         self.challengesSubSystem = challengesSubSystem()
         self.purePursuitSubSystem = purePursuit()
         self.kalmanSubSystem = kalman()
 
     # start all subsystemx
     def start(self, _operatingMode):
-        self.operatingMode = _operatingMode
+        robot.Robot.operatingMode = _operatingMode
         # let's quickly check if we have set an operating mode, otherwise running the robot is so hard
         if _operatingMode == robotMode.NotChosen:
             # TODO: implement error message in gui
@@ -110,7 +111,7 @@ class Robot:
         self.distanceSensorSubSystem.start()
         self.challengesSubSystem.start()
         self.purePursuitSubSystem.start()
-        self.localizationSubSystem.start()
+        #self.localizationSubSystem.start()
         self.kalmanSubSystem.start()
         # printing the loop time, so we can optimize this via multithreading
         #print(self.loopTime)
@@ -125,12 +126,13 @@ class Robot:
             self.inputSubSystem.update()
             #self.modelSubSystem.update()
             #print("Runtime: " + str(self.runTime))
-            self.localizationSubSystem.update()
+            #self.localizationSubSystem.update()
             # self.distanceSensorSubSystem.update()
             self.kalmanSubSystem.update()
             self.xCurrent = self.xKalman
+            robot.Robot.xCurrent = self.xKalman
+            robot.Robot.yCurrent = self.yKalman
             self.yCurrent = self.yKalman
-            print("RObot: " + str(self.operatingMode))
             self.challengesSubSystem.update()
             self.purePursuitSubSystem.update()
             self.communicationSubSystem.update()

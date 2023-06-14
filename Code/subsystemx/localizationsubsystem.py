@@ -10,7 +10,6 @@ from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
 import math
 
-
 class LocalizationSubSystem(subSystem):
     Fs = 44100
     pyaudioHandle = None
