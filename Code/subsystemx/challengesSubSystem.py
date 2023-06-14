@@ -12,6 +12,7 @@ class challengesSubSystem(subSystem):
     mode = 0            # initialisation of some variables which have to be updated
     x_location = 0
     y_location = 0
+    challenge_complete = False
 
     def __init__(self):
         self.ch_startPos = []
@@ -19,11 +20,11 @@ class challengesSubSystem(subSystem):
         self.ch_bMid = []
         self.ch_bEnd = []
 
-        self.MOE = 0
+        self.MOE = 0.25
         self.runtimeCheck = 0
 
-        self.stateA = int
-        self.stateB = int
+        self.stateA = 0
+        self.stateB = 0
 
     def start(self):
         if (robot.Robot.operatingMode == robotMode.Manual) | (robot.Robot.operatingMode ==  robotMode.EStop):  # check to make sure program only runs when needed
@@ -40,10 +41,10 @@ class challengesSubSystem(subSystem):
         """
 
         match self.mode:
-            case "ChallengeA":
+            case robotMode.ChallengeA:
                 print("activating A")
                 self.challengeA()
-            case "ChallengeB":
+            case robotMode.ChallengeB:
                 print("activating B")
                 self.challengeB()
             case _:
@@ -54,31 +55,31 @@ class challengesSubSystem(subSystem):
         the state machine for Challenge A
         :return:
         """
-        print("Challenge A selected")
         self.ch_startPos = robot.Robot.startPos
         self.ch_aEnd = robot.Robot.aEnd
-
-        self.stateA = 0
 
         match self.stateA:
             case 0:
                 robot.Robot.startPos = self.ch_startPos
                 robot.Robot.endPos = self.ch_aEnd
-                print("Challenge A")
+                print("Challenge A state 0")
                 self.runtimeCheck = robot.Robot.runTime
                 self.stateA = 1
+                print("State a: " + str(self.stateA))
 
             case 1:
-                print("waiting")
+                print("waiting, state 1")
                 if (self.runtimeCheck + 1) <= robot.Robot.runTime:  # stands still for 10 seconds
                     self.stateA = 2
 
             case 2:
                 robot.Robot.input_motor = 160
+                print("Challenge A state 2")
                 self.stateA = 3
 
             case 3:
                 if mathFunctions.ish(self.x_location, self.ch_aEnd[0], self.MOE) == True and mathFunctions.ish(self.y_location, self.ch_aEnd[1], self.MOE) == True:
+                    self.challenge_complete = True
                     print("arrived at destination, woohoo")
                     robot.Robot.input_motor = 150  # stops once at destination
                 else:
@@ -96,8 +97,6 @@ class challengesSubSystem(subSystem):
         self.ch_startPos = robot.Robot.startPos
         self.ch_bMid = robot.Robot.bMid
         self.ch_bEnd = robot.Robot.bEnd
-
-        self.stateB = 0
 
         match self.stateB:
             case 0:
@@ -155,9 +154,9 @@ class challengesSubSystem(subSystem):
             self.state = subSystemState.Running
 
             self.mode = robot.Robot.operatingMode
-            print(self.mode)
-            print("RObot: " + str(robot.Robot.operatingMode))
+            #print("RObot: " + str(robot.Robot.operatingMode))
             self.x_location = robot.Robot.xCurrent  # gets the KITT position from robot.py, constantly updated
+            print(self.x_location)
             self.y_location = robot.Robot.yCurrent
 
             self.whichChallenge()  # constantly update to check whether a challenge ahs been selected

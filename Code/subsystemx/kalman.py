@@ -66,7 +66,7 @@ class kalman(subSystem):
             robot.Robot.xKalman = self.UKF.x[0]
             robot.Robot.yKalman = self.UKF.x[1]
             #print("Location Kalman: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m" )
-            print("Velocity Kalman: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
+            #print("Velocity Kalman: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
             robot.Robot.uncertaintyX = self.UKF.P[0][0]
             robot.Robot.uncertaintyY = self.UKF.P[1][1]
 
