@@ -44,11 +44,11 @@ class kalman(subSystem):
         self.UKF.x = self.x
         self.UKF.x = np.array([robot.Robot.startPos[0]/100,robot.Robot.startPos[1]/100,0,0,0])
         #self.UKF.P = np.diag([0.05, 0.05, 0.01, 0.01, 1])
-        self.UKF.P *= 0.0001
+        self.UKF.P *= 0.001
         print("P: " + str(self.UKF.P))
         #print(str(self.UKF.x))
         self.UKF.R = np.diag([0.117, 0.153])  # in meters
-        self.UKF.Q = np.eye(5)*0.1
+        self.UKF.Q = np.diag([0.1,0.1,0.01,0.01,1])
         print("Location Kalman start: ( " + str(self.UKF.x[0] ) + " , " + str(self.UKF.x[1] ) + " ) m")
         print("Velocity Kalman start: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
 
