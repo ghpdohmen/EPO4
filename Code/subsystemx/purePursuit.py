@@ -56,7 +56,7 @@ class purePursuit(subSystem):
             # print("in update")
             self.start_point = robot.Robot.startPos
             self.end_point = robot.Robot.endPos
-
+            print("Startpos:" + str(self.start_point) + ", Endpos: " + str(self.end_point))
             self.intersec_1 = \
                 self.intersections(self.x_location, self.y_location, self.start_point[0], self.start_point[1],
                                    self.end_point[0], self.end_point[1])[0]

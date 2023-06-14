@@ -22,7 +22,7 @@ class csvLoggingSubsystem(subSystem):
         robot.Robot.loggingState = self.state
         self.writer = csv.writer(self.file)  # create a single writer, this is used each update
         self.writer.writerow(['Time', 'Voltage', 'SensorLeft', 'SensorRight', 'MotorPower',
-                              'ServoPower'])  # write the top row, used for identification
+                              'ServoPower','PosX', 'PosY'])  # write the top row, used for identification
 
     def update(self):
         if (self.state == subSystemState.Started) | (self.state == subSystemState.Running):
@@ -30,7 +30,7 @@ class csvLoggingSubsystem(subSystem):
             robot.Robot.loggingState = self.state
             self.writer.writerow(
                 [str(robot.Robot.runTime), str(robot.Robot.batteryVoltage), str(robot.Robot.distanceLeft),
-                 str(robot.Robot.distanceRight), str(robot.Robot.input_motor), str(robot.Robot.input_servo)])
+                 str(robot.Robot.distanceRight), str(robot.Robot.input_motor), str(robot.Robot.input_servo), str(robot.Robot.xCurrent), str(robot.Robot.yCurrent)])
 
     def stop(self):
         self.state = subSystemState.Stopped

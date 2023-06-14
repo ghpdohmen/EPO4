@@ -48,7 +48,7 @@ class kalman(subSystem):
         print("P: " + str(self.UKF.P))
         #print(str(self.UKF.x))
         self.UKF.R = np.diag([0.117, 0.153])  # in meters
-        self.UKF.Q = np.eye(5)*0.001
+        self.UKF.Q = np.eye(5)*0.1
         print("Location Kalman start: ( " + str(self.UKF.x[0] ) + " , " + str(self.UKF.x[1] ) + " ) m")
         print("Velocity Kalman start: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
 
@@ -62,11 +62,11 @@ class kalman(subSystem):
             robot.Robot.kalmanState = self.state
             self.UKF.predict(_dt)
             self.UKF.update(_measurement)
-            print("_measurement: " + str(_measurement))
+            #print("_measurement: " + str(_measurement))
             robot.Robot.xKalman = self.UKF.x[0]
             robot.Robot.yKalman = self.UKF.x[1]
             #print("Location Kalman: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m" )
-            #print("Velocity Kalman: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
+            print("Velocity Kalman: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
             robot.Robot.uncertaintyX = self.UKF.P[0][0]
             robot.Robot.uncertaintyY = self.UKF.P[1][1]
 
@@ -106,8 +106,8 @@ class kalman(subSystem):
         _a = _fres / robot.Robot.mass
         #print("_a: " + str(_a))
         # calculate new vx and vy
-        _vX = (_velocity + _a * _dt) * math.cos(math.radians(_angle))
-        _vY = (_velocity + _a * _dt) * math.sin(math.radians(_angle))
+        _vX = (_velocity + _a * _dt) * math.sin(math.radians(_angle))
+        _vY = (_velocity + _a * _dt) * math.cos(math.radians(_angle))
 
         # get steering angle
         _steeringAngle = mathFunctions.steer_to_angle(robot.Robot.input_servo, "degree")

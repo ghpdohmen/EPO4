@@ -16,7 +16,7 @@ from subsystemx.timing import timeSubSystem
 
 class Robot:
     # current robot state
-    operatingMode = robotMode.Manual
+    operatingMode = None
     status = robotStatus.Paused
     xCurrent = None #in meters, updated from kalman filter
     yCurrent = None #in meters, updated from kalman filter
@@ -24,7 +24,7 @@ class Robot:
     xKalman = None
     uncertaintyX = 0 # in meters, updated from kalman filter
     uncertaintyY = 0 # in meters, updated from kalman filter
-    robotAngle = 0 # in degrees
+    robotAngle = 90 # in degrees
     velocity = 0 #TODO: delete this when modelsubsystem is deleted.
     speakerOn = False
 
@@ -61,7 +61,7 @@ class Robot:
     # output values
     input_motor = 150
     input_servo = 150
-    COMport = 'COM5'
+    COMport = 'COM6'
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
@@ -87,9 +87,9 @@ class Robot:
         self.loggingSubSystem = csvLoggingSubsystem()
         self.localizationSubSystem = LocalizationSubSystem()
         #self.modelSubSystem = modelSubSystem()
-        self.distanceSensorSubSystem = distanceSensorSubSystem()
-        self.purePursuitSubSystem = purePursuit()
+        self.distanceSensorSubSy m = distanceSensorSubSystem()
         self.challengesSubSystem = challengesSubSystem()
+        self.purePursuitSubSystem = purePursuit()
         self.kalmanSubSystem = kalman()
 
     # start all subsystemx
@@ -108,9 +108,9 @@ class Robot:
         self.inputSubSystem.start()
         self.loggingSubSystem.start()
         self.distanceSensorSubSystem.start()
-        self.purePursuitSubSystem.start()
         self.challengesSubSystem.start()
-       # self.localizationSubSystem.start()
+        self.purePursuitSubSystem.start()
+        self.localizationSubSystem.start()
         self.kalmanSubSystem.start()
         # printing the loop time, so we can optimize this via multithreading
         #print(self.loopTime)
@@ -124,12 +124,13 @@ class Robot:
             self.timeSubSystem.update()
             self.inputSubSystem.update()
             #self.modelSubSystem.update()
-            print("Runtime: " + str(self.runTime))
-            #self.localizationSubSystem.update()
-            #self.distanceSensorSubSystem.update()
+            #print("Runtime: " + str(self.runTime))
+            self.localizationSubSystem.update()
+            # self.distanceSensorSubSystem.update()
             self.kalmanSubSystem.update()
             self.xCurrent = self.xKalman
             self.yCurrent = self.yKalman
+            print("RObot: " + str(self.operatingMode))
             self.challengesSubSystem.update()
             self.purePursuitSubSystem.update()
             self.communicationSubSystem.update()
@@ -148,7 +149,7 @@ class Robot:
 
 
             #printing the robot location:
-            print("Location: ( " + str(self.xCurrent) + " , " + str(self.yCurrent) + " )" )
+            print("Location: ( " + str(self.xCurrent) + " , " + str(self.yCurrent) + " ), Angle: " + str(self.robotAngle) )
 
 
 

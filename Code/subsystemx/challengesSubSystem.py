@@ -38,6 +38,7 @@ class challengesSubSystem(subSystem):
         chooses which challenge has to be run depending on the operating mode
         :return:
         """
+
         match self.mode:
             case "ChallengeA":
                 print("activating A")
@@ -53,6 +54,7 @@ class challengesSubSystem(subSystem):
         the state machine for Challenge A
         :return:
         """
+        print("Challenge A selected")
         self.ch_startPos = robot.Robot.startPos
         self.ch_aEnd = robot.Robot.aEnd
 
@@ -62,7 +64,7 @@ class challengesSubSystem(subSystem):
             case 0:
                 robot.Robot.startPos = self.ch_startPos
                 robot.Robot.endPos = self.ch_aEnd
-
+                print("Challenge A")
                 self.runtimeCheck = robot.Robot.runTime
                 self.stateA = 1
 
@@ -153,11 +155,13 @@ class challengesSubSystem(subSystem):
             self.state = subSystemState.Running
 
             self.mode = robot.Robot.operatingMode
-
-            self.x_location = 0  # gets the KITT position from robot.py, constantly updated
-            self.y_location = 0
+            print(self.mode)
+            print("RObot: " + str(robot.Robot.operatingMode))
+            self.x_location = robot.Robot.xCurrent  # gets the KITT position from robot.py, constantly updated
+            self.y_location = robot.Robot.yCurrent
 
             self.whichChallenge()  # constantly update to check whether a challenge ahs been selected
+            #print("Challenge subsystem started")
 
         robot.Robot.challengesState = self.state
 
