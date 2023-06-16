@@ -11,8 +11,8 @@ from subsystemx.subsystemStateEnum import subSystemState
 import math
 
 class LocalizationSubSystem(subSystem):
-    # Fs = 44100
-    Fs = 48000
+    Fs = 44100
+    # Fs = 48000
     pyaudioHandle = None
     deviceIndex = 1
     durationRecording = 0.15

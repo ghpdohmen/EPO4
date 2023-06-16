@@ -65,7 +65,7 @@ class kalman(subSystem):
             # print("_measurement: " + str(_measurement))
             robot.Robot.xKalman = self.UKF.x[0]
             robot.Robot.yKalman = self.UKF.x[1]
-            robot.Robot.robotAngle = np.degrees(self.UKF.x[4])
+            robot.Robot.robotAngle = (np.degrees(self.UKF.x[4]))/2              #CHANGED BY /2
             print("Location Kalman: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m")
             print("Uncertainty Kalman: ( " + str(self.UKF.P[0][0]) + " , " + str(self.UKF.P[1][1]) + " ) m")
             # print("Velocity Kalman: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
