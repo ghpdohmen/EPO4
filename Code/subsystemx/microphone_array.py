@@ -503,4 +503,11 @@ def estimate_location(distance):
 # xy = estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
 # print(xy)
 
-print(0.15*44100/5)
+for i in range(1, 6):
+    signal_recorded = np.loadtxt(
+        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_single_pulse_test_" + str(i) + ".csv",
+        delimiter=',')
+    
+    # print(signal_recorded.shape)
+    plt.plot(signal_recorded[0], signal_recorded[1])
+    plt.show()

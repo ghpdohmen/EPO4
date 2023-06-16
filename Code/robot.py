@@ -8,7 +8,6 @@ from subsystemx.distanceSensorSubSystem import distanceSensorSubSystem
 from subsystemx.inputSubSystem import inputSubSystem
 from subsystemx.kalman import kalman
 from subsystemx.localizationsubsystem import LocalizationSubSystem
-from subsystemx.modelSubSystem import modelSubSystem
 from subsystemx.purePursuit import purePursuit
 from subsystemx.challengesSubSystem import challengesSubSystem
 from subsystemx.subsystemStateEnum import subSystemState
@@ -26,7 +25,6 @@ class Robot:
     uncertaintyX = 0 # in meters, updated from kalman filter
     uncertaintyY = 0 # in meters, updated from kalman filter
     robotAngle = 90 # in degrees
-    velocity = 0 #TODO: delete this when modelsubsystem is deleted.
     speakerOn = False
 
     # challenge locations
@@ -34,7 +32,7 @@ class Robot:
     endPos = []
     aEnd = []
     bMid = []
-    bEnd = []
+    bEnd  = []
 
 
     # subsystem states
@@ -62,7 +60,7 @@ class Robot:
     # output values
     input_motor = 150
     input_servo = 150
-    COMport = 'COM5'
+    COMport = 'COM6'
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
@@ -103,7 +101,6 @@ class Robot:
             return
 
 
-        #self.localizationSubSystem.start()
         self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
         self.inputSubSystem.start()
@@ -111,7 +108,7 @@ class Robot:
         self.distanceSensorSubSystem.start()
         self.challengesSubSystem.start()
         self.purePursuitSubSystem.start()
-        #self.localizationSubSystem.start()
+        self.localizationSubSystem.start()
         self.kalmanSubSystem.start()
         # printing the loop time, so we can optimize this via multithreading
         #print(self.loopTime)
@@ -126,7 +123,7 @@ class Robot:
             self.inputSubSystem.update()
             #self.modelSubSystem.update()
             #print("Runtime: " + str(self.runTime))
-            #self.localizationSubSystem.update()
+            self.localizationSubSystem.update()
             # self.distanceSensorSubSystem.update()
             self.kalmanSubSystem.update()
             self.xCurrent = self.xKalman
@@ -147,11 +144,11 @@ class Robot:
                 self.index += 1
                 self.averageLoop = self.averageLoop + (self.loopTime - self.averageLoop) / self.index
                 #print("average loop time:" + str(self.averageLoop) + " s")
-                print("update frequency" + str(1/self.averageLoop) + " Hz ")
+                print("update frequency: " + str(1/self.averageLoop) + " Hz ")
 
 
             #printing the robot location:
-            print("Location: ( " + str(self.xCurrent) + " , " + str(self.yCurrent) + " ), Angle: " + str(self.robotAngle) )
+            print("Location: ( " + str(self.xCurrent*100) + " , " + str(self.yCurrent*100) + " ), Angle: " + str(self.robotAngle) )
 
 
 

@@ -30,7 +30,7 @@ class kalman(subSystem):
     dt = 0.2  # in seconds, will be set automatically during runtime
     UKF = None
 
-    #random caching variables
+    # random caching variables
     vx_old = 0
 
     def __init__(self):
@@ -42,18 +42,18 @@ class kalman(subSystem):
         self.state = subSystemState.Started
         robot.Robot.kalmanState = self.state
         self.UKF.x = self.x
-        self.UKF.x = np.array([robot.Robot.startPos[0]/100,robot.Robot.startPos[1]/100,0,0,0])
-        #self.UKF.P = np.diag([0.05, 0.05, 0.01, 0.01, 1])
-        self.UKF.P *= 0.01 #TODO: kijken naar invloed van dit
+        self.UKF.x = np.array([robot.Robot.startPos[0] / 100, robot.Robot.startPos[1] / 100, 0, 0, 0])
+        # self.UKF.P = np.diag([0.05, 0.05, 0.01, 0.01, 1])
+        self.UKF.P *= 0.01  # TODO: kijken naar invloed van dit
         print("P: " + str(self.UKF.P))
-        #print(str(self.UKF.x))
+        # print(str(self.UKF.x))
         self.UKF.R = np.diag([0.117, 0.153])  # in meters
-        self.UKF.Q = np.diag([0.1,0.1,0.01,0.01,1])
-        print("Location Kalman start: ( " + str(self.UKF.x[0] ) + " , " + str(self.UKF.x[1] ) + " ) m")
+        self.UKF.Q = np.diag([0.1, 0.1, 0.01, 0.01, 1])
+        print("Location Kalman start: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m")
         print("Velocity Kalman start: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
 
     def update(self):
-        if(robot.Robot.runTime != 0):
+        if (robot.Robot.runTime != 0):
             self.measurement = np.array([robot.Robot.posXLocalization, robot.Robot.posYLocalization])
             self.dt = robot.Robot.loopTime
             _dt = self.dt
@@ -62,11 +62,13 @@ class kalman(subSystem):
             robot.Robot.kalmanState = self.state
             self.UKF.predict(_dt)
             self.UKF.update(_measurement)
-            #print("_measurement: " + str(_measurement))
+            # print("_measurement: " + str(_measurement))
             robot.Robot.xKalman = self.UKF.x[0]
             robot.Robot.yKalman = self.UKF.x[1]
-            #print("Location Kalman: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m" )
-            #print("Velocity Kalman: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
+            robot.Robot.robotAngle = np.degrees(self.UKF.x[4])
+            print("Location Kalman: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m")
+            print("Uncertainty Kalman: ( " + str(self.UKF.P[0][0]) + " , " + str(self.UKF.P[1][1]) + " ) m")
+            # print("Velocity Kalman: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
             robot.Robot.uncertaintyX = self.UKF.P[0][0]
             robot.Robot.uncertaintyY = self.UKF.P[1][1]
 
@@ -74,7 +76,7 @@ class kalman(subSystem):
         self.state = subSystemState.Stopped
         robot.Robot.kalmanState = self.state
 
-    def updateModel(self,state, _dt):
+    def updateModel(self, state, _dt):
         """
         This functions dives an estimate of the model at the next state.
         @param dt: time delta
@@ -85,26 +87,26 @@ class kalman(subSystem):
         # get angle for internal use
         _angle = state[4]
 
-        #for startup
+        # for startup
         if _dt > 1:
             _dt = 1
 
         # calculate velocity, used in several calculations
-        #print("_Vx in state matrix: " + str(state[2]))
+        # print("_Vx in state matrix: " + str(state[2]))
         _velocity = math.sqrt(math.pow(state[2], 2) + math.pow(state[3], 2))
-        #print("_velocity: " + str(_velocity))
+        # print("_velocity: " + str(_velocity))
 
         # calculate the forces on the robot and add them together
         _fa = mathFunctions.motor_to_force(robot.Robot.input_motor)  # TODO: implement braking/reverse?
-        #print("_fa: " + str(_fa))
+        # print("_fa: " + str(_fa))
 
         _fd = np.sign(_velocity) * (robot.Robot.b * np.abs(_velocity) + robot.Robot.c * np.power(_velocity, 2))
-        #print("_fd: " + str(_fd))
+        # print("_fd: " + str(_fd))
         _fres = _fa - _fd
 
         # calculate acceleration, based on Newton's second law
         _a = _fres / robot.Robot.mass
-        #print("_a: " + str(_a))
+        # print("_a: " + str(_a))
         # calculate new vx and vy
         _vX = (_velocity + _a * _dt) * math.sin(math.radians(_angle))
         _vY = (_velocity + _a * _dt) * math.cos(math.radians(_angle))
@@ -123,7 +125,6 @@ class kalman(subSystem):
             _w = 0
         _angle = _angle + _w * _dt
 
-
         # update to new state, only when t>0.2 for "reasons"
         _xNew = [[0], [0], [0], [0], [0]]
         # positions
@@ -132,12 +133,11 @@ class kalman(subSystem):
         # velocity
         _xNew[2] = _vX
         self.vx_old = _vX
-        #print("_vX: " + str(_vX))
+        # print("_vX: " + str(_vX))
         _xNew[3] = _vY
         # angle
         _xNew[4] = _angle
         return _xNew
-
 
     def state_mean(self, _sigmas, _Wm):
         """
@@ -159,5 +159,5 @@ class kalman(subSystem):
         x[4] = math.atan2(sum_sin, sum_cos)
         return x
 
-    def hx (self, x):
-        return np.array([x[0],x[1]])
+    def hx(self, x):
+        return np.array([x[0], x[1]])

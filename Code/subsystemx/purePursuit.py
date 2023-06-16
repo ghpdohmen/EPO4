@@ -21,7 +21,7 @@ class purePursuit(subSystem):
         self.x_location = 0
         self.y_location = 0
 
-        self.lookAheadDistance = 100  # in cm #FIXME: Albert ik ben er vrij zeker van dat dit veel te hoog is. oke maar was om te testen of t werkte
+        self.lookAheadDistance = 150  # in cm #FIXME: Albert ik ben er vrij zeker van dat dit veel te hoog is. oke maar was om te testen of t werkte
 
     def start(self):
         if (robot.Robot.operatingMode == robotMode.Manual) | (robot.Robot.operatingMode == robotMode.EStop):
@@ -32,11 +32,11 @@ class purePursuit(subSystem):
         robot.Robot.purePursuitState = self.state
 
     def intersections(self, _location_x, _location_y, _x1, _y1, _x2, _y2):
-        _point = Point(_location_x, _location_y)
+        _point = Point(_location_x*100, _location_y*100)
         _circle = _point.buffer(self.lookAheadDistance)
         _path = LineString([(_x1 - self.lookAheadDistance, _y1 - self.lookAheadDistance), (_x2+self.lookAheadDistance, _y2 + self.lookAheadDistance)])
         _intersection = _circle.intersection(_path)
-
+        #print(_point.coords.xy)
         if len(_intersection.coords) == 2:
             return np.array([(_intersection.coords[0]), (_intersection.coords[1])])
         elif len(_intersection.coords) == 1:
@@ -46,11 +46,11 @@ class purePursuit(subSystem):
 
 
 
-    def steeringAngle(self, _x_tp, _y_tp):  # TODO: bound toevoegen voor max steering angle
-        _alpha = np.arctan2((_x_tp - self.x_location), (_y_tp - self.y_location))
-        #print(np.degrees(_alpha))
-        _angle = np.arctan((2 * self.wheelbase * np.sin(_alpha)) / self.lookAheadDistance)
-        #print(_angle)
+    def steeringAngle(self, _x_tp, _y_tp):
+        _alpha = np.arctan2((_y_tp - self.y_location*100),(_x_tp - self.x_location*100))
+        print("Pure pursuit alpha: " + str(np.degrees(_alpha)))
+        _angle = np.arctan((2 * self.wheelbase*100 * np.sin(_alpha)) / self.lookAheadDistance)
+        print("Pure pursuit angle: " + str(np.degrees(_angle)))
 
         # return np.degrees(_angle) # this worked, idk about the bottom function
         return mathFunctions.angle_to_steer(np.degrees(_angle))
@@ -65,7 +65,8 @@ class purePursuit(subSystem):
             # print("in update")
             self.start_point = robot.Robot.startPos
             self.end_point = robot.Robot.endPos
-            print("Startpos:" + str(self.start_point) + ", Endpos: " + str(self.end_point))
+            #print("Startpos:" + str(self.start_point) + ", Endpos: " + str(self.end_point))
+            #print("Startpos split: " + str(self.start_point[0]) + ", " + str(self.start_point[1]))
             self.intersec_1 = \
                 self.intersections(self.x_location, self.y_location, self.start_point[0], self.start_point[1],
                                    self.end_point[0], self.end_point[1])[0]

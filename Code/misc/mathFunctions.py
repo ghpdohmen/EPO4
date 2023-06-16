@@ -33,10 +33,10 @@ def steer_to_angle(input: float, type: str) -> float:
         float: steering input as either degrees or radians
     """
     if type == "radian":
-        radian = (0.0077 * input) - 1.1549
+        radian = (-0.0077 * input) + 1.1549
         return radian
     elif type == "degree":
-        degree = (0.4432 * input) - 66.168
+        degree = (-0.4432 * input) + 66.168
         if np.absolute(degree) < 0.5:
             degree = 0  # added for small offset in model
         return degree
@@ -50,7 +50,7 @@ def angle_to_steer(input: float) -> int:
     :param input: angle in degrees
     :return: steering input for KITT
     """
-    steering_input = (input + 66.168)/0.4432
+    steering_input = (input - 66.168)/(-0.4432)
     if steering_input > 200:  # makes sure the returned input is within boundaries
         steering_input = 200
         return steering_input

@@ -3,7 +3,7 @@ from pyaudio import PyAudio, paInt16
 import numpy as np
 from scipy.fft import fft, ifft
 import itertools
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 import robot
 import pyaudio as audio
 from subsystemx.subsystem import subSystem
@@ -11,12 +11,13 @@ from subsystemx.subsystemStateEnum import subSystemState
 import math
 
 class LocalizationSubSystem(subSystem):
-    Fs = 44100
+    # Fs = 44100
+    Fs = 48000
     pyaudioHandle = None
     deviceIndex = 1
     durationRecording = 0.15
     i = 0
-    throwoutThreshold =  100 #in cm, if the difference between measurements is more than this then throw it out.
+    throwoutThreshold = 100 #in cm, if the difference between measurements is more than this then throw it out.
 
     def __init__(self):
         self.array = []
@@ -92,7 +93,7 @@ class LocalizationSubSystem(subSystem):
 
         # print(self.position_array)
 
-        # mics = self.microphone_array(self.deviceIndex, self.durationRecording)
+        mics = self.microphone_array(self.deviceIndex, self.durationRecording)
 
         # plt.plot(self.array[0, 0::2], self.array[0, 1::2])
         # np.savetxt(
@@ -100,8 +101,12 @@ class LocalizationSubSystem(subSystem):
         #         self.array, delimiter=",")
 
         # for j in range(1, 6):
+        #     plt.plot(mics[j - 1, 0], mics[j-1, 1])
+        #     plt.show()
+
+        # for j in range(1, 6):
         #     np.savetxt(
-        #         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_236x122_test_1_" + str(j) + ".csv",
+        #         r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_single_pulse_test_" + str(j) + ".csv",
         #         mics[j - 1], delimiter=",")
 
     def stop(self):
@@ -195,7 +200,7 @@ class LocalizationSubSystem(subSystem):
         # _mic_5 = _sample_axis_mic_5, _data_mic_5
 
         #zero-pad the recordings to a power of 2 for faster fft implementation
-        padding_length = 2048
+        padding_length = 8192
         _mic_1 = np.pad(_data_mic_1, (0, padding_length - len(_data_mic_1)), mode='constant')
         _mic_2 = np.pad(_data_mic_2, (0, padding_length - len(_data_mic_2)), mode='constant')
         _mic_3 = np.pad(_data_mic_3, (0, padding_length - len(_data_mic_3)), mode='constant')
