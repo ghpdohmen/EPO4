@@ -34,9 +34,9 @@ class purePursuit(subSystem):
     def intersections(self, _location_x, _location_y, _x1, _y1, _x2, _y2):
         _point = Point(_location_x*100, _location_y*100)
         _circle = _point.buffer(self.lookAheadDistance)
-        _path = LineString([(_x1 - self.lookAheadDistance, _y1 - self.lookAheadDistance), (_x2+self.lookAheadDistance, _y2 + self.lookAheadDistance)])
+        _path = LineString([(_x1, _y1), (_x2, _y2)])
         _intersection = _circle.intersection(_path)
-        #print(_point.coords.xy)
+
         if len(_intersection.coords) == 2:
             return np.array([(_intersection.coords[0]), (_intersection.coords[1])])
         elif len(_intersection.coords) == 1:
@@ -47,10 +47,10 @@ class purePursuit(subSystem):
 
 
     def steeringAngle(self, _x_tp, _y_tp):
-        _alpha = np.arctan2((_y_tp - self.y_location*100),(_x_tp - self.x_location*100))
-        print("Pure pursuit alpha: " + str(np.degrees(_alpha)))
+        _alpha = np.arctan2((_x_tp - self.x_location*100),(_y_tp - self.y_location*100))
+        print("Pure pursuit angle: " + str(np.degrees(_alpha)))
         _angle = np.arctan((2 * self.wheelbase*100 * np.sin(_alpha)) / self.lookAheadDistance)
-        print("Pure pursuit angle: " + str(np.degrees(_angle)))
+        print("Steering angle: " + str(np.degrees(_angle)))
 
         # return np.degrees(_angle) # this worked, idk about the bottom function
         return mathFunctions.angle_to_steer(np.degrees(_angle))
