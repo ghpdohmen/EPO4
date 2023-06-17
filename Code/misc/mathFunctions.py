@@ -34,6 +34,8 @@ def steer_to_angle(input: float, type: str) -> float:
     """
     if type == "radian":
         radian = (-0.0077 * input) + 1.1549
+        if np.abolute(radian) < 0.01:  #TODO: check whether this is okay
+            radian = 0
         return radian
     elif type == "degree":
         degree = (-0.4432 * input) + 66.168
