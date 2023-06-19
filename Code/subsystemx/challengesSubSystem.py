@@ -9,7 +9,7 @@ from subsystemx.subsystemStateEnum import subSystemState
 
 
 class challengesSubSystem(subSystem):
-    mode = 0            # initialisation of some variables which have to be updated
+    mode = 0  # initialisation of some variables which have to be updated
     x_location = 0
     y_location = 0
     challenge_complete = False
@@ -29,7 +29,8 @@ class challengesSubSystem(subSystem):
         self.challengeELeft = False
 
     def start(self):
-        if (robot.Robot.operatingMode == robotMode.Manual) | (robot.Robot.operatingMode ==  robotMode.EStop):  # check to make sure program only runs when needed
+        if (robot.Robot.operatingMode == robotMode.Manual) | (robot.Robot.operatingMode == robotMode.EStop):
+            # check to make sure the challenges are only excecuted when needed
             self.state = subSystemState.Stopped
         else:
             self.state = subSystemState.Started
@@ -53,6 +54,7 @@ class challengesSubSystem(subSystem):
                 pass
 
     def challengeA(self):
+        # TODO: tune this
         """
         the state machine for Challenge A
         :return:
@@ -62,6 +64,7 @@ class challengesSubSystem(subSystem):
 
         match self.stateA:
             case 0:
+                # Initial state
                 robot.Robot.startPos = self.ch_startPos
                 robot.Robot.endPos = self.ch_aEnd
                 print("Challenge A state 0")
@@ -70,18 +73,22 @@ class challengesSubSystem(subSystem):
                 print("State a: " + str(self.stateA))
 
             case 1:
+                # holding for 1 second to have the robot converge it's location estimate
                 print("waiting, state 1")
                 if (self.runtimeCheck + 1) <= robot.Robot.runTime:  # stands still for 10 seconds
                     self.stateA = 2
 
             case 2:
+                # start moving forward with pure pursuit
                 robot.Robot.input_motor = 160
                 print("Challenge A state 2")
                 self.stateA = 3
 
             case 3:
-                if mathFunctions.ish(self.x_location*100, self.ch_aEnd[0], 150) == True and mathFunctions.ish(self.y_location*100, self.ch_aEnd[1], 150) == True:
-                    #self.challenge_complete = True
+                # if we are within 1.5 meters of the goal, start slowing down
+                if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 150) == True and mathFunctions.ish(
+                        self.y_location * 100, self.ch_aEnd[1], 150) == True:
+                    # self.challenge_complete = True
                     print("slowing down")
                     robot.Robot.input_motor = 158  # stops once at destination
                     self.stateA = 4
@@ -89,8 +96,10 @@ class challengesSubSystem(subSystem):
                     print("state 3")
                     pass
             case 4:
-                if mathFunctions.ish(self.x_location*100, self.ch_aEnd[0], 100) == True and mathFunctions.ish(self.y_location*100, self.ch_aEnd[1], 100) == True:
-                    #self.challenge_complete = True
+                # if we re within a meter of the goal, turn off the motor
+                if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 100) == True and mathFunctions.ish(
+                        self.y_location * 100, self.ch_aEnd[1], 100) == True:
+                    # self.challenge_complete = True
                     print("slowing down")
                     robot.Robot.input_motor = 150  # stops once at destination
                     self.stateA = 5
@@ -99,7 +108,9 @@ class challengesSubSystem(subSystem):
                     pass
 
             case 5:
-                if mathFunctions.ish(self.x_location*100, self.ch_aEnd[0], 50) == True and mathFunctions.ish(self.y_location*100, self.ch_aEnd[1], 50) == True:
+                # if we are within 50 cm, reverse for 1 update cycle (approx 0.4 seconds)
+                if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 50) == True and mathFunctions.ish(
+                        self.y_location * 100, self.ch_aEnd[1], 50) == True:
                     print("slowing down")
                     robot.Robot.input_motor = 140  # stops once at destination
                     self.stateA = 6
@@ -108,6 +119,7 @@ class challengesSubSystem(subSystem):
                     pass
 
             case 6:
+                # Guess we are at our goal then.
                 print("arrived at destination, woohoo")
                 robot.Robot.input_motor = 150  # stops once at destination
                 self.challenge_complete = True
@@ -116,6 +128,7 @@ class challengesSubSystem(subSystem):
                 print("something went wrong in challenge A function")  # just in case
 
     def challengeB(self):
+        #TODO: tune this
         """
         state machine for challenge B
         :return:
@@ -126,6 +139,7 @@ class challengesSubSystem(subSystem):
 
         match self.stateB:
             case 0:
+                #Initial state
                 robot.Robot.startPos = self.ch_startPos
                 robot.Robot.endPos = self.ch_bMid
 
@@ -134,25 +148,29 @@ class challengesSubSystem(subSystem):
 
             case 1:
                 print("waiting")
+                #wait for a second to have the robot converge its location estimate
                 if (self.runtimeCheck + 1) <= robot.Robot.runTime:  # stands still for 10 seconds
                     self.stateB = 2
 
             case 2:
+                #start driving with pure pursuit enable
                 robot.Robot.input_motor = 160
                 self.stateB = 3
 
             case 3:
-                if mathFunctions.ish(self.x_location*100, self.ch_bMid[0], 150) == True and mathFunctions.ish(self.y_location*100, self.ch_bMid[1], 150) == True:
-                    #print("arrived at waypoint, woohoo")
+                #if we are withing 150cm of our waypount, slow down
+                if mathFunctions.ish(self.x_location * 100, self.ch_bMid[0], 150) == True and mathFunctions.ish(
+                        self.y_location * 100, self.ch_bMid[1], 150) == True:
                     robot.Robot.input_motor = 158
-                    #self.runtimeCheck = robot.Robot.runTime
+                    # self.runtimeCheck = robot.Robot.runTime
                     self.stateB = 4
                 else:
-                    #  print("cry time")
                     pass
 
             case 4:
-                if mathFunctions.ish(self.x_location * 100, self.ch_bMid[0], 100) == True and mathFunctions.ish(self.y_location * 100, self.ch_bMid[1], 100) == True:
+                #if we are within 100cm, turn off the motor
+                if mathFunctions.ish(self.x_location * 100, self.ch_bMid[0], 100) == True and mathFunctions.ish(
+                        self.y_location * 100, self.ch_bMid[1], 100) == True:
                     # print("arrived at waypoint, woohoo")
                     robot.Robot.input_motor = 150
                     # self.runtimeCheck = robot.Robot.runTime
@@ -162,7 +180,9 @@ class challengesSubSystem(subSystem):
                     pass
 
             case 5:
-                if mathFunctions.ish(self.x_location * 100, self.ch_bMid[0], 50) == True and mathFunctions.ish(self.y_location * 100, self.ch_bMid[1], 50) == True:
+                #if we are withing 50 cm, brake for 1 update cycle.
+                if mathFunctions.ish(self.x_location * 100, self.ch_bMid[0], 50) == True and mathFunctions.ish(
+                        self.y_location * 100, self.ch_bMid[1], 50) == True:
                     # print("arrived at waypoint, woohoo")
                     robot.Robot.input_motor = 140
                     # self.runtimeCheck = robot.Robot.runTime
@@ -172,21 +192,26 @@ class challengesSubSystem(subSystem):
                     pass
 
             case 6:
+                #we are probably there, let's stand still for 10 seconds
                 robot.Robot.input_motor = 150
                 if (self.runtimeCheck + 10) <= robot.Robot.runTime:  # stands still for 10 seconds
                     self.stateB = 7
 
             case 7:
+                #Resetting the path for the last bit
                 robot.Robot.startPos = self.ch_bMid  # sets new destination positions for second stint
                 robot.Robot.endPos = self.ch_bEnd
                 self.stateB = 8
 
             case 8:
+                #let's start driving again
                 robot.Robot.input_motor = 160
                 self.stateB = 9
 
             case 9:
-                if mathFunctions.ish(self.x_location*100, self.ch_bEnd[0], 150) == True and mathFunctions.ish(self.y_location*100, self.ch_bEnd[1], 150) == True:
+                #if we are within 150 cm slow down
+                if mathFunctions.ish(self.x_location * 100, self.ch_bEnd[0], 150) == True and mathFunctions.ish(
+                        self.y_location * 100, self.ch_bEnd[1], 150) == True:
 
                     robot.Robot.input_motor = 158  # stops once at destination
                     self.stateB = 10
@@ -196,7 +221,9 @@ class challengesSubSystem(subSystem):
                     pass
 
             case 10:
-                if mathFunctions.ish(self.x_location*100, self.ch_bEnd[0], 100) == True and mathFunctions.ish(self.y_location*100, self.ch_bEnd[1], 100) == True:
+                #if we are within 100 cm, turn off the motor
+                if mathFunctions.ish(self.x_location * 100, self.ch_bEnd[0], 100) == True and mathFunctions.ish(
+                        self.y_location * 100, self.ch_bEnd[1], 100) == True:
 
                     robot.Robot.input_motor = 150  # stops once at destination
                     self.stateB = 11
@@ -206,7 +233,9 @@ class challengesSubSystem(subSystem):
                     pass
 
             case 11:
-                if mathFunctions.ish(self.x_location*100, self.ch_bEnd[0], 50) == True and mathFunctions.ish(self.y_location*100, self.ch_bEnd[1], 50) == True:
+                #if we are within 50 cm, brake for 1 cycle
+                if mathFunctions.ish(self.x_location * 100, self.ch_bEnd[0], 50) == True and mathFunctions.ish(
+                        self.y_location * 100, self.ch_bEnd[1], 50) == True:
 
                     robot.Robot.input_motor = 140  # stops once at destination
                     self.stateB = 12
@@ -216,6 +245,7 @@ class challengesSubSystem(subSystem):
                     pass
 
             case 12:
+                #we should be at the waypoint now?
                 print("arrived at destination, woohoo")
                 robot.Robot.input_motor = 150
 
@@ -223,6 +253,7 @@ class challengesSubSystem(subSystem):
                 print("something went wrong in challenge B function")  # just in case
 
     def challengeE(self):
+        # TODO: finish this up.
         self.ch_startPos = robot.Robot.startPos
         self.ch_aEnd = robot.Robot.aEnd
 
@@ -255,9 +286,6 @@ class challengesSubSystem(subSystem):
             case 3:
                 if (self.runtimeCheck + 5) <= robot.Robot.runTime:  # after turning for 5 seconds, start pure pursuit
                     self.stateA = 4
-
-
-
 
             case 4:
                 if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 150) == True and mathFunctions.ish(
@@ -298,19 +326,18 @@ class challengesSubSystem(subSystem):
             case _:
                 print("something went wrong in challenge A function")  # just in case
 
-
     def update(self):
         if self.state == subSystemState.Running or subSystemState.Started:
             self.state = subSystemState.Running
 
             self.mode = robot.Robot.operatingMode
-            #print("RObot: " + str(robot.Robot.operatingMode))
+            # print("RObot: " + str(robot.Robot.operatingMode))
             self.x_location = robot.Robot.xCurrent  # gets the KITT position from robot.py, constantly updated
             print(self.x_location)
             self.y_location = robot.Robot.yCurrent
 
             self.whichChallenge()  # constantly update to check whether a challenge ahs been selected
-            #print("Challenge subsystem started")
+            # print("Challenge subsystem started")
 
         robot.Robot.challengesState = self.state
 

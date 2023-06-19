@@ -8,7 +8,9 @@ from tkinter import ttk
 import robot
 from misc.robotModeEnum import robotMode
 
-#This is the main program file for the EPO-4 project. This code handles the GUI and instatiates the robot, from which the entire program functions.
+
+# This is the main program file for the EPO-4 project. This code handles the GUI and instantiates the robot,
+# from which the entire program functions.
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ class App(tk.Frame):
     def stopRobot(self):
         self._robot.stop()
         self.enableRobot = False
-        
+
     def __init__(self):
         self._robot = robot.Robot(0, 0)
 
@@ -59,8 +61,6 @@ a = App()
 
 root = Tk()
 root.title("GUI for EPO4")
-
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # windows to display data
@@ -75,7 +75,6 @@ window["relief"] = "ridge"
 ssWindow = ttk.Frame(root, width=400, height=200)
 ssWindow["borderwidth"] = 4
 ssWindow["relief"] = "ridge"
-
 
 challengeWindow = ttk.Frame(root, width=400, height=200)
 challengeWindow["borderwidth"] = 4
@@ -94,6 +93,7 @@ canvas = FigureCanvasTkAgg(figure)
 canvas.draw()
 plot_button = tk.Button(text="plot", command=lambda: fig_plot(canvas))
 
+
 def fig_plot(canvas):
     fig.clear()
     _start = robot.Robot.startPos
@@ -103,7 +103,7 @@ def fig_plot(canvas):
     _x = np.array([0, 1, 2, 3, 4, 5])
     _y = np.array([5, 4, 3, 2, 1, 0])
     fig.set_xlim([0, 480])
-    fig.set_ylim({0,480})
+    fig.set_ylim({0, 480})
     fig.plot(_x, _y)
     fig.plot(_start[0], _start[1], marker='o', markeredgecolor='red', markerfacecolor='white')
     fig.plot(_a_end[0], _a_end[1], marker='o', markeredgecolor='red', markerfacecolor='white')
@@ -111,8 +111,9 @@ def fig_plot(canvas):
     fig.plot(_b_end[0], _b_end[1], marker='o', markeredgecolor='red', markerfacecolor='white')
     # add sum to limit axes to 0 x 480
     canvas.draw()
-# end graph
 
+
+# end graph
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -127,12 +128,14 @@ def program_selector():
     # print(robotMode(int(_step_2)))
     a.selectedRobotMode = robotMode(int(_step_2))
 
+
 l_programs = ["Manual", "Challenge A", "Challenge B", "Challenge C", "Challenge D", "Challenge E"]
 l_programsvar = StringVar(value=l_programs)
 lb_programs = Listbox(root, height=5, listvariable=l_programsvar)
 lb_programs.bind("<Double-Button-1>", lambda event: program_selector())
-# end listbox
 
+
+# end listbox
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -141,12 +144,14 @@ lb_programs.bind("<Double-Button-1>", lambda event: program_selector())
 # comport updater:
 def comport_updater():
     _number = comport_text.get('1.0', 'end')
-    _comport = "COM"+str(_number)
+    _comport = "COM" + str(_number)
     robot.Robot.COMport = _comport.split('\n')[0]
     print(robot.Robot.COMport)
 
+
 comport_text = Text(root, width=2, height=1)
 comport_text.insert('1.0', '4')
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 # updating challenge locations
@@ -157,19 +162,19 @@ def location_updater():
     _end_a = ([int(end_a_x.get('1.0', 'end').split('\n')[0]), int(end_a_y.get('1.0', 'end').split('\n')[0])])
     _mid_b = ([int(mid_b_x.get('1.0', 'end').split('\n')[0]), int(mid_b_y.get('1.0', 'end').split('\n')[0])])
     _end_b = ([int(end_b_x.get('1.0', 'end').split('\n')[0]), int(end_b_y.get('1.0', 'end').split('\n')[0])])
-    
+
     robot.Robot.startPos = _start
     robot.Robot.aEnd = _end_a
     robot.Robot.bMid = _mid_b
     robot.Robot.bEnd = _end_b
-    
+
     print(robot.Robot.startPos, _end_a, _mid_b, _end_b)
-    
+
 
 start_x = Text(challengeWindow, width=3, height=1)
 start_x.insert('1.0', '0')
 start_y = Text(challengeWindow, width=3, height=1)
-start_y.insert('1.0', '0')  
+start_y.insert('1.0', '0')
 
 end_a_x = Text(challengeWindow, width=3, height=1)
 end_a_x.insert('1.0', '0')
@@ -185,7 +190,6 @@ end_b_x = Text(challengeWindow, width=3, height=1)
 end_b_x.insert('1.0', '0')
 end_b_y = Text(challengeWindow, width=3, height=1)
 end_b_y.insert('1.0', '0')
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 # labels
@@ -261,8 +265,6 @@ a_end = ttk.Label(challengeWindow, text="End A:")
 b_mid = ttk.Label(challengeWindow, text="Mid B:")
 b_end = ttk.Label(challengeWindow, text="End B:")
 
-
-
 # ----------------------------------------------------------------------------------------------------------------------
 # buttons
 
@@ -275,7 +277,7 @@ button_stop = ttk.Button(root, text="DISABLE ROBOT", command=a.stopRobot)
 # emergency motor stop
 button_estop = ttk.Button(root, text="STOP MOTORS", command=a.estop)
 
-#comport button
+# comport button
 comport_button = ttk.Button(root, text="SET COMPORT", command=comport_updater)
 
 # location accept
@@ -291,11 +293,10 @@ root.bind("<d>", lambda event: a.m_right())
 # end buttons
 
 
-
 # ----------------------------------------------------------------------------------------------------------------------
 # grid
 
-#grid for everything
+# grid for everything
 window.grid(column=0, row=4)
 ssWindow.grid(column=4, row=0, rowspan=2)
 challengeWindow.grid(column=4, row=2, rowspan=2)
@@ -340,25 +341,24 @@ end_b_x.grid(column=1, row=3)
 end_b_y.grid(column=2, row=3)
 location_button.grid(column=0, row=4, columnspan=3)
 
-#graph
+# graph
 canvas.get_tk_widget().grid(column=0, row=0, columnspan=3, rowspan=3)
 plot_button.grid(column=1, row=4)
 
-#buttons
+# buttons
 button_start.grid(column=3, row=0)
 button_stop.grid(column=3, row=1)
 button_estop.grid(column=3, row=2)
 comport_button.grid(column=4, row=4)
 
-
-#selection
+# selection
 lb_programs.grid(column=3, row=4)
 
-#comport text
+# comport text
 comport_text.grid(column=5, row=4)
 
-# end grid
 
+# end grid
 
 
 # ----------------------------------------------------------------------------------------------------------------------
@@ -379,8 +379,9 @@ def gui_updater():
     # update robot and gui
     a.updateRobot()
     root.update()
-    
-    root.after(100, gui_updater) #updates itself after 100 ms
+
+    root.after(100, gui_updater)  # updates itself after 100 ms
+
 
 gui_updater()
 

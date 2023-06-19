@@ -41,6 +41,8 @@ class kalman(subSystem):
     def start(self):
         self.state = subSystemState.Started
         robot.Robot.kalmanState = self.state
+
+        # generate the kalman starting conditions
         self.UKF.x = self.x
         self.UKF.x = np.array([robot.Robot.startPos[0] / 100, robot.Robot.startPos[1] / 100, 0, 0, 0])
         # self.UKF.P = np.diag([0.05, 0.05, 0.01, 0.01, 1])
@@ -54,18 +56,23 @@ class kalman(subSystem):
 
     def update(self):
         if (robot.Robot.runTime != 0):
+            # gathering data
             self.measurement = np.array([robot.Robot.posXLocalization, robot.Robot.posYLocalization])
             self.dt = robot.Robot.loopTime
             _dt = self.dt
             _measurement = self.measurement
             self.state = subSystemState.Running
             robot.Robot.kalmanState = self.state
+
+            # kalman update
             self.UKF.predict(_dt)
             self.UKF.update(_measurement)
+
+            # update values of robot with the new values from kalmn
             # print("_measurement: " + str(_measurement))
             robot.Robot.xKalman = self.UKF.x[0]
             robot.Robot.yKalman = self.UKF.x[1]
-            robot.Robot.robotAngle = (np.degrees(self.UKF.x[4]))             #unCHANGED BY /2
+            robot.Robot.robotAngle = (np.degrees(self.UKF.x[4]))  # unCHANGED BY /2
             print("Location Kalman: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m")
             print("Uncertainty Kalman: ( " + str(self.UKF.P[0][0]) + " , " + str(self.UKF.P[1][1]) + " ) m")
             # print("Velocity Kalman: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
@@ -112,12 +119,14 @@ class kalman(subSystem):
         _vY = (_velocity + _a * _dt) * math.cos(math.radians(_angle))
 
         # get steering angle
-        _steeringAngle = mathFunctions.steer_to_angle(robot.Robot.input_servo, "degree") #TODO: bruh hzo gaan we van input naar degree
+        _steeringAngle = mathFunctions.steer_to_angle(robot.Robot.input_servo,
+                                                      "degree")  # TODO: bruh hzo gaan we van input naar degree
         _r = 0
-        #_steeringAngle = mathFunction.steer_to_angle(robot.Robot.input_servo, "radian") #TODO: kan ook gelijk naar radian?
+        # _steeringAngle = mathFunction.steer_to_angle(robot.Robot.input_servo, "radian") #TODO: kan ook gelijk naar radian?
         # calculate the new robot angle, based upon the steering angle
         if _steeringAngle != 0:
-            _r = robot.Robot.wheelBase / math.tan(math.radians(_steeringAngle))  # calculate turning radius #TODO: en dan naar degree to radian
+            _r = robot.Robot.wheelBase / math.tan(
+                math.radians(_steeringAngle))  # calculate turning radius #TODO: en dan naar degree to radian
         # print(self.r)
         # print(self.steeringAngle)
         if (_velocity != 0) & (_r != 0):

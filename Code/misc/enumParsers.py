@@ -1,7 +1,6 @@
 from misc.robotModeEnum import robotMode
 
 
-#TODO: rewrite as a switch statement
 def robotModeParser(i):
     """
     Parses an int to a robotmode
