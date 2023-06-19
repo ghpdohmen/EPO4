@@ -13,6 +13,7 @@ class challengesSubSystem(subSystem):
     x_location = 0
     y_location = 0
     challenge_complete = False
+    challenge_end = False
 
     def __init__(self):
         self.ch_startPos = []
@@ -27,6 +28,7 @@ class challengesSubSystem(subSystem):
         self.stateB = 12
         self.stateE = 0
         self.challengeELeft = False
+        # self.challenge_end = False
 
     def start(self):
         if (robot.Robot.operatingMode == robotMode.Manual) | (robot.Robot.operatingMode == robotMode.EStop):
