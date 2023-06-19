@@ -94,7 +94,7 @@ def microphone_array(device_index, duration_recording):
 # mic_plotter(True)
 
 
-# def data_saver(device_index, duration_recording):
+# def bit_string(_length):
 #     """
 #     Generates a random bit string with a given length
 #     @param _length: length of the bit string
@@ -102,11 +102,12 @@ def microphone_array(device_index, duration_recording):
 #     """
 #     _bit_string = ""
 #     for i in range(_length):
+#         # Generate a random bit (0 or 1)
 #         _bit = random.randint(0, 1)
+#         # Append the bit to the bit string
 #         _bit_string += str(_bit)
-#
 #     return _bit_string
-#
+# #
 # def gold_code(polynomial_1, polynomial_2, length):
 #     poly1 = [int(c) for c in polynomial_1]
 #     poly2 = [int(c) for c in polynomial_2]
@@ -139,8 +140,8 @@ def microphone_array(device_index, duration_recording):
 #     gold_str = ''.join(str(bit) for bit in gold)
 #
 #     return gold_str
-
-
+#
+#
 # def gold_code_generator(iterations, length_polynomials):
 #     gold_code_array = []
 #     cross_correlation = []
@@ -153,10 +154,8 @@ def microphone_array(device_index, duration_recording):
 #         gold_array = []
 #         for j in range(len(gold)):
 #             gold_array.append(gold[j])
-#         # print(gold_array)
 #
 #         gold_array_integer = [int(k) for k in gold_array]
-#         # print(gold_array_integer)
 #
 #         r = np.convolve(gold_array_integer, np.flip(gold_array_integer))
 #         second_peak = max(r[32::])
@@ -219,7 +218,7 @@ def ch3(y):
 
 def reference_array():
     reference_mic = np.loadtxt(
-        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic1_reference_final.csv",
+        r"E:\TU Delft\Github\EPO4\Code\References\mic1_reference_final.csv",
         delimiter=',')
     return reference_mic
 
@@ -503,11 +502,54 @@ def estimate_location(distance):
 # xy = estimate_location(tdoa(signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5))
 # print(xy)
 
-for i in range(1, 6):
-    signal_recorded = np.loadtxt(
-        r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\Square\Recording_single_pulse_test_" + str(i) + ".csv",
-        delimiter=',')
-    
-    # print(signal_recorded.shape)
-    plt.plot(signal_recorded[0], signal_recorded[1])
-    plt.show()
+# for i in range(1, 6):
+#     signal_recorded = np.loadtxt(
+#         r"E:\TU Delft\Github\EPO4\Code\Square\Recording_73x80.5_test_1_" + str(i) + ".csv",
+#         delimiter=',')
+#
+#     # print(signal_recorded.shape)
+#     plt.plot(signal_recorded[0], signal_recorded[1])
+#     plt.show()
+
+# signal_recorded_1 = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_73x80.5_test_1_4.csv",
+#     delimiter=',')
+#
+# signal_recorded_2 = np.loadtxt(r"E:\TU Delft\Github\EPO4\Code\Square\Recording_73x80.5_test_1_5.csv",
+#     delimiter=',')
+
+reference_signal = reference_array()
+# # print(signal_recorded.shape)
+# time = np.linspace(0, len(reference_signal[0])/Fs*1000, len(reference_signal[0]))
+# plt.plot(time, reference_signal[1]/max(reference_signal[1]))
+# plt.title("Modulated Gold Code")
+# plt.ylabel("Normalized Amplitude")
+# plt.xlabel("Time [ms]")
+# plt.savefig("modulated_gold_code.png")
+# plt.show()
+
+# hex_code = '0xEB3A994F'
+# binary_sequence = bin(int(hex_code, 16))[2:]
+# print(binary_sequence)
+#
+# # x = range(len(binary_sequence))
+# #
+# # # Create a list of y-coordinates for each bit (0 or 1)
+# y = [int(bit) for bit in binary_sequence]
+
+# print(y)
+
+cross_correlation = np.correlate(reference_signal[1], reference_signal[1], mode='full')
+
+# Generate the x-axis values for the cross-correlation plot
+x = np.arange(-len(reference_signal[0])+1, len(reference_signal[0]))
+
+# Plot the cross-correlation
+plt.plot(x, cross_correlation)
+plt.xlabel('Delay')
+plt.ylabel('Cross-Correlation')
+plt.title('Cross-Correlation of Binary Sequence')
+plt.savefig("cross-correlation_modulated_gold_code.png")
+plt.show()
+
+
+
