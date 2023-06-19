@@ -24,7 +24,7 @@ class challengesSubSystem(subSystem):
         self.runtimeCheck = 0
 
         self.stateA = 0
-        self.stateB = 0
+        self.stateB = 12
         self.stateE = 0
         self.challengeELeft = False
 
@@ -247,6 +247,7 @@ class challengesSubSystem(subSystem):
             case 12:
                 #we should be at the waypoint now?
                 print("arrived at destination, woohoo")
+                challenge_end = True
                 robot.Robot.input_motor = 150
 
             case _:

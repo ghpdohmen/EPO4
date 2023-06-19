@@ -4,6 +4,7 @@ import serial as serial
 import robot
 from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
+from subsystemx.challengesSubSystem import challengesSubSystem
 
 
 # communication subsystem. Handles all communication with KITT
@@ -56,6 +57,7 @@ class communicationSubSystem(subSystem):
         if self.state == subSystemState.ReadyForUpdate:
             self.state = subSystemState.Running
 
+
             #writes all audio commands
             # try writing everything at once
             if robot.Robot.speakerOn:
@@ -68,6 +70,11 @@ class communicationSubSystem(subSystem):
                 self.serial_port.write(
                     b'A0\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
                         str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n')
+
+            if challengesSubSystem.challenge_complete:
+                _repetition = (32).to_bytes(2, byteorder='big')
+                # _repetition = (31.25).to_bytes(2, byteorder='big')
+                self.serial_port.write(b'R' + _repetition + b'\n')
 
         # else if challengesSubSystem.challenge_complete == True:
         #     _repetition = (32).to_bytes(2, byteorder='big')
