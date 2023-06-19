@@ -71,9 +71,7 @@ class communicationSubSystem(subSystem):
             #         b'A0\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
             #             str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n')
 
-            challengesSubSystem.challenge_end = True
-
-            if challengesSubSystem.challenge_end:
+            if robot.Robot.challengesSubSystem.challenge_end:
                 print("het werkt wel")
                 # added from here:
                 _carrier = (6000).to_bytes(2, byteorder='big')
