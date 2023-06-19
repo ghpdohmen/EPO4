@@ -24,7 +24,7 @@ class Robot:
     xKalman = None
     uncertaintyX = 0 # in meters, updated from kalman filter
     uncertaintyY = 0 # in meters, updated from kalman filter
-    robotAngle = 90 # in degrees
+    robotAngle = 180 # in degrees
     speakerOn = False
 
     # challenge locations
@@ -60,7 +60,7 @@ class Robot:
     # output values
     input_motor = 150
     input_servo = 150
-    COMport = 'COM6'
+    COMport = 'COM4'
 
     # timing
     runTime = 0  # time since hitting start (in seconds)

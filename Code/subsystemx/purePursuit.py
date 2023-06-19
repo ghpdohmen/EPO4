@@ -80,8 +80,8 @@ class purePursuit(subSystem):
         """
         _alpha = np.arctan2((_x_tp - self.x_location * 100), (_y_tp - self.y_location * 100))
         print("Pure pursuit angle: " + str(np.degrees(_alpha)))
-        _angle = np.arctan((2 * self.wheelbase * 100 * np.sin(_alpha)) / self.lookAheadDistance)
-        print("Steering angle: " + str(np.degrees(_angle)))
+        _angle = np.arctan((2 * self.wheelbase * 100 * np.sin(_alpha - np.radians(robot.Robot.robotAngle))) / self.lookAheadDistance)
+        print("steer angle: " + str(np.degrees(_angle)))
 
         return mathFunctions.angle_to_steer(np.degrees(_angle))
 

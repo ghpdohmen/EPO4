@@ -17,7 +17,7 @@ class LocalizationSubSystem(subSystem):
     deviceIndex = 1
     durationRecording = 0.15
     i = 0
-    throwoutThreshold = 100 #in cm, if the difference between measurements is more than this then throw it out.
+    throwoutThreshold = 200 #in cm, if the difference between measurements is more than this then throw it out.
 
     def __init__(self):
         self.array = []
@@ -51,18 +51,25 @@ class LocalizationSubSystem(subSystem):
         _mic_1, _mic_2, _mic_3, _mic_4, _mic_5 = self.microphone_array(self.deviceIndex, self.durationRecording)
         # print("recording delay: " + str((time.time_ns() - previousTime) / math.pow(10, 9)))
 
-        previousTime = time.time_ns()
+        # previousTime = time.time_ns()
         distance = self.tdoa(_mic_1, _mic_2, _mic_3, _mic_4, _mic_5)
         # print(" estimate location delay: " + str((time.time_ns() - previousTime) / math.pow(10, 9)))
 
         # estimate location
-        previousTime = time.time_ns()
-        xy = self.estimate_location(distance)
+        # previousTime = time.time_ns()
+        xy = self.estimate_location_test(distance)
         # print("estimate location delay: " + str((time.time_ns() - previousTime)/math.pow(10, 9))) #todo: even kijken hoe lang dit is
 
         #handles misreads of the data, just keeps the old value then.
-        if (abs(xy[0]) >= 480) | (abs(xy[1]) >= 480):
+        #if (xy[0] > 480) | (xy[1] > 480) | (xy[0] < 0) | (xy[1] < 0):
+            #print("throwing out")
             # xy = self.position_array[0:2]
+            #xy[0] = self.position_array[0]
+            #xy[1] = self.position_array[1]
+
+        if (abs(xy[0])>500) or (abs(xy[1])>500) or (xy[0] < -50) or (xy[1] < -50):
+            print("throwing out")
+            xy = self.position_array[0:2]
             xy[0] = self.position_array[0]
             xy[1] = self.position_array[1]
 
@@ -165,50 +172,50 @@ class LocalizationSubSystem(subSystem):
 
         return _mic_1, _mic_2, _mic_3, _mic_4, _mic_5
 
-    def microphone_array_test(self, _device_index, _duration_recording):
-        """
-        Records audio and splits it in 5 samples
-        @param _device_index: Device index of the microphone controller. Depends on
-        @param _duration_recording: length of the recording
-        @return: returns samples of each of the 5 microphones
-        """
-        _number_of_samples = int(_duration_recording * self.Fs)  # np.round gebruiken
-
-        _pyaudio_handle = self.audio_devices(print_list=False)
-        _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=paInt16, rate=self.Fs,
-                                       input=True)
-
-        _samples = _stream.read(_number_of_samples)
-        _data = np.frombuffer(_samples, dtype='int16')
-
-        _data_mic_1 = _data[0::5]
-        _data_mic_2 = _data[1::5]
-        _data_mic_3 = _data[2::5]
-        _data_mic_4 = _data[3::5]
-        _data_mic_5 = _data[4::5]
-
-        # _sample_axis_mic_1 = np.linspace(0, _data_length, _data_length)
-        # _sample_axis_mic_2 = np.linspace(0, _data_length, _data_length)
-        # _sample_axis_mic_3 = np.linspace(0, _data_length, _data_length)
-        # _sample_axis_mic_4 = np.linspace(0, _data_length, _data_length)
-        # _sample_axis_mic_5 = np.linspace(0, _data_length, _data_length)
-
-        # _mic_1 = _sample_axis_mic_1, _data_mic_1
-        # _mic_2 = _sample_axis_mic_2, _data_mic_2
-        # _mic_3 = _sample_axis_mic_3, _data_mic_3
-        # _mic_4 = _sample_axis_mic_4, _data_mic_4
-        # _mic_5 = _sample_axis_mic_5, _data_mic_5
-
-        #zero-pad the recordings to a power of 2 for faster fft implementation
-        padding_length = 8192
-        _mic_1 = np.pad(_data_mic_1, (0, padding_length - len(_data_mic_1)), mode='constant')
-        _mic_2 = np.pad(_data_mic_2, (0, padding_length - len(_data_mic_2)), mode='constant')
-        _mic_3 = np.pad(_data_mic_3, (0, padding_length - len(_data_mic_3)), mode='constant')
-        _mic_4 = np.pad(_data_mic_4, (0, padding_length - len(_data_mic_4)), mode='constant')
-        _mic_5 = np.pad(_data_mic_5, (0, padding_length - len(_data_mic_5)), mode='constant')
-
-        return _data_mic_1, _data_mic_2, _data_mic_3, _data_mic_4, _data_mic_5
-        # return _mic_1, _mic_2, _mic_3, _mic_4, _mic_5
+    # def microphone_array_test(self, _device_index, _duration_recording):
+    #     """
+    #     Records audio and splits it in 5 samples
+    #     @param _device_index: Device index of the microphone controller. Depends on
+    #     @param _duration_recording: length of the recording
+    #     @return: returns samples of each of the 5 microphones
+    #     """
+    #     _number_of_samples = int(_duration_recording * self.Fs)  # np.round gebruiken
+    #
+    #     _pyaudio_handle = self.audio_devices(print_list=False)
+    #     _stream = _pyaudio_handle.open(input_device_index=_device_index, channels=5, format=paInt16, rate=self.Fs,
+    #                                    input=True)
+    #
+    #     _samples = _stream.read(_number_of_samples)
+    #     _data = np.frombuffer(_samples, dtype='int16')
+    #
+    #     _data_mic_1 = _data[0::5]
+    #     _data_mic_2 = _data[1::5]
+    #     _data_mic_3 = _data[2::5]
+    #     _data_mic_4 = _data[3::5]
+    #     _data_mic_5 = _data[4::5]
+    #
+    #     # _sample_axis_mic_1 = np.linspace(0, _data_length, _data_length)
+    #     # _sample_axis_mic_2 = np.linspace(0, _data_length, _data_length)
+    #     # _sample_axis_mic_3 = np.linspace(0, _data_length, _data_length)
+    #     # _sample_axis_mic_4 = np.linspace(0, _data_length, _data_length)
+    #     # _sample_axis_mic_5 = np.linspace(0, _data_length, _data_length)
+    #
+    #     # _mic_1 = _sample_axis_mic_1, _data_mic_1
+    #     # _mic_2 = _sample_axis_mic_2, _data_mic_2
+    #     # _mic_3 = _sample_axis_mic_3, _data_mic_3
+    #     # _mic_4 = _sample_axis_mic_4, _data_mic_4
+    #     # _mic_5 = _sample_axis_mic_5, _data_mic_5
+    #
+    #     #zero-pad the recordings to a power of 2 for faster fft implementation
+    #     padding_length = 8192
+    #     _mic_1 = np.pad(_data_mic_1, (0, padding_length - len(_data_mic_1)), mode='constant')
+    #     _mic_2 = np.pad(_data_mic_2, (0, padding_length - len(_data_mic_2)), mode='constant')
+    #     _mic_3 = np.pad(_data_mic_3, (0, padding_length - len(_data_mic_3)), mode='constant')
+    #     _mic_4 = np.pad(_data_mic_4, (0, padding_length - len(_data_mic_4)), mode='constant')
+    #     _mic_5 = np.pad(_data_mic_5, (0, padding_length - len(_data_mic_5)), mode='constant')
+    #
+    #     return _data_mic_1, _data_mic_2, _data_mic_3, _data_mic_4, _data_mic_5
+    #     # return _mic_1, _mic_2, _mic_3, _mic_4, _mic_5
 
     def ch3(self, y):
         """
@@ -240,7 +247,7 @@ class LocalizationSubSystem(subSystem):
         @return: Returns the reference recording as a 2-D array
         """
         reference_mic = np.loadtxt(
-            r"C:\Users\Djordi\OneDrive\Documents\Delft\Git\EPO4\Code\References\mic1_reference_final.csv",
+            r"C:\Users\guusd\Documents\GitHub\EPO4\Code\References\mic1_reference_final.csv",
             delimiter=',')
         return reference_mic
 
@@ -320,26 +327,60 @@ class LocalizationSubSystem(subSystem):
             distance_cm[i] = time[i] * 34300
         return distance_cm
 
-    def tdoa_test(self, signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
-        # Initialize channel estimates for all microphones
-        channels = [self.ch3(signal_recorded_1[1]), self.ch3(signal_recorded_2[1]), self.ch3(signal_recorded_3[1]),
-                    self.ch3(signal_recorded_4[1]), self.ch3(signal_recorded_5[1])]
+    # def tdoa_test(self, signal_recorded_1, signal_recorded_2, signal_recorded_3, signal_recorded_4, signal_recorded_5):
+    #     # Initialize channel estimates for all microphones
+    #     channels = [self.ch3(signal_recorded_1[1]), self.ch3(signal_recorded_2[1]), self.ch3(signal_recorded_3[1]),
+    #                 self.ch3(signal_recorded_4[1]), self.ch3(signal_recorded_5[1])]
+    #
+    #     # Find channel maximums and their corresponding sample value and take the first sample value
+    #     maxima = []
+    #     for channel in channels:
+    #         maxima.append(np.where(abs(channel) > 0.8 * max(abs(channel)))[0][0])
+    #
+    #     # Calculate distances of r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
+    #     distance = np.zeros(10)
+    #     idx = 0
+    #     for i in range(4):
+    #         for j in range(i + 1, 5):
+    #             distance[idx] = maxima[i] - maxima[j]
+    #             idx += 1
+    #
+    #     # Calculate the time differences and corresponding distances in cm
+    #     time = distance / self.Fs
+    #     distance_cm = time * 34300
+    #
+    #     return distance_cm
 
-        # Find channel maximums and their corresponding sample value and take the first sample value
-        maxima = []
-        for channel in channels:
-            maxima.append(np.where(abs(channel) > 0.8 * max(abs(channel)))[0][0])
+    def estimate_location_test(self, distance):
+        coordinates_mics = np.array([[0, 480], [480, 480], [480, 0], [0, 0], [0, 240]])
+        pairs = np.array(list(itertools.combinations([1, 2, 3, 4, 5], 2)))
+        # print(pairs)
+        # Create indexes for all microphone pairs
 
-        # Calculate distances of r12, r13, r14, r15, r23, r24, r25, r34, r35, r45
-        distance = np.zeros(10)
-        idx = 0
-        for i in range(4):
-            for j in range(i + 1, 5):
-                distance[idx] = maxima[i] - maxima[j]
-                idx += 1
+        # Initialize matrices A and B
+        A = np.zeros((10, 6))
+        B = np.zeros((10, 1))
 
-        # Calculate the time differences and corresponding distances in cm
-        time = distance / self.Fs
-        distance_cm = time * 34300
+        #Calculate all rows of the first column
+        first_column = np.zeros((10, 2))
+        for row, [i, j] in enumerate(pairs):
+            first_column[row] = (2 * (coordinates_mics[j-1] - coordinates_mics[i-1]))
+            A[row, 0:2] = first_column[row]
 
-        return distance_cm
+            #Calculate the -2r_xy of matrix A
+            A[row, j] = -2 * distance[row]
+
+            #Calculate matrix B
+            B[row] = pow(distance[row], 2) - pow(np.linalg.norm(coordinates_mics[i-1]), 2) + pow(np.linalg.norm(coordinates_mics[j-1]), 2)
+
+        #Calculate the pseudo inverse of matrix A
+        A_pinv = np.linalg.pinv(A)
+
+        #Calculate matrix y by taking the dot product of B with the pseudo inverse of A
+        y = np.dot(A_pinv, B)
+
+        #Take the first 2 rows of matrix Y and make them one-dimensional
+        xy = np.squeeze(y[0:2])
+        return(xy)
+
+    #21

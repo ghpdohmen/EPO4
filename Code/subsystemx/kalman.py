@@ -46,11 +46,11 @@ class kalman(subSystem):
         self.UKF.x = self.x
         self.UKF.x = np.array([robot.Robot.startPos[0] / 100, robot.Robot.startPos[1] / 100, 0, 0, 0])
         # self.UKF.P = np.diag([0.05, 0.05, 0.01, 0.01, 1])
-        self.UKF.P *= 0.01  # TODO: kijken naar invloed van dit
+        self.UKF.P *= 2  # TODO: kijken naar invloed van dit
         print("P: " + str(self.UKF.P))
         # print(str(self.UKF.x))
         self.UKF.R = np.diag([0.117, 0.153])  # in meters
-        self.UKF.Q = np.diag([0.1, 0.1, 0.01, 0.01, 1])
+        self.UKF.Q = np.diag([0.5, 0.5, 0.01, 0.01, 3])
         print("Location Kalman start: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m")
         print("Velocity Kalman start: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
 
@@ -130,7 +130,7 @@ class kalman(subSystem):
         # print(self.r)
         # print(self.steeringAngle)
         if (_velocity != 0) & (_r != 0):
-            _w = _velocity / _r  # calculate angular velocity
+            _w = _velocity / (4*_r)  # calculate angular velocity
         else:
             _w = 0
         _angle = _angle + _w * _dt
