@@ -107,8 +107,8 @@ class Robot:
         self.loggingSubSystem.start()
         self.distanceSensorSubSystem.start()
         self.challengesSubSystem.start()
-        # self.purePursuitSubSystem.start()
-        # self.localizationSubSystem.start()
+        self.purePursuitSubSystem.start()
+        self.localizationSubSystem.start()
         self.kalmanSubSystem.start()
         # printing the loop time, so we can optimize this via multithreading
         #print(self.loopTime)
@@ -123,7 +123,7 @@ class Robot:
             self.inputSubSystem.update()
             #self.modelSubSystem.update()
             #print("Runtime: " + str(self.runTime))
-            # self.localizationSubSystem.update()
+            self.localizationSubSystem.update()
             # self.distanceSensorSubSystem.update()
             self.kalmanSubSystem.update()
             self.xCurrent = self.xKalman
@@ -131,7 +131,7 @@ class Robot:
             robot.Robot.yCurrent = self.yKalman
             self.yCurrent = self.yKalman
             self.challengesSubSystem.update()
-            # self.purePursuitSubSystem.update()
+            self.purePursuitSubSystem.update()
             self.communicationSubSystem.update()
             self.loggingSubSystem.update()
 
@@ -159,6 +159,6 @@ class Robot:
         self.loggingSubSystem.stop()
         #self.modelSubSystem.stop()
         self.distanceSensorSubSystem.stop()
-        # self.purePursuitSubSystem.stop()
+        self.purePursuitSubSystem.stop()
         self.challengesSubSystem.stop()
         self.kalmanSubSystem.stop()

@@ -25,7 +25,7 @@ class challengesSubSystem(subSystem):
         self.runtimeCheck = 0
 
         self.stateA = 0
-        self.stateB = 12
+        self.stateB = 0
         self.stateE = 0
         self.challengeELeft = False
         # self.challenge_end = False
@@ -124,8 +124,8 @@ class challengesSubSystem(subSystem):
             case 6:
                 # Guess we are at our goal then.
                 print("arrived at destination, woohoo")
+                challenge_end = True
                 robot.Robot.input_motor = 150  # stops once at destination
-                self.challenge_complete = True
 
             case _:
                 print("something went wrong in challenge A function")  # just in case
