@@ -52,6 +52,8 @@ class challengesSubSystem(subSystem):
             case robotMode.ChallengeB:
                 #print("activating B")
                 self.challengeB()
+            case robotMode.ChallengeE:
+                self.challengeE()
             case _:
                 pass
 
@@ -88,8 +90,8 @@ class challengesSubSystem(subSystem):
 
             case 3:
                 # if we are within 1.5 meters of the goal, start slowing down
-                if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 150) == True and mathFunctions.ish(
-                        self.y_location * 100, self.ch_aEnd[1], 150) == True:
+                if mathFunctions.ish(robot.Robot.posXLocalization * 100, self.ch_aEnd[0], 150) == True and mathFunctions.ish(
+                        robot.Robot.posYLocalization * 100, self.ch_aEnd[1], 150) == True:
                     # self.challenge_complete = True
                     print("slowing down")
                     robot.Robot.input_motor = 150  # stops once at destination
@@ -99,8 +101,8 @@ class challengesSubSystem(subSystem):
                     pass
             case 4:
                 # if we re within a meter of the goal, turn off the motor
-                if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 75) == True and mathFunctions.ish(
-                        self.y_location * 100, self.ch_aEnd[1], 75) == True:
+                if mathFunctions.ish(robot.Robot.posXLocalization * 100, self.ch_aEnd[0], 75) == True and mathFunctions.ish(
+                        robot.Robot.posYLocalization* 100, self.ch_aEnd[1], 75) == True:
                     # self.challenge_complete = True
                     print("slowing down")
                     robot.Robot.input_motor = 140  # stops once at desti
@@ -112,8 +114,8 @@ class challengesSubSystem(subSystem):
 
             case 5:
                 # if we are within 50 cm, reverse for 1 update cycle (approx 0.4 seconds)
-                if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 50) == True and mathFunctions.ish(
-                        self.y_location * 100, self.ch_aEnd[1], 50) == True:
+                if mathFunctions.ish(robot.Robot.posXLocalization * 100, self.ch_aEnd[0], 50) == True and mathFunctions.ish(
+                        robot.Robot.posYLocalization * 100, self.ch_aEnd[1], 50) == True:
                     print("slowing down")
                     robot.Robot.input_motor = 150  # stops once at destination
                     self.stateA = 6
@@ -124,7 +126,7 @@ class challengesSubSystem(subSystem):
             case 6:
                 # Guess we are at our goal then.
                 print("arrived at destination, woohoo")
-                challenge_end = True
+                self.challenge_end = True
                 robot.Robot.input_motor = 150  # stops once at destination
 
             case _:
@@ -162,8 +164,8 @@ class challengesSubSystem(subSystem):
 
             case 3:
                 #if we are withing 150cm of our waypount, slow down
-                if mathFunctions.ish(self.x_location * 100, self.ch_bMid[0], 150) == True and mathFunctions.ish(
-                        self.y_location * 100, self.ch_bMid[1], 150) == True:
+                if mathFunctions.ish(robot.Robot.posXLocalization * 100, self.ch_bMid[0], 150) == True and mathFunctions.ish(
+                        robot.Robot.posYLocalization * 100, self.ch_bMid[1], 150) == True:
                     robot.Robot.input_motor = 158
                     # self.runtimeCheck = robot.Robot.runTime
                     self.stateB = 4
@@ -172,8 +174,8 @@ class challengesSubSystem(subSystem):
 
             case 4:
                 #if we are within 100cm, turn off the motor
-                if mathFunctions.ish(self.x_location * 100, self.ch_bMid[0], 100) == True and mathFunctions.ish(
-                        self.y_location * 100, self.ch_bMid[1], 100) == True:
+                if mathFunctions.ish(robot.Robot.posXLocalization * 100, self.ch_bMid[0], 100) == True and mathFunctions.ish(
+                        robot.Robot.posYLocalization * 100, self.ch_bMid[1], 100) == True:
                     # print("arrived at waypoint, woohoo")
                     robot.Robot.input_motor = 150
                     # self.runtimeCheck = robot.Robot.runTime
@@ -184,8 +186,8 @@ class challengesSubSystem(subSystem):
 
             case 5:
                 #if we are withing 50 cm, brake for 1 update cycle.
-                if mathFunctions.ish(self.x_location * 100, self.ch_bMid[0], 50) == True and mathFunctions.ish(
-                        self.y_location * 100, self.ch_bMid[1], 50) == True:
+                if mathFunctions.ish(robot.Robot.posXLocalization * 100, self.ch_bMid[0], 50) == True and mathFunctions.ish(
+                        robot.Robot.posYLocalization * 100, self.ch_bMid[1], 50) == True:
                     # print("arrived at waypoint, woohoo")
                     robot.Robot.input_motor = 140
                     self.runtimeCheck = robot.Robot.runTime
@@ -197,12 +199,13 @@ class challengesSubSystem(subSystem):
             case 6:
                 #we are probably there, let's stand still for 10 seconds
                 robot.Robot.input_motor = 150
+                print("position midpoint:" + str(robot.Robot.xCurrent) + " , " + str(robot.Robot.yCurrent))
                 if (self.runtimeCheck + 10) <= robot.Robot.runTime:  # stands still for 10 seconds
                     self.stateB = 7
 
             case 7:
                 #Resetting the path for the last bit
-                robot.Robot.startPos = [robot.Robot.xCurrent, robot.Robot.yCurrent]  # sets new destination positions for second stint
+                robot.Robot.startPos = [robot.Robot.posXLocalization * 100, robot.Robot.posYLocalization * 100]  # sets new destination positions for second stint
                 robot.Robot.endPos = self.ch_bEnd
                 self.stateB = 8
 
@@ -213,8 +216,8 @@ class challengesSubSystem(subSystem):
 
             case 9:
                 #if we are within 150 cm slow down
-                if mathFunctions.ish(self.x_location * 100, self.ch_bEnd[0], 150) == True and mathFunctions.ish(
-                        self.y_location * 100, self.ch_bEnd[1], 150) == True:
+                if mathFunctions.ish(robot.Robot.posXLocalization * 100, self.ch_bEnd[0], 150) == True and mathFunctions.ish(
+                        robot.Robot.posYLocalization * 100, self.ch_bEnd[1], 150) == True:
 
                     robot.Robot.input_motor = 158  # stops once at destination
                     self.stateB = 10
@@ -225,8 +228,8 @@ class challengesSubSystem(subSystem):
 
             case 10:
                 #if we are within 100 cm, turn off the motor
-                if mathFunctions.ish(self.x_location * 100, self.ch_bEnd[0], 75) == True and mathFunctions.ish(
-                        self.y_location * 100, self.ch_bEnd[1], 75) == True:
+                if mathFunctions.ish(robot.Robot.posXLocalization * 100, self.ch_bEnd[0], 75) == True and mathFunctions.ish(
+                        robot.Robot.posYLocalization * 100, self.ch_bEnd[1], 75) == True:
 
                     robot.Robot.input_motor = 150  # stops once at destination
                     self.stateB = 11
@@ -237,8 +240,8 @@ class challengesSubSystem(subSystem):
 
             case 11:
                 #if we are within 50 cm, brake for 1 cycle
-                if mathFunctions.ish(self.x_location * 100, self.ch_bEnd[0], 25) == True and mathFunctions.ish(
-                        self.y_location * 100, self.ch_bEnd[1], 25) == True:
+                if mathFunctions.ish(robot.Robot.posXLocalization * 100, self.ch_bEnd[0], 25) == True and mathFunctions.ish(
+                        robot.Robot.posYLocalization * 100, self.ch_bEnd[1], 25) == True:
 
                     robot.Robot.input_motor = 140  # stops once at destination
                     self.stateB = 12
@@ -250,7 +253,7 @@ class challengesSubSystem(subSystem):
             case 12:
                 #we should be at the waypoint now?
                 print("arrived at destination, woohoo")
-                challenge_end = True
+                self.challenge_end = True
                 robot.Robot.input_motor = 150
 
             case _:
@@ -267,11 +270,11 @@ class challengesSubSystem(subSystem):
                 robot.Robot.endPos = self.ch_aEnd
                 print("Challenge A state 0")
                 self.runtimeCheck = robot.Robot.runTime
-                self.stateE = 1
+                self.stateE = 2
 
             case 1:
                 print("waiting, state 1")
-                if (self.runtimeCheck + 1) <= robot.Robot.runTime:  # stands still for 1 second
+                if (self.runtimeCheck + 3) <= robot.Robot.runTime:  # stands still for 1 second
                     self.stateA = 2
 
             case 2:
@@ -288,20 +291,23 @@ class challengesSubSystem(subSystem):
                 self.runtimeCheck = robot.Robot.runTime
                 self.stateA = 3
             case 3:
+                print("Challenge E state 3")
                 if (self.runtimeCheck + 5) <= robot.Robot.runTime:  # after turning for 5 seconds, start pure pursuit
                     self.stateA = 4
+                if self.challengeELeft:
+                    robot.Robot.input_servo = 200
+                else:
+                    robot.Robot.input_servo = 100
+
 
             case 4:
-                if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 150) == True and mathFunctions.ish(
-                        self.y_location * 100, self.ch_aEnd[1], 150) == True:
-                    # self.challenge_complete = True
-                    print("slowing down")
-                    robot.Robot.input_motor = 158  # stops once at destination
-                    self.stateA = 4
-                else:
-                    print("state 3")
-                    pass
-            case 4:
+                # start moving forward with pure pursuit
+                robot.Robot.input_motor = 160
+                print("Challenge E state 4")
+                self.stateA = 4
+
+            case 5:
+                # if we are within 1.5 meters of the goal, start slowing down
                 if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 100) == True and mathFunctions.ish(
                         self.y_location * 100, self.ch_aEnd[1], 100) == True:
                     # self.challenge_complete = True
@@ -309,23 +315,37 @@ class challengesSubSystem(subSystem):
                     robot.Robot.input_motor = 150  # stops once at destination
                     self.stateA = 5
                 else:
-                    print("state 4")
+                    print("state 5")
+                    pass
+            case 6:
+                # if we re within a meter of the goal, turn off the motor
+                if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 50) == True and mathFunctions.ish(
+                        self.y_location * 100, self.ch_aEnd[1], 75) == True:
+                    # self.challenge_complete = True
+                    print("slowing down")
+                    robot.Robot.input_motor = 140  # stops once at desti
+                    # nation
+                    self.stateA = 6
+                else:
+                    print("state6")
                     pass
 
-            case 5:
+            case 7:
+                # if we are within 50 cm, reverse for 1 update cycle (approx 0.4 seconds)
                 if mathFunctions.ish(self.x_location * 100, self.ch_aEnd[0], 50) == True and mathFunctions.ish(
                         self.y_location * 100, self.ch_aEnd[1], 50) == True:
                     print("slowing down")
-                    robot.Robot.input_motor = 140  # stops once at destination
-                    self.stateA = 6
+                    robot.Robot.input_motor = 150  # stops once at destination
+                    self.stateA = 8
                 else:
-                    print("state 5")
+                    print("state 7")
                     pass
-
-            case 6:
+                robot.Robot.input_motor = 150
+            case 8:
+                # Guess we are at our goal then.
                 print("arrived at destination, woohoo")
+                self.challenge_end = True
                 robot.Robot.input_motor = 150  # stops once at destination
-                self.challenge_complete = True
 
             case _:
                 print("something went wrong in challenge A function")  # just in case
@@ -337,7 +357,6 @@ class challengesSubSystem(subSystem):
             self.mode = robot.Robot.operatingMode
             # print("RObot: " + str(robot.Robot.operatingMode))
             self.x_location = robot.Robot.xCurrent  # gets the KITT position from robot.py, constantly updated
-            print(self.x_location)
             self.y_location = robot.Robot.yCurrent
 
             self.whichChallenge()  # constantly update to check whether a challenge ahs been selected

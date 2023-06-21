@@ -1,4 +1,6 @@
 # holds all info of the robot and manages all subsystemx
+import math
+
 import robot
 from misc.robotModeEnum import robotMode
 from misc.robotStatusEnum import robotStatus
@@ -16,15 +18,16 @@ from subsystemx.timing import timeSubSystem
 
 class Robot:
     # current robot state
+    instance = None  # in case of issues with variable scope the current instance of the robot can be retrieved from this
     operatingMode = None
     status = robotStatus.Paused
-    xCurrent = None #in meters, updated from kalman filter
-    yCurrent = None #in meters, updated from kalman filter
+    xCurrent = None  # in meters, updated from kalman filter
+    yCurrent = None  # in meters, updated from kalman filter
     yKalman = None
     xKalman = None
-    uncertaintyX = 0 # in meters, updated from kalman filter
-    uncertaintyY = 0 # in meters, updated from kalman filter
-    robotAngle = 180 # in degrees
+    uncertaintyX = 0  # in meters, updated from kalman filter
+    uncertaintyY = 0  # in meters, updated from kalman filter
+    robotAngle = .5*math.pi  # in degrees
     speakerOn = False
 
     # challenge locations
@@ -32,8 +35,7 @@ class Robot:
     endPos = []
     aEnd = []
     bMid = []
-    bEnd  = []
-
+    bEnd = []
 
     # subsystem states
     communicationState = subSystemState.Stopped
@@ -47,20 +49,19 @@ class Robot:
     kalmanState = subSystemState.Stopped
     challengesState = subSystemState.Stopped
 
-
     # sensor values
-    distanceLeft = 0 #averaged over the last 5 cycles by distanceSensorSubSystem
+    distanceLeft = 0  # averaged over the last 5 cycles by distanceSensorSubSystem
     distanceLeftRaw = 0
-    distanceRight = 0 #averaged over the last 5 cycles by distanceSensorSubSystem
+    distanceRight = 0  # averaged over the last 5 cycles by distanceSensorSubSystem
     distanceRightRaw = 0
     batteryVoltage = 0
-    posXLocalization = 0 # in meters
-    posYLocalization = 0 # in meters
+    posXLocalization = 0  # in meters
+    posYLocalization = 0  # in meters
 
     # output values
     input_motor = 150
     input_servo = 150
-    COMport = 'COM4'
+    COMport = 'COM5'
 
     # timing
     runTime = 0  # time since hitting start (in seconds)
@@ -68,27 +69,26 @@ class Robot:
     averageLoop = 0.1
     index = 0
 
-    #robot constants
-    wheelBase = 0.335 #in meters
-    mass = 5.6 #in kg
-    faMax = 21 # in N #TODO: implement fa for different velocities
-    fbMax = -21 # in N #TODO: tune me!
-    b = 15 # Nm/s Viscous friction coefficient
-    c = 0.08 # Nm/s Air drag coefficient
-
+    # robot constants
+    wheelBase = 0.335  # in meters
+    mass = 5.6  # in kg
+    faMax = 21  # in N #TODO: implement fa for different velocities
+    fbMax = -21  # in N #TODO: tune me!
+    b = 15  # Nm/s Viscous friction coefficient
+    c = 0.08  # Nm/s Air drag coefficient
 
     def __init__(self, _xCurrent, _yCurrent):
+        robot.Robot.instance = self
         self.yCurrent = _yCurrent
         self.xCurrent = _xCurrent
         self.communicationSubSystem = communicationSubSystem()
         self.timeSubSystem = timeSubSystem()
         self.inputSubSystem = inputSubSystem()
         self.loggingSubSystem = csvLoggingSubsystem()
-        # self.localizationSubSystem = LocalizationSubSystem()
-        #self.modelSubSystem = modelSubSystem()
+        self.localizationSubSystem = LocalizationSubSystem()
         self.distanceSensorSubSystem = distanceSensorSubSystem()
         self.challengesSubSystem = challengesSubSystem()
-        # self.purePursuitSubSystem = purePursuit()
+        self.purePursuitSubSystem = purePursuit()
         self.kalmanSubSystem = kalman()
 
     # start all subsystemx
@@ -100,7 +100,6 @@ class Robot:
             print("no operating mode chosen")
             return
 
-
         self.communicationSubSystem.start(self.COMport)
         self.timeSubSystem.start()
         self.inputSubSystem.start()
@@ -111,18 +110,17 @@ class Robot:
         self.localizationSubSystem.start()
         self.kalmanSubSystem.start()
         # printing the loop time, so we can optimize this via multithreading
-        #print(self.loopTime)
+        # print(self.loopTime)
         self.status = robotStatus.Running
 
     # updates all subsystemx
     def update(self):
         if (self.status == robotStatus.Running) | (self.status == robotStatus.Paused) | (
                 self.status == robotStatus.Planning):
-            #print("update")
+            # print("update")
             self.timeSubSystem.update()
             self.inputSubSystem.update()
-            #self.modelSubSystem.update()
-            #print("Runtime: " + str(self.runTime))
+            # print("Runtime: " + str(self.runTime))
             self.localizationSubSystem.update()
             # self.distanceSensorSubSystem.update()
             self.kalmanSubSystem.update()
@@ -143,21 +141,18 @@ class Robot:
                     return
                 self.index += 1
                 self.averageLoop = self.averageLoop + (self.loopTime - self.averageLoop) / self.index
-                #print("average loop time:" + str(self.averageLoop) + " s")
-                print("update frequency: " + str(1/self.averageLoop) + " Hz ")
+                # print("average loop time:" + str(self.averageLoop) + " s")
+                print("update frequency: " + str(1 / self.averageLoop) + " Hz ")
 
-
-            #printing the robot location:
-            print("Location: ( " + str(self.xCurrent*100) + " , " + str(self.yCurrent*100) + " ), Angle: " + str(self.robotAngle) )
-
-
+            # printing the robot location:
+            print("Location: ( " + str(self.xCurrent * 100) + " , " + str(self.yCurrent * 100) + " ), Angle: " + str(
+                self.robotAngle))
 
     def stop(self):
         self.communicationSubSystem.stop()
         self.timeSubSystem.stop()
         self.inputSubSystem.stop()
         self.loggingSubSystem.stop()
-        #self.modelSubSystem.stop()
         self.distanceSensorSubSystem.stop()
         self.purePursuitSubSystem.stop()
         self.challengesSubSystem.stop()

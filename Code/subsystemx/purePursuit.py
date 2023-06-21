@@ -23,7 +23,7 @@ class purePursuit(subSystem):
         self.x_location = 0
         self.y_location = 0
 
-        self.lookAheadDistance = 150  # the radius of the circle used to calculate the target point. the look ahead distance.
+        self.lookAheadDistance = 100  # the radius of the circle used to calculate the target point. the look ahead distance.
 
     def start(self):
         if (robot.Robot.operatingMode == robotMode.Manual) | (robot.Robot.operatingMode == robotMode.EStop):
@@ -79,9 +79,9 @@ class purePursuit(subSystem):
             _steering_angle: steering in put for KITT between 100 and 200
         """
         _alpha = np.arctan2((_x_tp - self.x_location * 100), (_y_tp - self.y_location * 100))
-        print("Pure pursuit angle: " + str(np.degrees(_alpha)))
+        #print("Pure pursuit angle: " + str(np.degrees(_alpha)))
         _angle = np.arctan((2 * self.wheelbase * 100 * np.sin(_alpha - np.radians(robot.Robot.robotAngle))) / self.lookAheadDistance)
-        print("steer angle: " + str(np.degrees(_angle)))
+        #print("steer angle: " + str(np.degrees(_angle)))
 
         return mathFunctions.angle_to_steer(np.degrees(_angle))
 

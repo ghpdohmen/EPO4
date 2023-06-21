@@ -44,15 +44,15 @@ class kalman(subSystem):
 
         # generate the kalman starting conditions
         self.UKF.x = self.x
-        self.UKF.x = np.array([robot.Robot.startPos[0] / 100, robot.Robot.startPos[1] / 100, 0, 0, 0])
+        self.UKF.x = np.array([robot.Robot.startPos[0] / 100, robot.Robot.startPos[1] / 100, 0, 0, robot.Robot.robotAngle])
         # self.UKF.P = np.diag([0.05, 0.05, 0.01, 0.01, 1])
-        self.UKF.P *= 2  # TODO: kijken naar invloed van dit
-        print("P: " + str(self.UKF.P))
+        self.UKF.P *= 2
+        #print("P: " + str(self.UKF.P))
         # print(str(self.UKF.x))
         self.UKF.R = np.diag([0.117, 0.153])  # in meters
         self.UKF.Q = np.diag([0.5, 0.5, 0.01, 0.01, 3])
-        print("Location Kalman start: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m")
-        print("Velocity Kalman start: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
+        #print("Location Kalman start: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m")
+        #print("Velocity Kalman start: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
 
     def update(self):
         if (robot.Robot.runTime != 0):
@@ -72,9 +72,9 @@ class kalman(subSystem):
             # print("_measurement: " + str(_measurement))
             robot.Robot.xKalman = self.UKF.x[0]
             robot.Robot.yKalman = self.UKF.x[1]
-            robot.Robot.robotAngle = (np.degrees(self.UKF.x[4]))  # unCHANGED BY /2
-            print("Location Kalman: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m")
-            print("Uncertainty Kalman: ( " + str(self.UKF.P[0][0]) + " , " + str(self.UKF.P[1][1]) + " ) m")
+            robot.Robot.robotAngle = (np.degrees(self.UKF.x[4]))
+            #print("Location Kalman: ( " + str(self.UKF.x[0]) + " , " + str(self.UKF.x[1]) + " ) m")
+            #print("Uncertainty Kalman: ( " + str(self.UKF.P[0][0]) + " , " + str(self.UKF.P[1][1]) + " ) m")
             # print("Velocity Kalman: ( " + str(self.UKF.x[2]) + " , " + str(self.UKF.x[3]) + " ) m/s")
             robot.Robot.uncertaintyX = self.UKF.P[0][0]
             robot.Robot.uncertaintyY = self.UKF.P[1][1]
@@ -131,9 +131,11 @@ class kalman(subSystem):
         # print(self.steeringAngle)
         if (_velocity != 0) & (_r != 0):
             _w = _velocity / (4*_r)  # calculate angular velocity
+            #print("angular velocity: " + str(_w))
         else:
             _w = 0
         _angle = _angle + _w * _dt
+        #print("angle: " + str(_angle))
 
         # update to new state, only when t>0.2 for "reasons"
         _xNew = [[0], [0], [0], [0], [0]]

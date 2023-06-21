@@ -57,22 +57,8 @@ class communicationSubSystem(subSystem):
         if self.state == subSystemState.ReadyForUpdate:
             self.state = subSystemState.Running
 
-
-            # #writes all audio commands
-            # # try writing everything at once
-            # if robot.Robot.speakerOn:
-            #     #print("writing speaker on")
-            #     self.serial_port.write(
-            #         b'A1\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
-            #             str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n') #+
-            # else:
-            #     #print("writing speaker off")
-            #     self.serial_port.write(
-            #         b'A0\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
-            #             str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n')
-
-            if robot.Robot.challengesSubSystem.challenge_end:
-                print("het werkt wel")
+            if robot.Robot.instance.challengesSubSystem.challenge_end:
+                # print("het werkt wel")
                 # added from here:
                 _carrier = (6000).to_bytes(2, byteorder='big')
                 self.serial_port.write(b'F' + _carrier + b'\n')
@@ -89,7 +75,7 @@ class communicationSubSystem(subSystem):
                 # writes all audio commands
                 # try writing everything at once
                 if robot.Robot.speakerOn:
-                    # print("writing speaker on")
+                    #print("writing speaker on")
                     self.serial_port.write(
                         b'A1\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
                             str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n')  # +
@@ -101,7 +87,7 @@ class communicationSubSystem(subSystem):
 
 
             else:
-                print("het werkt niet")
+                #print("het werkt niet")
                 # writes all audio commands
                 # try writing everything at once
                 if robot.Robot.speakerOn:
@@ -115,25 +101,6 @@ class communicationSubSystem(subSystem):
                         b'A0\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
                             str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n')
 
-        # else if challengesSubSystem.challenge_complete == True:
-        #     _repetition = (32).to_bytes(2, byteorder='big')
-        #     self.serial_port.write(b'R' + _repetition + b'\n')
-
-        #     if self.state == subSystemState.ReadyForUpdate:
-        #         self.state = subSystemState.Running
-        #
-        #         # writes all audio commands
-        #         # try writing everything at once
-        #         if robot.Robot.speakerOn:
-        #             # print("writing speaker on")
-        #             self.serial_port.write(
-        #                 b'A1\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
-        #                     str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n')  # +
-        #         else:
-        #             # print("writing speaker off")
-        #             self.serial_port.write(
-        #                 b'A0\n' + b'M' + bytes(str(robot.Robot.input_motor), 'ascii') + b'\n' + b'D' + bytes(
-        #                     str(robot.Robot.input_servo), 'ascii') + b'\n' + b'S\n')
 
             # start sending the data and set our state to WaitingForData, which we will stay in until the packet is
             # complete

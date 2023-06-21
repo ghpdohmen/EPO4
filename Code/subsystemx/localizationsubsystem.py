@@ -27,7 +27,7 @@ class LocalizationSubSystem(subSystem):
     def start(self):
         self.state = subSystemState.Started
         robot.Robot.localizationState = self.state
-        print("startpos:" + str(robot.Robot.startPos))
+        #print("startpos:" + str(robot.Robot.startPos))
         # self.position_array[0], self.position_array[1] = robot.Robot.startPos[0], robot.Robot.startPos[1]
         self.position_array[0:2] = robot.Robot.startPos[0:2]
         # self.pyaudioHandle = self.audio_devices(print_list=True)
