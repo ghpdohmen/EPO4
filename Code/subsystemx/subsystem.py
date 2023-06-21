@@ -1,4 +1,4 @@
-# prototype for all subsystemx
+# prototype for all subsystems
 from subsystemx.subsystemStateEnum import subSystemState
 
 

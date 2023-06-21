@@ -6,7 +6,7 @@ from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
 
 
-# TODO: comments toevoegen
+
 class csvLoggingSubsystem(subSystem):
     """
     This subsystem is used for constantly writing the current state to a .csv file for debugging purposes
@@ -36,4 +36,4 @@ class csvLoggingSubsystem(subSystem):
         self.state = subSystemState.Stopped
         robot.Robot.loggingState = self.state
         print("Closing CSV")
-        self.file.close()
+        self.file.close() #if we don't close the writer the files isn't saved

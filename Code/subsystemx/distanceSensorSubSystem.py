@@ -8,7 +8,7 @@ from subsystemx.subsystem import subSystem
 from subsystemx.subsystemStateEnum import subSystemState
 
 
-#TODO: test if this works
+
 class distanceSensorSubSystem(subSystem):
     """"
     This class is responsible for keeping track of a moving mean of the distance sensor measurements.

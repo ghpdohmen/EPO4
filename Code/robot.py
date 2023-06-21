@@ -1,4 +1,4 @@
-# holds all info of the robot and manages all subsystemx
+# holds all info of the robot and manages all subsystems
 import math
 
 import robot
@@ -73,7 +73,7 @@ class Robot:
     wheelBase = 0.335  # in meters
     mass = 5.6  # in kg
     faMax = 21  # in N #TODO: implement fa for different velocities
-    fbMax = -21  # in N #TODO: tune me!
+    fbMax = -21  # in N
     b = 15  # Nm/s Viscous friction coefficient
     c = 0.08  # Nm/s Air drag coefficient
 
@@ -113,8 +113,12 @@ class Robot:
         # print(self.loopTime)
         self.status = robotStatus.Running
 
-    # updates all subsystemx
+
     def update(self):
+        """
+        This function updates all the subsystems on the robot
+        @return:
+        """
         if (self.status == robotStatus.Running) | (self.status == robotStatus.Paused) | (
                 self.status == robotStatus.Planning):
             # print("update")
